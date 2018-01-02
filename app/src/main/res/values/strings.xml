@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">personalreminder</string>
+    <string name="share_url">Lembrete URL</string>
+    <string name="filter">Filtro</string>
+    <string name="location">Localização</string>
+    <string name="time">Tempo</string>
+    <string name="selectWifi">Selecionar rede Wifi</string>
+    <string name="selectBluetooth">Selecionar disposítivo Bluetooth</string>
 </resources>

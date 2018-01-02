@@ -1,19 +1,15 @@
-package com.ragabuza.personalreminder.Adapter
+package com.ragabuza.personalreminder.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.RelativeLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.adapters.BaseSwipeAdapter
-import com.ragabuza.personalreminder.Model.Reminder
+import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.R
-import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl
-
+import com.ragabuza.personalreminder.model.ReminderType
 
 
 /**
@@ -37,13 +33,29 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         val reminder: Reminder = reminders[position]
 
-        convertView?.findViewById<TextView>(R.id.tvName)?.text = reminder.reminder.toString()
+        convertView?.findViewById<TextView>(R.id.tvName)?.text = reminder.reminder
 
-        convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener{
-            Toast.makeText(context, "deletou eita", Toast.LENGTH_LONG).show()
+        val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
+        when(reminder.type){
+            ReminderType.WIFI -> iconElement?.setImageResource(R.drawable.ic_wifi)
+            ReminderType.BLUETOOTH -> iconElement?.setImageResource(R.drawable.ic_bluetooth)
+            ReminderType.LOCATION -> iconElement?.setImageResource(R.drawable.ic_location)
+            ReminderType.TIME -> iconElement?.setImageResource(R.drawable.ic_time)
         }
 
 
+        convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
+            Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
+        }
+
+        val swipe = convertView?.findViewById<SwipeLayout>(R.id.slReminders)
+
+        swipe?.setOnClickListener{
+            if(!isOpen(position))
+                swipe.open()
+            else
+                swipe.close()
+        }
     }
 
     override fun getItem(p0: Int): Any {
