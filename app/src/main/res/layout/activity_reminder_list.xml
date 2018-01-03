@@ -17,6 +17,9 @@
         android:layout_height="wrap_content">
         <Button
             android:visibility="gone"
+            android:drawablePadding="4dp"
+            android:drawableTint="@android:color/white"
+            android:text="feafaewfawf"
             android:id="@+id/btClipboard"
             android:textColor="#FFFFFF"
             android:textAllCaps="false"

@@ -19,6 +19,7 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.widget.Toast
 
 
 class ReminderList : AppCompatActivity() {
@@ -120,6 +121,15 @@ class ReminderList : AppCompatActivity() {
                 spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length,spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btClipboard.text = spannable
             }
+
+            val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
+
+            val img = this.getResources().getDrawable(R.drawable.ic_link)
+
+            if (clip.toString().matches(regex))
+                btClipboard.setCompoundDrawables(img, null, null, null)
+            else
+                btClipboard.setCompoundDrawables(null, null, null, null)
         } else {
             btClipboard.visibility = View.GONE
         }
