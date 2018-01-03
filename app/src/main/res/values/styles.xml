@@ -9,5 +9,4 @@
         <item name="android:colorBackground">@color/background_md</item>
         <item name="android:colorForeground">@color/foreground_md</item>
     </style>
-
 </resources>

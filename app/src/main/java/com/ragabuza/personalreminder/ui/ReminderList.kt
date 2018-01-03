@@ -2,6 +2,7 @@ package com.ragabuza.personalreminder.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.ClipboardManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.DatePicker
@@ -12,12 +13,15 @@ import kotlinx.android.synthetic.main.activity_reminder_list.*
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
 import java.util.*
-import android.support.v4.app.ShareCompat.IntentBuilder
-
+import android.view.View
+import android.content.Context
+import android.graphics.Typeface
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StyleSpan
 
 
 class ReminderList : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +34,8 @@ class ReminderList : AppCompatActivity() {
 //        this.supportActionBar?.setDisplayUseLogoEnabled(true)
 //        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //        this.supportActionBar?.setHomeAsUpIndicator(R.drawable.bitcoin_clock)
+
+        clipShow()
 
         val reminders = listOf<Reminder>(
                 Reminder(1, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
@@ -87,9 +93,36 @@ class ReminderList : AppCompatActivity() {
 
     override fun onResume(){
         super.onResume()
-
-
-
-
+        clipShow()
     }
+
+    fun clipShow(){
+
+        val sharedPref = getPreferences(Context.MODE_PRIVATE)
+        val editor = sharedPref.edit()
+
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+        var clip = clipboard.primaryClip.getItemAt(0).text
+
+        if (!clipboard.primaryClip.getItemAt(0).text.isEmpty() && clipboard.primaryClip.getItemAt(0).text.toString() != sharedPref.getString("clip", "")) {
+            editor.putString("clip" ,clip.toString())
+            editor.apply()
+            btClipboard.visibility = View.VISIBLE
+            clip = clipboard.primaryClip.getItemAt(0).text
+            if (clip.length > 150) {
+                val spannable = SpannableString("${getString(R.string.clipboard)}\n\"${clip.subSequence(0, 150)}...\"")
+                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length,spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btClipboard.text = spannable
+            }
+            else {
+                val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
+                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length,spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                btClipboard.text = spannable
+            }
+        } else {
+            btClipboard.visibility = View.GONE
+        }
+    }
+
 }
