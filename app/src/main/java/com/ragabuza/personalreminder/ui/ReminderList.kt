@@ -23,11 +23,13 @@ class ReminderList : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
 
+        fabMenu.setClosedOnTouchOutside(true)
+
+
         this.supportActionBar!!.title = "Lembretes"
 //        this.supportActionBar?.setDisplayUseLogoEnabled(true)
 //        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //        this.supportActionBar?.setHomeAsUpIndicator(R.drawable.bitcoin_clock)
-
 
         val reminders = listOf<Reminder>(
                 Reminder(1, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
@@ -40,6 +42,7 @@ class ReminderList : AppCompatActivity() {
         val adapter = ReminderAdapter(this, mutAlarms)
         lvRemind.adapter = adapter
 
+        fabMenu.setOnClickListener { adapter.closeAllItems() }
         lvRemind.setOnItemClickListener { adapterView, view, i, l ->
             adapter.closeAllItems()
         }

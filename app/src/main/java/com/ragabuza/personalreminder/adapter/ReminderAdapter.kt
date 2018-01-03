@@ -47,14 +47,17 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
         }
+        convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.setOnClickListener {
+            android.widget.Toast.makeText(context, "Edited", android.widget.Toast.LENGTH_SHORT).show()
+        }
 
         val swipe = convertView?.findViewById<SwipeLayout>(R.id.slReminders)
 
-        swipe?.setOnClickListener{
+        convertView?.findViewById<LinearLayout>(R.id.llUpper)?.setOnClickListener{
             if(!isOpen(position))
-                swipe.open()
+                swipe?.open()
             else
-                swipe.close()
+                swipe?.close()
         }
     }
 
