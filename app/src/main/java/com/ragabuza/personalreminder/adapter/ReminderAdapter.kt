@@ -1,6 +1,7 @@
 package com.ragabuza.personalreminder.adapter
 
 import android.content.Context
+import android.net.ConnectivityManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,7 @@ import com.ragabuza.personalreminder.model.ReminderType
 /**
  * Created by diego.moyses on 12/28/2017.
  */
-class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>): BaseSwipeAdapter() {
+class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>, connManager: ConnectivityManager): BaseSwipeAdapter() {
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
     }

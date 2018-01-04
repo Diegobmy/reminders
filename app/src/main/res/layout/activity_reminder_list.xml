@@ -18,6 +18,7 @@
         <Button
             android:visibility="gone"
             android:drawablePadding="4dp"
+            android:drawableLeft="@drawable/ic_link"
             android:drawableTint="@android:color/white"
             android:text="feafaewfawf"
             android:id="@+id/btClipboard"

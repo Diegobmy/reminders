@@ -36,18 +36,28 @@ class DialogAdapter(val context: Context, val type: String) {
         if (type == "W"){
             title.text = context.getString(R.string.selectWifi)
             val wifiService: WifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            wifiService.configuredNetworks.forEach { web ->
-                adapter.add(web.SSID.toString().substring(1,web.SSID.toString().length-1))
-            }
-            wifiService.scanResults.forEach { web ->
-                adapter.add(web.SSID.toString().substring(1,web.SSID.toString().length-1))
+            if (wifiService.isWifiEnabled) {
+                wifiService.configuredNetworks.forEach { web ->
+                    adapter.add(web.SSID.toString().substring(1, web.SSID.toString().length - 1))
+                }
+                wifiService.scanResults.forEach { web ->
+                    adapter.add(web.SSID.toString().substring(1, web.SSID.toString().length - 1))
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.turnOnWiFi), Toast.LENGTH_LONG).show()
+                return
             }
         } else if(type == "B"){
             title.text = context.getString(R.string.selectBluetooth)
             val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            val pairedDevices = bluetoothAdapter.bondedDevices
-            pairedDevices.forEach { blue ->
-                adapter.add(blue.name)
+            if (bluetoothAdapter.isEnabled) {
+                val pairedDevices = bluetoothAdapter.bondedDevices
+                pairedDevices.forEach { blue ->
+                    adapter.add(blue.name)
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.turnOnBluetooth), Toast.LENGTH_LONG).show()
+                return
             }
         }
 

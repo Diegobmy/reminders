@@ -19,6 +19,7 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
+import android.net.ConnectivityManager
 import android.widget.Toast
 
 
@@ -44,9 +45,9 @@ class ReminderList : AppCompatActivity() {
                 Reminder(3, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(4, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
         )
-
+        val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mutAlarms = reminders.toMutableList()
-        val adapter = ReminderAdapter(this, mutAlarms)
+        val adapter = ReminderAdapter(this, mutAlarms, connManager)
         lvRemind.adapter = adapter
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
@@ -55,10 +56,10 @@ class ReminderList : AppCompatActivity() {
         }
 
         fabBluetooth.setOnClickListener {
-            DialogAdapter(this, "B").show()
+                DialogAdapter(this, "B").show()
         }
         fabWifi.setOnClickListener {
-            DialogAdapter(this, "W").show()
+                DialogAdapter(this, "W").show()
         }
         fabTime.setOnClickListener {
             val mcurrentTime = Calendar.getInstance()
@@ -124,12 +125,10 @@ class ReminderList : AppCompatActivity() {
 
             val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
 
-            val img = this.getResources().getDrawable(R.drawable.ic_link)
-
             if (clip.toString().matches(regex))
-                btClipboard.setCompoundDrawables(img, null, null, null)
+                btClipboard.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
             else
-                btClipboard.setCompoundDrawables(null, null, null, null)
+                btClipboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
         } else {
             btClipboard.visibility = View.GONE
         }

@@ -7,4 +7,6 @@
     <string name="selectWifi">Selecionar rede Wifi</string>
     <string name="selectBluetooth">Selecionar disposítivo Bluetooth</string>
     <string name="clipboard">Criar nota usando:</string>
+    <string name="turnOnBluetooth">Por favor ligue o BLuetooth para usar este tipo de lembrete.</string>
+    <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
 </resources>
