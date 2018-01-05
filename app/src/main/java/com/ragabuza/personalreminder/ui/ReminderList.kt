@@ -5,8 +5,6 @@ import android.app.TimePickerDialog
 import android.content.ClipboardManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.DatePicker
-import android.widget.TimePicker
 import com.ragabuza.personalreminder.adapter.ReminderAdapter
 import com.ragabuza.personalreminder.model.*
 import kotlinx.android.synthetic.main.activity_reminder_list.*
@@ -20,8 +18,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.net.ConnectivityManager
-import android.widget.Toast
-
 
 class ReminderList : AppCompatActivity() {
 
@@ -32,14 +28,12 @@ class ReminderList : AppCompatActivity() {
         fabMenu.setClosedOnTouchOutside(true)
 
 
-        this.supportActionBar!!.title = "Lembretes"
+        this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 //        this.supportActionBar?.setDisplayUseLogoEnabled(true)
 //        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 //        this.supportActionBar?.setHomeAsUpIndicator(R.drawable.bitcoin_clock)
 
-        clipShow()
-
-        val reminders = listOf<Reminder>(
+        val reminders = listOf(
                 Reminder(1, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(2, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(3, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
@@ -51,7 +45,7 @@ class ReminderList : AppCompatActivity() {
         lvRemind.adapter = adapter
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
-        lvRemind.setOnItemClickListener { adapterView, view, i, l ->
+        lvRemind.setOnItemClickListener { _, _, _, _ ->
             adapter.closeAllItems()
         }
 
@@ -71,18 +65,11 @@ class ReminderList : AppCompatActivity() {
             val year = mcurrentTime.get(Calendar.YEAR)
 
 
-            val datepicker = DatePickerDialog(this, object : DatePickerDialog.OnDateSetListener{
-                override fun onDateSet(p0: DatePicker?, p1: Int, p2: Int, p3: Int) {
-                }
-            }, year, month, day)
+            val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, _, _, _ -> }, year, month, day)
 
-            val timepicker = TimePickerDialog(this, object : TimePickerDialog.OnTimeSetListener{
-                override fun onTimeSet(p0: TimePicker?, p1: Int, p2: Int) {
-                    datepicker.show()
-                }
-            },hour, minute, true)
+            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, _, _ -> datePicker.show() },hour, minute, true)
 
-            timepicker.show()
+            timePicker.show()
 
         }
         fabLocation.setOnClickListener {
@@ -98,7 +85,7 @@ class ReminderList : AppCompatActivity() {
         clipShow()
     }
 
-    fun clipShow(){
+    private fun clipShow(){
 
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val editor = sharedPref.edit()

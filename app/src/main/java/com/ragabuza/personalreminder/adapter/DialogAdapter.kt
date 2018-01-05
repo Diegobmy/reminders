@@ -1,5 +1,6 @@
 package com.ragabuza.personalreminder.adapter
 
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
 import android.net.wifi.WifiManager
@@ -8,8 +9,6 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.widget.*
 import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.R.id.lv
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothAdapter
 
 
@@ -20,6 +19,7 @@ import android.bluetooth.BluetoothAdapter
 class DialogAdapter(val context: Context, val type: String) {
 
 
+    @SuppressLint("InflateParams")
     fun show(){
 
         val dialog = Dialog(context)
@@ -35,7 +35,7 @@ class DialogAdapter(val context: Context, val type: String) {
 
         if (type == "W"){
             title.text = context.getString(R.string.selectWifi)
-            val wifiService: WifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            val wifiService: WifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             if (wifiService.isWifiEnabled) {
                 wifiService.configuredNetworks.forEach { web ->
                     adapter.add(web.SSID.toString().substring(1, web.SSID.toString().length - 1))
@@ -73,8 +73,8 @@ class DialogAdapter(val context: Context, val type: String) {
                 adapter.filter.filter(p0)
             }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun afterTextChanged(p0: Editable?) {}
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) = Unit
+            override fun afterTextChanged(p0: Editable?) = Unit
 
         })
 

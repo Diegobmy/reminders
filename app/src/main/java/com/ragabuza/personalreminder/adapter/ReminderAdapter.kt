@@ -25,9 +25,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         val inflater = LayoutInflater.from(context)
 
-        var view = inflater.inflate(R.layout.list_item, parent, false)
-
-        return view
+        return inflater.inflate(R.layout.list_item, parent, false)
     }
 
     override fun fillValues(position: Int, convertView: View?) {

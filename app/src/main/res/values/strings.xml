@@ -9,4 +9,5 @@
     <string name="clipboard">Criar nota usando:</string>
     <string name="turnOnBluetooth">Por favor ligue o BLuetooth para usar este tipo de lembrete.</string>
     <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
+    <string name="remindersActivityTitle">Lembretes</string>
 </resources>
