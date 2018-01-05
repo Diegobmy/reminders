@@ -22,7 +22,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.LinkReminder">
+        <activity android:name=".ui.LinkReminder"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Transparent">
             <intent-filter android:label="teste">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
