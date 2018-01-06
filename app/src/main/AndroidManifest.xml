@@ -22,9 +22,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.LinkReminder"
+        <activity android:name=".ui.SharePopupActivity"
             android:launchMode="singleInstance"
-            android:theme="@style/Theme.Transparent">
+            android:theme="@style/Theme.Transparent"
+            android:excludeFromRecents="true">
             <intent-filter android:label="teste">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

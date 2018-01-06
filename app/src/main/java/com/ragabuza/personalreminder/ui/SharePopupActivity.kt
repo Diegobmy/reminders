@@ -15,7 +15,7 @@ import android.view.WindowManager
 /**
  * Created by diego.moyses on 1/2/2018.
  */
-class LinkReminder : AppCompatActivity() {
+class SharePopupActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,5 +30,4 @@ class LinkReminder : AppCompatActivity() {
     override fun onBackPressed() {
         finish()
     }
-
 }
