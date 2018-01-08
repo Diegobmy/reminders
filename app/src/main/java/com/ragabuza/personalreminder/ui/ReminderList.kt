@@ -18,6 +18,8 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.net.ConnectivityManager
+import android.widget.Toast
+
 
 class ReminderList : AppCompatActivity() {
 
@@ -27,6 +29,7 @@ class ReminderList : AppCompatActivity() {
 
         fabMenu.setClosedOnTouchOutside(true)
 
+        setupDrawer()
 
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 //        this.supportActionBar?.setDisplayUseLogoEnabled(true)
@@ -37,7 +40,15 @@ class ReminderList : AppCompatActivity() {
                 Reminder(1, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(2, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(3, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(4, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
+                Reminder(4, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(5, "5", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(6, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(7, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(8, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(9, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(10, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(11, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(12, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
         )
         val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mutAlarms = reminders.toMutableList()
@@ -78,6 +89,16 @@ class ReminderList : AppCompatActivity() {
 //            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
 
+    }
+
+    fun setupDrawer(){
+//        navigation_view.setNavigationItemSelectedListener { menuItem ->
+//            Toast.makeText(applicationContext, "${menuItem.itemId}${menuItem.title}", Toast.LENGTH_SHORT).show()
+//
+//            menuItem.isChecked = true
+//            drawer_layout.closeDrawers()
+//            true
+//        }
     }
 
     override fun onResume(){
