@@ -2,6 +2,7 @@ package com.ragabuza.personalreminder.adapter
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,11 +22,47 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         return R.id.slReminders
     }
 
-    override fun generateView(position: Int, parent: ViewGroup?): View {
+    private val originalList: List<Reminder> = reminders.toList()
 
+    override fun generateView(position: Int, parent: ViewGroup?): View {
         val inflater = LayoutInflater.from(context)
 
         return inflater.inflate(R.layout.list_item, parent, false)
+    }
+
+    val newRemindersFilter = 1
+    val allRemindersFilter = 2
+    val oldRemindersFilter = 3
+    val bluetoothFilter = 4
+    val wifiFilter = 5
+    val locationFilter = 6
+    val timeFilter = 7
+
+    private val filters = mutableListOf<Int>()
+
+    fun doFilter(type: Int = 0, putting: Boolean = true, string: String = ""){
+        reminders.clear()
+        reminders.addAll(originalList)
+
+        if (putting)
+            filters.add(type)
+        else
+            filters.remove(type)
+
+        filters.forEach { t ->
+            val toRemove = mutableListOf<Reminder>()
+            when (t) {
+                newRemindersFilter -> reminders.filterTo(toRemove) { !it.active }
+                oldRemindersFilter -> reminders.filterTo(toRemove) { it.active }
+                bluetoothFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.BLUETOOTH }
+                wifiFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.WIFI }
+                locationFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.LOCATION }
+                timeFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.TIME }
+            }
+            reminders.filterTo(toRemove) { !it.reminder.contains(string) }
+            reminders.removeAll(toRemove)
+        }
+        notifyDataSetChanged()
     }
 
     override fun fillValues(position: Int, convertView: View?) {
@@ -33,6 +70,16 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         val reminder: Reminder = reminders[position]
 
         convertView?.findViewById<TextView>(R.id.tvName)?.text = reminder.reminder
+
+        if(reminder.active){
+            convertView?.findViewById<LinearLayout>(R.id.llUpper)?.background = context.resources.getDrawable(android.R.color.white)
+            convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.background = context.resources.getDrawable(android.R.color.holo_green_dark)
+            convertView?.findViewById<ImageView>(R.id.ivEdit)?.setImageResource(R.drawable.ic_edit)
+        } else {
+            convertView?.findViewById<LinearLayout>(R.id.llUpper)?.background = context.resources.getDrawable(android.R.color.darker_gray)
+            convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.background = context.resources.getDrawable(android.R.color.holo_blue_light)
+            convertView?.findViewById<ImageView>(R.id.ivEdit)?.setImageResource(R.drawable.ic_power_settings_new_white)
+        }
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         when(reminder.type){
@@ -47,7 +94,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
         }
         convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.setOnClickListener {
-            android.widget.Toast.makeText(context, "Edited", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Edited", Toast.LENGTH_SHORT).show()
         }
 
         val swipe = convertView?.findViewById<SwipeLayout>(R.id.slReminders)

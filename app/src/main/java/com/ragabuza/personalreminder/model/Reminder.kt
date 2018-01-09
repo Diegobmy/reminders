@@ -8,4 +8,4 @@ enum class ReminderType {WIFI, BLUETOOTH, LOCATION, TIME}
 enum class ReminderWhen {IS, ISNOT}
 enum class ReminderWhat {TEXT, URL, CONTACT}
 
-data class Reminder(val id: Long, val reminder: String, val type: ReminderType , val rWhen: ReminderWhen, val rWhat: ReminderWhat, val condition: Any, val action: Any)
+data class Reminder(val id: Long, val active: Boolean, val reminder: String, val type: ReminderType, val rWhen: ReminderWhen, val rWhat: ReminderWhat, val condition: Any, val action: Any)

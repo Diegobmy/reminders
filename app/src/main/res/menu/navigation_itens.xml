@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group android:id="@+id/G1"
+        android:checkableBehavior="single">
     <item android:id="@+id/RNew"
-        android:title="all"/>
+        android:title="@string/newReminders"
+        android:checked="true"
+        android:icon="@drawable/ic_dash"/>
     <item android:id="@+id/RAll"
-        android:title="all"/>
+        android:title="@string/allReminders"
+        android:checked="false"
+        android:icon="@drawable/ic_dash"/>
     <item android:id="@+id/ROld"
-        android:title="old"/>
+        android:title="@string/oldReminders"
+        android:checked="false"
+        android:icon="@drawable/ic_dash"/>
+    </group>
+    <group android:id="@+id/G2"
+        android:checkableBehavior="none">
     <item android:id="@+id/config"
-        android:title="config"/>
+        android:checkable="false"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/configs"
+        android:checked="false"/>
     </group>
 </menu>

@@ -18,10 +18,16 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.net.ConnectivityManager
+import android.support.v4.view.GravityCompat
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.MenuItem
 import android.widget.Toast
 
 
 class ReminderList : AppCompatActivity() {
+
+    private lateinit var adapter: ReminderAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,27 +38,25 @@ class ReminderList : AppCompatActivity() {
         setupDrawer()
 
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
-//        this.supportActionBar?.setDisplayUseLogoEnabled(true)
-//        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        this.supportActionBar?.setHomeAsUpIndicator(R.drawable.bitcoin_clock)
 
         val reminders = listOf(
-                Reminder(1, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(2, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(3, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(4, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(5, "5", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(6, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(7, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(8, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(9, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(10, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(11, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(12, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
+                Reminder(1, true, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(2, true, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(3, true, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(4, true, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(5, true, "5", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
+                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
         )
         val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mutAlarms = reminders.toMutableList()
-        val adapter = ReminderAdapter(this, mutAlarms, connManager)
+        adapter = ReminderAdapter(this, mutAlarms, connManager)
+        adapter.doFilter(0, true)
         lvRemind.adapter = adapter
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
@@ -89,16 +93,74 @@ class ReminderList : AppCompatActivity() {
 //            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
 
+        setupFilter()
+
     }
 
-    fun setupDrawer(){
-//        navigation_view.setNavigationItemSelectedListener { menuItem ->
-//            Toast.makeText(applicationContext, "${menuItem.itemId}${menuItem.title}", Toast.LENGTH_SHORT).show()
-//
-//            menuItem.isChecked = true
-//            drawer_layout.closeDrawers()
-//            true
-//        }
+    fun setupFilter(){
+        var ctrlBluetooth = false
+        var ctrlWifi = false
+        var ctrlTime = false
+        var ctrlLocation = false
+
+        ibFilterBluetooth.setOnClickListener {
+            ctrlBluetooth = !ctrlBluetooth
+            ibFilterBluetooth.setImageResource(if (ctrlBluetooth) R.drawable.ic_bluetooth_selected else R.drawable.ic_bluetooth_white)
+            adapter.doFilter(adapter.bluetoothFilter, ctrlBluetooth)
+        }
+
+        ibFilterWifi.setOnClickListener {
+            ctrlWifi = !ctrlWifi
+            ibFilterWifi.setImageResource(if (ctrlWifi) R.drawable.ic_wifi_selected else R.drawable.ic_wifi_white)
+            adapter.doFilter(adapter.wifiFilter, ctrlWifi)
+        }
+
+        ibFilterLocation.setOnClickListener {
+            ctrlLocation = !ctrlLocation
+            ibFilterLocation.setImageResource(if (ctrlLocation) R.drawable.ic_location_selected else R.drawable.ic_location_white)
+            adapter.doFilter(adapter.locationFilter, ctrlLocation)
+        }
+
+        ibFilterTime.setOnClickListener {
+            ctrlTime = !ctrlTime
+            ibFilterTime.setImageResource(if (ctrlTime) R.drawable.ic_time_selected else R.drawable.ic_time_white)
+            adapter.doFilter(adapter.timeFilter, ctrlTime)
+        }
+
+        etFilterString.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+                adapter.doFilter(string = p0.toString())
+            }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if(item?.itemId == android.R.id.home ){
+                fabMenu.close(true)
+                adapter.closeAllItems()
+                drawer_layout.openDrawer(GravityCompat.START)
+                return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun setupDrawer(){
+        this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
+        this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        navigation_view.setNavigationItemSelectedListener { menuItem ->
+            when(menuItem.title){
+                getString(R.string.newReminders) -> adapter.doFilter(adapter.newRemindersFilter)
+                getString(R.string.allReminders) -> adapter.doFilter(adapter.allRemindersFilter)
+                getString(R.string.oldReminders) -> adapter.doFilter(adapter.oldRemindersFilter)
+                getString(R.string.configs) -> Toast.makeText(this, "config", Toast.LENGTH_SHORT).show()
+            }
+            menuItem.isChecked = true
+            drawer_layout.closeDrawers()
+            true
+        }
     }
 
     override fun onResume(){

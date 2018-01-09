@@ -10,4 +10,9 @@
     <string name="turnOnBluetooth">Por favor ligue o BLuetooth para usar este tipo de lembrete.</string>
     <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
     <string name="remindersActivityTitle">Lembretes</string>
+    <string name="newReminders">Lembretes Novos</string>
+    <string name="allReminders">Todos Lembretes</string>
+    <string name="oldReminders">Lembretes Antigos</string>
+    <string name="configs">Configurações</string>
+    <string name="hintFilter">Filtro</string>
 </resources>

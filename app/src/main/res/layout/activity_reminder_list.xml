@@ -1,38 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+<android.support.v4.widget.DrawerLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:animateLayoutChanges="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ragabuza.personalreminder.ui.ReminderList">
+    android:fitsSystemWindows="true"
+    tools:context="com.ragabuza.personalreminder.ui.ReminderList">>
 
-
-    <!--<android.support.v4.widget.DrawerLayout-->
-        <!--android:id="@+id/drawer_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:fitsSystemWindows="true">-->
-
-        <!--<android.support.design.widget.NavigationView-->
-            <!--android:id="@+id/navigation_view"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_gravity="start"-->
-            <!--app:menu="@menu/navigation_itens" />-->
-
-    <!--</android.support.v4.widget.DrawerLayout>-->
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:animateLayoutChanges="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
 
         <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-
-
 }<LinearLayout
+        android:id="@+id/llFilters"
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -53,6 +42,52 @@
             android:layout_marginTop="12dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@color/colorPrimaryDark">
+                <ImageButton
+                    android:id="@+id/ibFilterBluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bluetooth_white"
+                    android:background="@null"
+                    android:layout_margin="8dp"/>
+                <ImageButton
+                    android:id="@+id/ibFilterWifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_wifi_white"
+                    android:background="@null"
+                    android:layout_margin="8dp"/>
+                <ImageButton
+                    android:id="@+id/ibFilterLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_location_white"
+                    android:background="@null"
+                    android:layout_margin="8dp"/>
+                <ImageButton
+                    android:id="@+id/ibFilterTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_time_white"
+                    android:background="@null"
+                    android:layout_margin="8dp"/>
+                <EditText
+                    android:id="@+id/etFilterString"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_margin="16dp"
+                    android:textColor="@android:color/white"
+                    android:textColorHint="@color/colorPrimary"
+                    android:hint="@string/hintFilter"/>
+            </LinearLayout>
 
         <ListView
             android:id="@+id/lvRemind"
@@ -121,3 +156,14 @@
 
     </RelativeLayout>
 </android.support.constraint.ConstraintLayout>
+
+<android.support.design.widget.NavigationView
+    android:id="@+id/navigation_view"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:background="@android:color/white"
+    app:itemTextColor="#FF303030"
+    app:menu="@menu/navigation_itens"/>
+
+    </android.support.v4.widget.DrawerLayout>
