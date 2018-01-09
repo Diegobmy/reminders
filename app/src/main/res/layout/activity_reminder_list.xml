@@ -15,80 +15,80 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
         <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-}<LinearLayout
-        android:id="@+id/llFilters"
+<LinearLayout
+        android:animateLayoutChanges="true"
         android:orientation="vertical"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
-        <Button
-            android:visibility="gone"
-            android:drawablePadding="4dp"
-            android:drawableLeft="@drawable/ic_link"
-            android:drawableTint="@android:color/white"
-            android:text="feafaewfawf"
-            android:id="@+id/btClipboard"
-            android:textColor="#FFFFFF"
-            android:textAllCaps="false"
-            android:textAlignment="textStart"
-            android:padding="6dp"
+        <LinearLayout
+            android:id="@+id/llFilters"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/round_button"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp" />
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:background="@color/colorPrimaryDark">
-                <ImageButton
-                    android:id="@+id/ibFilterBluetooth"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_bluetooth_white"
-                    android:background="@null"
-                    android:layout_margin="8dp"/>
-                <ImageButton
-                    android:id="@+id/ibFilterWifi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_wifi_white"
-                    android:background="@null"
-                    android:layout_margin="8dp"/>
-                <ImageButton
-                    android:id="@+id/ibFilterLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_location_white"
-                    android:background="@null"
-                    android:layout_margin="8dp"/>
-                <ImageButton
-                    android:id="@+id/ibFilterTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_time_white"
-                    android:background="@null"
-                    android:layout_margin="8dp"/>
-                <EditText
-                    android:id="@+id/etFilterString"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="16dp"
-                    android:textColor="@android:color/white"
-                    android:textColorHint="@color/colorPrimary"
-                    android:hint="@string/hintFilter"/>
-            </LinearLayout>
-
+            android:visibility="gone"
+            android:layout_height="80dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="@color/colorPrimaryDark">
+            <ImageButton
+                android:id="@+id/ibFilterBluetooth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_bluetooth_white"
+                android:background="@null"
+                android:layout_margin="8dp"/>
+            <ImageButton
+                android:id="@+id/ibFilterWifi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_wifi_white"
+                android:background="@null"
+                android:layout_margin="8dp"/>
+            <ImageButton
+                android:id="@+id/ibFilterLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_location_white"
+                android:background="@null"
+                android:layout_margin="8dp"/>
+            <ImageButton
+                android:id="@+id/ibFilterTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_time_white"
+                android:background="@null"
+                android:layout_margin="8dp"/>
+            <EditText
+                android:id="@+id/etFilterString"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_margin="16dp"
+                android:textColor="@android:color/white"
+                android:textColorHint="@color/colorPrimary"
+                android:hint="@string/hintFilter"/>
+        </LinearLayout>
+    <Button
+        android:visibility="gone"
+        android:drawablePadding="4dp"
+        android:drawableLeft="@drawable/ic_link"
+        android:drawableTint="@android:color/white"
+        android:text="feafaewfawf"
+        android:id="@+id/btClipboard"
+        android:textColor="#FFFFFF"
+        android:textAllCaps="false"
+        android:textAlignment="textStart"
+        android:padding="6dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/round_button"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp" />
         <ListView
             android:id="@+id/lvRemind"
             android:layout_width="match_parent"
@@ -98,6 +98,16 @@
             android:paddingTop="6dp"
             android:paddingBottom="80dp"
             android:clipToPadding="false"/>
+
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:textColor="@color/colorPrimary"
+            android:layout_margin="18dp"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emptyList"/>
     </LinearLayout>
         <com.github.clans.fab.FloatingActionMenu
             android:id="@+id/fabMenu"
@@ -164,6 +174,7 @@
     android:layout_gravity="start"
     android:background="@android:color/white"
     app:itemTextColor="#FF303030"
-    app:menu="@menu/navigation_itens"/>
+    app:menu="@menu/navigation_itens"
+    app:headerLayout="@layout/drawer_header"/>
 
     </android.support.v4.widget.DrawerLayout>

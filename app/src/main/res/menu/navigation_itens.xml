@@ -5,15 +5,11 @@
     <item android:id="@+id/RNew"
         android:title="@string/newReminders"
         android:checked="true"
-        android:icon="@drawable/ic_dash"/>
-    <item android:id="@+id/RAll"
-        android:title="@string/allReminders"
-        android:checked="false"
-        android:icon="@drawable/ic_dash"/>
+        android:icon="@drawable/ic_unchecked_box_grey"/>
     <item android:id="@+id/ROld"
         android:title="@string/oldReminders"
         android:checked="false"
-        android:icon="@drawable/ic_dash"/>
+        android:icon="@drawable/ic_checked_box_grey"/>
     </group>
     <group android:id="@+id/G2"
         android:checkableBehavior="none">

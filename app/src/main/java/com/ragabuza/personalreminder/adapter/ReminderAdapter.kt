@@ -2,7 +2,6 @@ package com.ragabuza.personalreminder.adapter
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.opengl.Visibility
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,22 +30,37 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
     }
 
     val newRemindersFilter = 1
-    val allRemindersFilter = 2
-    val oldRemindersFilter = 3
-    val bluetoothFilter = 4
-    val wifiFilter = 5
-    val locationFilter = 6
-    val timeFilter = 7
+    val oldRemindersFilter = 2
+    val bluetoothFilter = 3
+    val wifiFilter = 4
+    val locationFilter = 5
+    val timeFilter = 6
+    val stringFilter = 7
 
     private val filters = mutableListOf<Int>()
+
+    fun hasFilters(): Boolean{
+        return (filters.contains(bluetoothFilter)||filters.contains(wifiFilter)
+                ||filters.contains(timeFilter)||filters.contains(locationFilter)||filters.contains(stringFilter))
+    }
 
     fun doFilter(type: Int = 0, putting: Boolean = true, string: String = ""){
         reminders.clear()
         reminders.addAll(originalList)
 
-        if (putting)
+        if (putting && type in 1..3) {
+            filters.remove(1)
+            filters.remove(2)
+            filters.remove(3)
             filters.add(type)
-        else
+        }
+        else if (putting && type in 4..7) {
+            filters.remove(4)
+            filters.remove(5)
+            filters.remove(6)
+            filters.remove(7)
+            filters.add(type)
+        } else if (!putting)
             filters.remove(type)
 
         filters.forEach { t ->
@@ -65,6 +79,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         notifyDataSetChanged()
     }
 
+
     override fun fillValues(position: Int, convertView: View?) {
 
         val reminder: Reminder = reminders[position]
@@ -75,10 +90,14 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             convertView?.findViewById<LinearLayout>(R.id.llUpper)?.background = context.resources.getDrawable(android.R.color.white)
             convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.background = context.resources.getDrawable(android.R.color.holo_green_dark)
             convertView?.findViewById<ImageView>(R.id.ivEdit)?.setImageResource(R.drawable.ic_edit)
+            convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.background = context.resources.getDrawable(android.R.color.holo_orange_light)
+            convertView?.findViewById<ImageView>(R.id.ivDelete)?.setImageResource(R.drawable.ic_done_white)
         } else {
             convertView?.findViewById<LinearLayout>(R.id.llUpper)?.background = context.resources.getDrawable(android.R.color.darker_gray)
             convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.background = context.resources.getDrawable(android.R.color.holo_blue_light)
-            convertView?.findViewById<ImageView>(R.id.ivEdit)?.setImageResource(R.drawable.ic_power_settings_new_white)
+            convertView?.findViewById<ImageView>(R.id.ivEdit)?.setImageResource(R.drawable.restore_white)
+            convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.background = context.resources.getDrawable(android.R.color.holo_red_dark)
+            convertView?.findViewById<ImageView>(R.id.ivDelete)?.setImageResource(R.drawable.ic_delete_forever_white)
         }
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)

@@ -11,8 +11,8 @@
     <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
     <string name="remindersActivityTitle">Lembretes</string>
     <string name="newReminders">Lembretes Novos</string>
-    <string name="allReminders">Todos Lembretes</string>
-    <string name="oldReminders">Lembretes Antigos</string>
+    <string name="oldReminders">Lembretes Finalizados</string>
     <string name="configs">Configurações</string>
     <string name="hintFilter">Filtro</string>
+    <string name="emptyList">Nenhum item a ser exibido.</string>
 </resources>

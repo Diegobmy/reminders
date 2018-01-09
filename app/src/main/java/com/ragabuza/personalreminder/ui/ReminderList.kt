@@ -21,13 +21,54 @@ import android.net.ConnectivityManager
 import android.support.v4.view.GravityCompat
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import android.support.v4.view.MenuItemCompat
+import android.view.animation.AnimationUtils
+import kotlinx.android.synthetic.main.action_item_filter.*
+import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity() {
 
     private lateinit var adapter: ReminderAdapter
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+
+        val menuItem = menu?.findItem(R.id.filter)
+        val actionView = MenuItemCompat.getActionView(menuItem)
+        actionView.setOnClickListener { onOptionsItemSelected(menuItem) }
+
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        if(item?.itemId == android.R.id.home ){
+            fabMenu.close(true)
+            adapter.closeAllItems()
+            drawer_layout.openDrawer(GravityCompat.START)
+            return true
+        }
+        if(item?.itemId == R.id.filter) {
+            if (llFilters.visibility == View.VISIBLE) {
+                fabMenu.close(true)
+                ivFilterIcon.setImageResource(R.drawable.ic_filter_list)
+                llFilters.visibility = View.GONE
+                if ((adapter.hasFilters() || !etFilterString.text.isNullOrBlank()) && tvFilterActive != null) {
+                    tvFilterActive.visibility = View.VISIBLE
+                }
+            } else {
+                fabMenu.close(true)
+                ivFilterIcon.setImageResource(R.drawable.ic_filter_list_selected)
+                llFilters.visibility = View.VISIBLE
+                if (tvFilterActive != null) {
+                    tvFilterActive.visibility = View.GONE
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,11 +94,13 @@ class ReminderList : AppCompatActivity() {
                 Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
         )
+
         val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mutAlarms = reminders.toMutableList()
         adapter = ReminderAdapter(this, mutAlarms, connManager)
-        adapter.doFilter(0, true)
+        adapter.doFilter(adapter.newRemindersFilter, true)
         lvRemind.adapter = adapter
+        lvRemind.emptyView = tvEmpty
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
         lvRemind.setOnItemClickListener { _, _, _, _ ->
@@ -97,32 +140,53 @@ class ReminderList : AppCompatActivity() {
 
     }
 
-    fun setupFilter(){
+
+    private fun setupFilter(){
         var ctrlBluetooth = false
         var ctrlWifi = false
         var ctrlTime = false
         var ctrlLocation = false
+        var actual: Boolean
+
+        fun resetAll(){
+            ctrlBluetooth = false
+            ctrlWifi = false
+            ctrlTime = false
+            ctrlLocation = false
+            ibFilterBluetooth.setImageResource(R.drawable.ic_bluetooth_white)
+            ibFilterWifi.setImageResource(R.drawable.ic_wifi_white)
+            ibFilterLocation.setImageResource(R.drawable.ic_location_white)
+            ibFilterTime.setImageResource(R.drawable.ic_time_white)
+        }
 
         ibFilterBluetooth.setOnClickListener {
-            ctrlBluetooth = !ctrlBluetooth
+            actual = !ctrlBluetooth
+            resetAll()
+            ctrlBluetooth = actual
             ibFilterBluetooth.setImageResource(if (ctrlBluetooth) R.drawable.ic_bluetooth_selected else R.drawable.ic_bluetooth_white)
             adapter.doFilter(adapter.bluetoothFilter, ctrlBluetooth)
         }
 
         ibFilterWifi.setOnClickListener {
-            ctrlWifi = !ctrlWifi
+            actual = !ctrlWifi
+            resetAll()
+            ctrlWifi = actual
             ibFilterWifi.setImageResource(if (ctrlWifi) R.drawable.ic_wifi_selected else R.drawable.ic_wifi_white)
             adapter.doFilter(adapter.wifiFilter, ctrlWifi)
         }
 
         ibFilterLocation.setOnClickListener {
-            ctrlLocation = !ctrlLocation
+            actual = !ctrlLocation
+            resetAll()
+            ctrlLocation = actual
             ibFilterLocation.setImageResource(if (ctrlLocation) R.drawable.ic_location_selected else R.drawable.ic_location_white)
             adapter.doFilter(adapter.locationFilter, ctrlLocation)
         }
 
         ibFilterTime.setOnClickListener {
-            ctrlTime = !ctrlTime
+            actual = !ctrlTime
+            resetAll()
+            ctrlTime = actual
             ibFilterTime.setImageResource(if (ctrlTime) R.drawable.ic_time_selected else R.drawable.ic_time_white)
             adapter.doFilter(adapter.timeFilter, ctrlTime)
         }
@@ -136,26 +200,30 @@ class ReminderList : AppCompatActivity() {
         })
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == android.R.id.home ){
-                fabMenu.close(true)
-                adapter.closeAllItems()
-                drawer_layout.openDrawer(GravityCompat.START)
-                return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     private fun setupDrawer(){
         this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
+        val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
+        val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
+
         navigation_view.setNavigationItemSelectedListener { menuItem ->
-            when(menuItem.title){
-                getString(R.string.newReminders) -> adapter.doFilter(adapter.newRemindersFilter)
-                getString(R.string.allReminders) -> adapter.doFilter(adapter.allRemindersFilter)
-                getString(R.string.oldReminders) -> adapter.doFilter(adapter.oldRemindersFilter)
-                getString(R.string.configs) -> Toast.makeText(this, "config", Toast.LENGTH_SHORT).show()
+            when(menuItem.itemId){
+                R.id.RNew -> {
+                    lvRemind.startAnimation(inAnimation)
+                    adapter.doFilter(adapter.newRemindersFilter)
+                    supportActionBar!!.title = getString(R.string.remindersActivityTitle)
+                    fabMenu.startAnimation(inAnimation)
+                    fabMenu.visibility = View.VISIBLE
+                }
+                R.id.ROld -> {
+                    lvRemind.startAnimation(inAnimation)
+                    adapter.doFilter(adapter.oldRemindersFilter)
+                    supportActionBar!!.title = getString(R.string.oldReminders)
+                    fabMenu.startAnimation(outAnimation)
+                    fabMenu.visibility = View.GONE
+                }
+                R.id.config -> Toast.makeText(this, "config", Toast.LENGTH_SHORT).show()
             }
             menuItem.isChecked = true
             drawer_layout.closeDrawers()
