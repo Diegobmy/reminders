@@ -48,17 +48,15 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         reminders.clear()
         reminders.addAll(originalList)
 
-        if (putting && type in 1..3) {
+        if (putting && type in 1..2) {
             filters.remove(1)
             filters.remove(2)
-            filters.remove(3)
             filters.add(type)
-        }
-        else if (putting && type in 4..7) {
+        } else if (putting && type in 3..6) {
+            filters.remove(3)
             filters.remove(4)
             filters.remove(5)
             filters.remove(6)
-            filters.remove(7)
             filters.add(type)
         } else if (!putting)
             filters.remove(type)

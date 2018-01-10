@@ -40,6 +40,8 @@ class ReminderList : AppCompatActivity() {
         val menuItem = menu?.findItem(R.id.filter)
         val actionView = MenuItemCompat.getActionView(menuItem)
         actionView.setOnClickListener { onOptionsItemSelected(menuItem) }
+        tvNumberOfRemindersNew.text = "${reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
 
         return true
     }
@@ -51,6 +53,8 @@ class ReminderList : AppCompatActivity() {
             return true
         }
         if(item?.itemId == R.id.filter) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+            btClipboard.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
                 fabMenu.close(true)
                 ivFilterIcon.setImageResource(R.drawable.ic_filter_list)
@@ -70,6 +74,8 @@ class ReminderList : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private lateinit var reminders: List<Reminder>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
@@ -80,7 +86,7 @@ class ReminderList : AppCompatActivity() {
 
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
-        val reminders = listOf(
+        reminders = listOf(
                 Reminder(1, true, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(2, true, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
                 Reminder(3, true, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
@@ -164,7 +170,7 @@ class ReminderList : AppCompatActivity() {
             resetAll()
             ctrlBluetooth = actual
             ibFilterBluetooth.setImageResource(if (ctrlBluetooth) R.drawable.ic_bluetooth_selected else R.drawable.ic_bluetooth_white)
-            adapter.doFilter(adapter.bluetoothFilter, ctrlBluetooth)
+            adapter.doFilter(adapter.bluetoothFilter, ctrlBluetooth, etFilterString.text.toString())
         }
 
         ibFilterWifi.setOnClickListener {
@@ -172,7 +178,7 @@ class ReminderList : AppCompatActivity() {
             resetAll()
             ctrlWifi = actual
             ibFilterWifi.setImageResource(if (ctrlWifi) R.drawable.ic_wifi_selected else R.drawable.ic_wifi_white)
-            adapter.doFilter(adapter.wifiFilter, ctrlWifi)
+            adapter.doFilter(adapter.wifiFilter, ctrlWifi, etFilterString.text.toString())
         }
 
         ibFilterLocation.setOnClickListener {
@@ -180,7 +186,7 @@ class ReminderList : AppCompatActivity() {
             resetAll()
             ctrlLocation = actual
             ibFilterLocation.setImageResource(if (ctrlLocation) R.drawable.ic_location_selected else R.drawable.ic_location_white)
-            adapter.doFilter(adapter.locationFilter, ctrlLocation)
+            adapter.doFilter(adapter.locationFilter, ctrlLocation, etFilterString.text.toString())
         }
 
         ibFilterTime.setOnClickListener {
@@ -188,7 +194,7 @@ class ReminderList : AppCompatActivity() {
             resetAll()
             ctrlTime = actual
             ibFilterTime.setImageResource(if (ctrlTime) R.drawable.ic_time_selected else R.drawable.ic_time_white)
-            adapter.doFilter(adapter.timeFilter, ctrlTime)
+            adapter.doFilter(adapter.timeFilter, ctrlTime, etFilterString.text.toString())
         }
 
         etFilterString.addTextChangedListener(object : TextWatcher {

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="178dp"
-    android:background="@color/colorPrimary"
+    android:layout_height="164dp"
+    android:background="@color/colorPrimaryDark"
     android:orientation="vertical"
     android:gravity="bottom"
-    android:paddingBottom="25dp"
+    android:paddingBottom="24dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <TextView
@@ -13,14 +13,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
     <TextView
         android:id="@+id/tvNumberOfRemindersOld"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="0"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
 </LinearLayout>

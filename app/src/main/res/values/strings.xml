@@ -15,4 +15,6 @@
     <string name="configs">Configurações</string>
     <string name="hintFilter">Filtro</string>
     <string name="emptyList">Nenhum item a ser exibido.</string>
+    <string name="number_reminders_new">lembretes ativos</string>
+    <string name="number_reminders_old">lembretes completados</string>
 </resources>
