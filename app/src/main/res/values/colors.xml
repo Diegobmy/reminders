@@ -6,5 +6,6 @@
     <!--<color name="colorAccent">#f44336</color>-->
     <color name="background_md">#000234</color>
     <color name="foreground_md">#ffffff</color>
+    <color name="dark">#333333</color>
     <color name="selected">#ff3300</color>
 </resources>

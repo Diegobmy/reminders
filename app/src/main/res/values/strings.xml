@@ -17,4 +17,5 @@
     <string name="emptyList">Nenhum item a ser exibido.</string>
     <string name="number_reminders_new">lembretes ativos</string>
     <string name="number_reminders_old">lembretes completados</string>
+    <string name="simple">Simples</string>
 </resources>

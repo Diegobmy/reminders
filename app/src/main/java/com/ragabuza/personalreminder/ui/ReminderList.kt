@@ -45,14 +45,15 @@ class ReminderList : AppCompatActivity() {
 
         return true
     }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        if(item?.itemId == android.R.id.home ){
+        if (item?.itemId == android.R.id.home) {
             fabMenu.close(true)
             adapter.closeAllItems()
             drawer_layout.openDrawer(GravityCompat.START)
             return true
         }
-        if(item?.itemId == R.id.filter) {
+        if (item?.itemId == R.id.filter) {
             drawer_layout.closeDrawer(GravityCompat.START)
             btClipboard.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
@@ -87,23 +88,22 @@ class ReminderList : AppCompatActivity() {
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
         reminders = listOf(
-                Reminder(1, true, "1", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(2, true, "2", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(3, true, "3", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(4, true, "4", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(5, true, "5", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a"),
-                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "a", "a")
+                Reminder(1, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangs", ReminderType.SIMPLE, ReminderWhen.IS, ReminderWhat.CONTACT, "a"),
+                Reminder(2, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuang1", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "b"),
+                Reminder(3, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangreaiu12", ReminderType.SIMPLE, ReminderWhen.IS, ReminderWhat.CONTACT, "c"),
+                Reminder(4, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangra", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "d", "https://www.4site.com.br"),
+                Reminder(5, true, "", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "e", "https://www.5site.com.br"),
+                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "f", "https://www.6site.com.br"),
+                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "g", "https://www.7site.com.br"),
+                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "h"),
+                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "i"),
+                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "j"),
+                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "k", "https://www.11site.com.br"),
+                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "l")
         )
 
-        val connManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val mutAlarms = reminders.toMutableList()
-        adapter = ReminderAdapter(this, mutAlarms, connManager)
+        adapter = ReminderAdapter(this, mutAlarms)
         adapter.doFilter(adapter.newRemindersFilter, true)
         lvRemind.adapter = adapter
         lvRemind.emptyView = tvEmpty
@@ -114,10 +114,10 @@ class ReminderList : AppCompatActivity() {
         }
 
         fabBluetooth.setOnClickListener {
-                DialogAdapter(this, "B").show()
+            DialogAdapter(this, "B").show()
         }
         fabWifi.setOnClickListener {
-                DialogAdapter(this, "W").show()
+            DialogAdapter(this, "W").show()
         }
         fabTime.setOnClickListener {
             val mcurrentTime = Calendar.getInstance()
@@ -131,13 +131,13 @@ class ReminderList : AppCompatActivity() {
 
             val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, _, _, _ -> }, year, month, day)
 
-            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, _, _ -> datePicker.show() },hour, minute, true)
+            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, _, _ -> datePicker.show() }, hour, minute, true)
 
             timePicker.show()
 
         }
         fabLocation.setOnClickListener {
-//            val PLACE_PICKER_REQUEST = 1
+            //            val PLACE_PICKER_REQUEST = 1
 //            val builder = PlacePicker.IntentBuilder()
 //            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
@@ -147,14 +147,14 @@ class ReminderList : AppCompatActivity() {
     }
 
 
-    private fun setupFilter(){
+    private fun setupFilter() {
         var ctrlBluetooth = false
         var ctrlWifi = false
         var ctrlTime = false
         var ctrlLocation = false
         var actual: Boolean
 
-        fun resetAll(){
+        fun resetAll() {
             ctrlBluetooth = false
             ctrlWifi = false
             ctrlTime = false
@@ -201,12 +201,13 @@ class ReminderList : AppCompatActivity() {
             override fun afterTextChanged(p0: Editable?) {
                 adapter.doFilter(string = p0.toString())
             }
+
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
         })
     }
 
-    private fun setupDrawer(){
+    private fun setupDrawer() {
         this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
@@ -214,7 +215,7 @@ class ReminderList : AppCompatActivity() {
         val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
 
         navigation_view.setNavigationItemSelectedListener { menuItem ->
-            when(menuItem.itemId){
+            when (menuItem.itemId) {
                 R.id.RNew -> {
                     lvRemind.startAnimation(inAnimation)
                     adapter.doFilter(adapter.newRemindersFilter)
@@ -237,12 +238,12 @@ class ReminderList : AppCompatActivity() {
         }
     }
 
-    override fun onResume(){
+    override fun onResume() {
         super.onResume()
         clipShow()
     }
 
-    private fun clipShow(){
+    private fun clipShow() {
 
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
         val editor = sharedPref.edit()
@@ -252,18 +253,17 @@ class ReminderList : AppCompatActivity() {
         var clip = clipboard.primaryClip.getItemAt(0).text
 
         if (!clipboard.primaryClip.getItemAt(0).text.isEmpty() && clipboard.primaryClip.getItemAt(0).text.toString() != sharedPref.getString("clip", "")) {
-            editor.putString("clip" ,clip.toString())
+            editor.putString("clip", clip.toString())
             editor.apply()
             btClipboard.visibility = View.VISIBLE
             clip = clipboard.primaryClip.getItemAt(0).text
             if (clip.length > 150) {
                 val spannable = SpannableString("${getString(R.string.clipboard)}\n\"${clip.subSequence(0, 150)}...\"")
-                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length,spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btClipboard.text = spannable
-            }
-            else {
+            } else {
                 val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
-                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length,spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btClipboard.text = spannable
             }
 
