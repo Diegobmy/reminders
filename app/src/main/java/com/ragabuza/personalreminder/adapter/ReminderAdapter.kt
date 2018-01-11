@@ -1,7 +1,10 @@
 package com.ragabuza.personalreminder.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.net.ConnectivityManager
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,49 +38,59 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
     val wifiFilter = 4
     val locationFilter = 5
     val timeFilter = 6
-    val stringFilter = 7
+    val simpleFilter = 7
 
     private val filters = mutableListOf<Int>()
 
     fun hasFilters(): Boolean {
         return (filters.contains(bluetoothFilter) || filters.contains(wifiFilter)
-                || filters.contains(timeFilter) || filters.contains(locationFilter) || filters.contains(stringFilter))
+                || filters.contains(timeFilter) || filters.contains(locationFilter) || filters.contains(simpleFilter))
     }
 
-    fun doFilter(type: Int = 0, putting: Boolean = true, string: String = "") {
-        reminders.clear()
-        reminders.addAll(originalList)
+    fun doFilter(type: Int = 0, putting: Boolean = true, string: String = "", clearAll: Boolean = false) {
 
         var string = string.trim()
 
-        if (putting && type in 1..2) {
+        if (type in 1..2) {
             filters.remove(1)
             filters.remove(2)
+        }
+
+        if (putting && type != 0)
             filters.add(type)
-        } else if (putting && type in 3..6) {
-            filters.remove(3)
-            filters.remove(4)
-            filters.remove(5)
-            filters.remove(6)
-            filters.add(type)
-        } else if (!putting)
+        else if (!putting)
             filters.remove(type)
 
+        val toRemove = mutableListOf<Reminder>()
+        val toAdd = mutableListOf<Reminder>()
+
+        if (clearAll) {
+            filters.removeAll(listOf(3, 4, 5, 6, 7))
+            string = ""
+        }
+
         filters.forEach { t ->
-            val toRemove = mutableListOf<Reminder>()
             when (t) {
-                newRemindersFilter -> reminders.filterTo(toRemove) { !it.active }
-                oldRemindersFilter -> reminders.filterTo(toRemove) { it.active }
-                bluetoothFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.BLUETOOTH }
-                wifiFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.WIFI }
-                locationFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.LOCATION }
-                timeFilter -> reminders.filterTo(toRemove) { it.type != ReminderType.TIME }
+                newRemindersFilter -> originalList.filterTo(toRemove) { !it.active }
+                oldRemindersFilter -> originalList.filterTo(toRemove) { it.active }
+                bluetoothFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.BLUETOOTH }
+                wifiFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.WIFI }
+                locationFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.LOCATION }
+                timeFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.TIME }
+                simpleFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.SIMPLE }
             }
-            reminders.filterTo(toRemove) {
-                !(it.reminder.contains(string, true)
-                        || it.link.contains(string, true)
-                        || it.condition.toString().contains(string, true))
-            }
+        }
+        originalList.filterTo(toRemove) {
+            !(it.reminder.contains(string, true)
+                    || it.link.contains(string, true)
+                    || it.condition.contains(string, true))
+        }
+        reminders.clear()
+        if (filters.size > 1) {
+            reminders.addAll(toAdd)
+            reminders.removeAll(toRemove)
+        } else {
+            reminders.addAll(originalList)
             reminders.removeAll(toRemove)
         }
         notifyDataSetChanged()
@@ -95,12 +108,6 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
 
         tvName?.text = reminder.reminder
-
-        if (reminder.active) {
-            ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
-        } else {
-            ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
-        }
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
@@ -125,16 +132,6 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             linkArea?.visibility = View.GONE
         }
 
-
-        convertView?.findViewById<ImageButton>(R.id.ivCheckbox)?.setOnClickListener {
-            if (reminder.active) {
-                ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
-            } else {
-                ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
-            }
-            reminder.active = !reminder.active
-        }
-
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
         }
@@ -156,6 +153,43 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         if (tvName?.text.toString().length > if (reminder.type == ReminderType.SIMPLE) simpleLimit else otherLimit)
             tvName?.text = "${tvName?.text?.subSequence(0, (if (reminder.type == ReminderType.SIMPLE) simpleLimit else otherLimit) - 3)}..."
+
+        val text = tvName?.text
+        val span = SpannableString(text)
+        span.setSpan(StrikethroughSpan(), 0, span.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        if (reminder.active) {
+            ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
+        } else {
+            tvName?.text = span
+            ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
+        }
+
+        convertView?.findViewById<ImageButton>(R.id.ivCheckbox)?.setOnClickListener {
+            val toRemove = mutableListOf<Reminder>()
+            if (filters.contains(newRemindersFilter)) {
+                reminders.filterTo(toRemove) {
+                    (!it.active && (reminder.id != it.id))
+                }
+            } else if (filters.contains(oldRemindersFilter)) {
+                reminders.filterTo(toRemove) {
+                    (it.active && (reminder.id != it.id))
+                }
+            }
+
+            reminders.removeAll(toRemove)
+            notifyDataSetChanged()
+
+            if (reminder.active) {
+                tvName?.text = span
+                ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
+            } else {
+                tvName?.text = text
+                ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
+            }
+
+            reminder.active = !reminder.active
+        }
 
     }
 

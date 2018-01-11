@@ -25,6 +25,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import android.support.v4.view.MenuItemCompat
+import android.support.v4.widget.DrawerLayout
 import android.view.animation.AnimationUtils
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
@@ -40,15 +41,19 @@ class ReminderList : AppCompatActivity() {
         val menuItem = menu?.findItem(R.id.filter)
         val actionView = MenuItemCompat.getActionView(menuItem)
         actionView.setOnClickListener { onOptionsItemSelected(menuItem) }
-        tvNumberOfRemindersNew.text = "${reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
+
+        fillInfo()
 
         return true
     }
 
+    fun fillInfo(){
+        tvNumberOfRemindersNew.text = "${reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
+    }
+
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == android.R.id.home) {
-            fabMenu.close(true)
             adapter.closeAllItems()
             drawer_layout.openDrawer(GravityCompat.START)
             return true
@@ -152,49 +157,56 @@ class ReminderList : AppCompatActivity() {
         var ctrlWifi = false
         var ctrlTime = false
         var ctrlLocation = false
-        var actual: Boolean
-
-        fun resetAll() {
-            ctrlBluetooth = false
-            ctrlWifi = false
-            ctrlTime = false
-            ctrlLocation = false
-            ibFilterBluetooth.setImageResource(R.drawable.ic_bluetooth_white)
-            ibFilterWifi.setImageResource(R.drawable.ic_wifi_white)
-            ibFilterLocation.setImageResource(R.drawable.ic_location_white)
-            ibFilterTime.setImageResource(R.drawable.ic_time_white)
-        }
+        var ctrlSimple = false
 
         ibFilterBluetooth.setOnClickListener {
-            actual = !ctrlBluetooth
-            resetAll()
-            ctrlBluetooth = actual
+            ctrlBluetooth = !ctrlBluetooth
             ibFilterBluetooth.setImageResource(if (ctrlBluetooth) R.drawable.ic_bluetooth_selected else R.drawable.ic_bluetooth_white)
             adapter.doFilter(adapter.bluetoothFilter, ctrlBluetooth, etFilterString.text.toString())
         }
 
         ibFilterWifi.setOnClickListener {
-            actual = !ctrlWifi
-            resetAll()
-            ctrlWifi = actual
+            ctrlWifi = !ctrlWifi
             ibFilterWifi.setImageResource(if (ctrlWifi) R.drawable.ic_wifi_selected else R.drawable.ic_wifi_white)
             adapter.doFilter(adapter.wifiFilter, ctrlWifi, etFilterString.text.toString())
         }
 
         ibFilterLocation.setOnClickListener {
-            actual = !ctrlLocation
-            resetAll()
-            ctrlLocation = actual
+            ctrlLocation = !ctrlLocation
             ibFilterLocation.setImageResource(if (ctrlLocation) R.drawable.ic_location_selected else R.drawable.ic_location_white)
             adapter.doFilter(adapter.locationFilter, ctrlLocation, etFilterString.text.toString())
         }
 
         ibFilterTime.setOnClickListener {
-            actual = !ctrlTime
-            resetAll()
-            ctrlTime = actual
+            ctrlTime = !ctrlTime
             ibFilterTime.setImageResource(if (ctrlTime) R.drawable.ic_time_selected else R.drawable.ic_time_white)
             adapter.doFilter(adapter.timeFilter, ctrlTime, etFilterString.text.toString())
+        }
+        ibFilterSimple.setOnClickListener {
+            ctrlSimple = !ctrlSimple
+            ibFilterSimple.setImageResource(if (ctrlSimple) R.drawable.ic_simple_selected else R.drawable.ic_simple_white)
+            adapter.doFilter(adapter.simpleFilter, ctrlSimple, etFilterString.text.toString())
+        }
+
+        ibFilterClear.setOnClickListener {
+            ctrlBluetooth = false
+            ibFilterBluetooth.setImageResource(R.drawable.ic_bluetooth_white)
+
+            ctrlWifi = false
+            ibFilterWifi.setImageResource(R.drawable.ic_wifi_white)
+
+            ctrlTime = false
+            ibFilterTime.setImageResource(R.drawable.ic_time_white)
+
+            ctrlLocation = false
+            ibFilterLocation.setImageResource(R.drawable.ic_location_white)
+
+            ctrlSimple = false
+            ibFilterSimple.setImageResource(R.drawable.ic_simple_white)
+
+            etFilterString.text.clear()
+
+            adapter.doFilter(clearAll = true)
         }
 
         etFilterString.addTextChangedListener(object : TextWatcher {
@@ -213,6 +225,17 @@ class ReminderList : AppCompatActivity() {
 
         val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
         val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
+
+        drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
+                fillInfo()
+            }
+            override fun onDrawerOpened(drawerView: View?) {
+                fabMenu.close(true)
+            }
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerClosed(drawerView: View?) {}
+        })
 
         navigation_view.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
