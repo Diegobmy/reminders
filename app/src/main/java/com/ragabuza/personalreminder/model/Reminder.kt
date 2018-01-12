@@ -6,6 +6,5 @@ package com.ragabuza.personalreminder.model
 
 enum class ReminderType { WIFI, BLUETOOTH, LOCATION, TIME, SIMPLE }
 enum class ReminderWhen { IS, ISNOT }
-enum class ReminderWhat { TEXT, URL, CONTACT }
 
-data class Reminder(val id: Long, var active: Boolean, val reminder: String, val type: ReminderType, val rWhen: ReminderWhen, val rWhat: ReminderWhat, val condition: String, val link: String = "")
+data class Reminder(val id: Long, var active: Boolean, val reminder: String = "", val type: ReminderType, val rWhen: ReminderWhen = ReminderWhen.IS, val condition: String, val extra: String = "")

@@ -14,10 +14,11 @@ import android.bluetooth.BluetoothAdapter
 
 
 /**
- * Created by diego.moyses on 1/2/2018.
- */
+* Created by diego.moyses on 1/2/2018.
+*/
 class DialogAdapter(val context: Context, val type: String) {
 
+    private val listener: OpDialogInterface = context as OpDialogInterface
 
     @SuppressLint("InflateParams")
     fun show(){
@@ -79,6 +80,17 @@ class DialogAdapter(val context: Context, val type: String) {
         })
 
         dialog.setContentView(view)
+
+        view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
+            val item = iView.findViewById<TextView>(android.R.id.text1)
+            if(type == "W")
+                listener.wifiCall(item.text)
+            else if(type == "B")
+                listener.blueCall(item.text)
+
+                dialog.dismiss()
+        }
+
         dialog.show()
 
 

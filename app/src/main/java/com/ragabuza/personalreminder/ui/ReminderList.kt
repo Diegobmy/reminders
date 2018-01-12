@@ -1,5 +1,6 @@
 package com.ragabuza.personalreminder.ui
 
+import android.animation.LayoutTransition
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.ClipboardManager
@@ -17,7 +18,6 @@ import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
-import android.net.ConnectivityManager
 import android.support.v4.view.GravityCompat
 import android.text.Editable
 import android.text.TextWatcher
@@ -26,12 +26,25 @@ import android.view.MenuItem
 import android.widget.Toast
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
+import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
 
 
-class ReminderList : AppCompatActivity() {
+class ReminderList : AppCompatActivity(), OpDialogInterface {
+    override fun wifiCall(text: CharSequence) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun blueCall(text: CharSequence) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun timeCall(date: Calendar) {
+        Toast.makeText(this, date.time.toString(), Toast.LENGTH_LONG).show()
+    }
 
     private lateinit var adapter: ReminderAdapter
 
@@ -93,18 +106,18 @@ class ReminderList : AppCompatActivity() {
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
         reminders = listOf(
-                Reminder(1, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangs", ReminderType.SIMPLE, ReminderWhen.IS, ReminderWhat.CONTACT, "a"),
-                Reminder(2, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuang1", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "b"),
-                Reminder(3, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangreaiu12", ReminderType.SIMPLE, ReminderWhen.IS, ReminderWhat.CONTACT, "c"),
-                Reminder(4, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangra", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "d", "https://www.4site.com.br"),
-                Reminder(5, true, "", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "e", "https://www.5site.com.br"),
-                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "f", "https://www.6site.com.br"),
-                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "g", "https://www.7site.com.br"),
-                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "h"),
-                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, ReminderWhat.CONTACT, "i"),
-                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, ReminderWhat.CONTACT, "j"),
-                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, ReminderWhat.CONTACT, "k", "https://www.11site.com.br"),
-                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, ReminderWhat.CONTACT, "l")
+                Reminder(1, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangs", ReminderType.TIME, ReminderWhen.IS, "Today 03:02"),
+                Reminder(2, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuang1", ReminderType.WIFI, ReminderWhen.IS, "Baidu Installer"),
+                Reminder(3, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangreaiu12", ReminderType.SIMPLE, ReminderWhen.IS, ""),
+                Reminder(4, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangra", ReminderType.TIME, ReminderWhen.IS, "Jan 21 13:90", "https://www.4site.com.br"),
+                Reminder(5, true, "", ReminderType.BLUETOOTH, ReminderWhen.IS, "Teleplumps", "https://www.5site.com.br"),
+                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, "CMOYSES-5G", "https://www.6site.com.br"),
+                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, "g", "https://www.7site.com.br"),
+                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, "h"),
+                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, "i"),
+                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, "j"),
+                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, "k", "https://www.11site.com.br"),
+                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, "l")
         )
 
         val mutAlarms = reminders.toMutableList()
@@ -133,10 +146,21 @@ class ReminderList : AppCompatActivity() {
             val month = mcurrentTime.get(Calendar.MONTH)
             val year = mcurrentTime.get(Calendar.YEAR)
 
+            val date = Calendar.getInstance()
 
-            val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, _, _, _ -> }, year, month, day)
+            val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
+                date.set(Calendar.DAY_OF_MONTH, pckDay)
+                date.set(Calendar.MONTH, pckMonth)
+                date.set(Calendar.YEAR, pckYear)
+                timeCall(date)
+            }, year, month, day)
 
-            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, _, _ -> datePicker.show() }, hour, minute, true)
+            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, pckMinute, pckHour ->
+                date.set(Calendar.MINUTE, pckMinute)
+                date.set(Calendar.HOUR_OF_DAY, pckHour)
+                date.set(Calendar.SECOND, 0)
+                datePicker.show()
+            }, hour, minute, true)
 
             timePicker.show()
 
@@ -150,7 +174,6 @@ class ReminderList : AppCompatActivity() {
         setupFilter()
 
     }
-
 
     private fun setupFilter() {
         var ctrlBluetooth = false
@@ -211,7 +234,7 @@ class ReminderList : AppCompatActivity() {
 
         etFilterString.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                adapter.doFilter(string = p0.toString())
+                adapter.doFilter(str = p0.toString())
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -273,9 +296,9 @@ class ReminderList : AppCompatActivity() {
 
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
-        var clip = clipboard.primaryClip.getItemAt(0).text
+        var clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
 
-        if (!clipboard.primaryClip.getItemAt(0).text.isEmpty() && clipboard.primaryClip.getItemAt(0).text.toString() != sharedPref.getString("clip", "")) {
+        if (!clip.isEmpty() && clip.toString() != sharedPref.getString("clip", "")) {
             editor.putString("clip", clip.toString())
             editor.apply()
             btClipboard.visibility = View.VISIBLE

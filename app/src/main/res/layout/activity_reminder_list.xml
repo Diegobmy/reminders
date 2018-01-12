@@ -87,15 +87,19 @@
                             android:layout_margin="4dp"
                             android:background="@null"
                             android:src="@drawable/ic_time_white" />
+                        <Space
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent" />
 
                         <ImageButton
                             android:id="@+id/ibFilterClear"
                             android:layout_width="0dp"
-                            android:layout_weight="2"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:layout_margin="4dp"
                             android:background="@null"
-                            android:src="@drawable/ic_filterclear_white" />
+                            android:src="@drawable/ic_filterclear" />
                     </LinearLayout>
 
                     <EditText
@@ -131,7 +135,9 @@
                     android:id="@+id/lvRemind"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layoutAnimation="@anim/example"
                     android:clipToPadding="false"
+                    android:animateLayoutChanges="true"
                     android:divider="@null"
                     android:dividerHeight="0dp"
                     android:paddingBottom="80dp"

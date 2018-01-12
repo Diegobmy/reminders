@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.model.ReminderType
-import com.ragabuza.personalreminder.model.ReminderWhat
 import com.ragabuza.personalreminder.model.ReminderWhen
 import java.util.ArrayList
 
@@ -17,7 +16,7 @@ import java.util.ArrayList
 //val rWhen: ReminderWhen
 //val rWhat: ReminderWhat
 //val condition: Any
-//val link: String = ""
+//val extra: String = ""
 
 class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", null, 1) {
 
@@ -28,9 +27,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
                 "reminder TEXT, " +
                 "type INTEGER, " +
                 "rWhen INTEGER, " +
-                "rWhat INTEGER, " +
                 "condition TEXT, " +
-                "link TEXT);"
+                "extra TEXT);"
         db.execSQL(sql)
     }
 
@@ -60,9 +58,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         dados.put("reminder", reminder.reminder)
         dados.put("type", reminder.type.ordinal)
         dados.put("rWhen", reminder.rWhen.ordinal)
-        dados.put("rWhat", reminder.rWhat.ordinal)
         dados.put("condition", reminder.condition)
-        dados.put("link", reminder.link)
+        dados.put("extra", reminder.extra)
 
         return dados
     }
@@ -81,9 +78,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
                     c.getString(c.getColumnIndex("reminder")),
                     ReminderType.values()[c.getInt(c.getColumnIndex("type"))],
                     ReminderWhen.values()[c.getInt(c.getColumnIndex("rWhen"))],
-                    ReminderWhat.values()[c.getInt(c.getColumnIndex("rWhat"))],
                     c.getString(c.getColumnIndex("condition")),
-                    c.getString(c.getColumnIndex("link"))
+                    c.getString(c.getColumnIndex("extra"))
             )
 
             reminders.add(reminder)

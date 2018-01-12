@@ -1,9 +1,10 @@
 package com.ragabuza.personalreminder.adapter
 
-import android.annotation.SuppressLint
+import android.animation.ArgbEvaluator
 import android.content.Context
 import android.text.SpannableString
 import android.text.Spanned
+import android.text.TextUtils
 import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,11 @@ import com.daimajia.swipe.adapters.BaseSwipeAdapter
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.model.ReminderType
+import android.widget.LinearLayout
+import android.view.animation.Animation
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator.REVERSE
+import android.graphics.Color
 
 
 /**
@@ -23,6 +29,8 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
     }
+
+    private var last: View? = null
 
     private val originalList: List<Reminder> = reminders.toList()
 
@@ -47,9 +55,9 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                 || filters.contains(timeFilter) || filters.contains(locationFilter) || filters.contains(simpleFilter))
     }
 
-    fun doFilter(type: Int = 0, putting: Boolean = true, string: String = "", clearAll: Boolean = false) {
+    fun doFilter(type: Int = 0, putting: Boolean = true, str: String = "", clearAll: Boolean = false) {
 
-        var string = string.trim()
+        var string = str.trim()
 
         if (type in 1..2) {
             filters.remove(1)
@@ -82,7 +90,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         }
         originalList.filterTo(toRemove) {
             !(it.reminder.contains(string, true)
-                    || it.link.contains(string, true)
+                    || it.extra.contains(string, true)
                     || it.condition.contains(string, true))
         }
         reminders.clear()
@@ -101,16 +109,20 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         val reminder: Reminder = reminders[position]
 
+        convertView?.tag = reminder.id
+
         val tvLink = convertView?.findViewById<TextView>(R.id.tvLink)
         val tvName = convertView?.findViewById<TextView>(R.id.tvName)
+        val tvCond = convertView?.findViewById<TextView>(R.id.tvCondition)
         val ivBigLink = convertView?.findViewById<ImageView>(R.id.ivBigLink)
         val ivCheckbox = convertView?.findViewById<ImageView>(R.id.ivCheckbox)
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
 
-        tvName?.text = reminder.reminder
-
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
+
+        tvCond?.text = reminder.condition
+
         when (reminder.type) {
             ReminderType.WIFI -> iconElement?.setImageResource(R.drawable.ic_wifi)
             ReminderType.BLUETOOTH -> iconElement?.setImageResource(R.drawable.ic_bluetooth)
@@ -120,17 +132,6 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         }
 
 
-        if (reminder.link.isNotEmpty() && reminder.reminder.isNotEmpty()) {
-            linkArea?.visibility = View.VISIBLE
-            tvLink?.text = reminder.link
-        } else if (reminder.reminder.isEmpty()) {
-            convertView?.findViewById<ImageView>(R.id.ivBigLink)?.visibility = View.VISIBLE
-            linkArea?.visibility = View.GONE
-            tvName?.text = reminder.link
-        } else {
-            ivBigLink?.visibility = View.GONE
-            linkArea?.visibility = View.GONE
-        }
 
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
             Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
@@ -148,24 +149,52 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                 swipe?.close()
         }
 
-        val simpleLimit = 77
-        val otherLimit = 71
+        var text: String
 
-        if (tvName?.text.toString().length > if (reminder.type == ReminderType.SIMPLE) simpleLimit else otherLimit)
-            tvName?.text = "${tvName?.text?.subSequence(0, (if (reminder.type == ReminderType.SIMPLE) simpleLimit else otherLimit) - 3)}..."
+        if (reminder.extra.isNotEmpty() && reminder.reminder.isNotEmpty()) {
+            linkArea?.visibility = View.VISIBLE
+            tvLink?.text = reminder.extra
+            text = reminder.reminder
+        } else if (reminder.reminder.isEmpty()) {
+            convertView?.findViewById<ImageView>(R.id.ivBigLink)?.visibility = View.VISIBLE
+            linkArea?.visibility = View.GONE
+            text = reminder.extra
+        } else {
+            text = reminder.reminder
+            ivBigLink?.visibility = View.GONE
+            linkArea?.visibility = View.GONE
+        }
 
-        val text = tvName?.text
         val span = SpannableString(text)
         span.setSpan(StrikethroughSpan(), 0, span.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
 
         if (reminder.active) {
+            tvName?.text = text
             ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
         } else {
             tvName?.text = span
             ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
         }
 
+        tvName?.ellipsize = TextUtils.TruncateAt.END
+        tvLink?.ellipsize = TextUtils.TruncateAt.END
+        tvLink?.maxLines = 1
+
+        if (reminder.extra.isEmpty())
+            tvName?.maxLines = 2
+        else
+            tvName?.maxLines = 1
+
         convertView?.findViewById<ImageButton>(R.id.ivCheckbox)?.setOnClickListener {
+
+            if (reminder.active) {
+                tvName?.text = span
+                ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
+            } else {
+                tvName?.text = text
+                ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
+            }
+
             val toRemove = mutableListOf<Reminder>()
             if (filters.contains(newRemindersFilter)) {
                 reminders.filterTo(toRemove) {
@@ -177,20 +206,38 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                 }
             }
 
-            reminders.removeAll(toRemove)
-            notifyDataSetChanged()
-
-            if (reminder.active) {
-                tvName?.text = span
-                ivCheckbox?.setImageResource(R.drawable.ic_checked_box_grey)
-            } else {
-                tvName?.text = text
-                ivCheckbox?.setImageResource(R.drawable.ic_unchecked_box_grey)
+            toRemove.forEach {
+                if (last?.tag == it.id)
+                    fade(last)
             }
 
+            reminders.removeAll(toRemove)
+
+            shine(convertView)
+
+            convertView.postDelayed(Runnable {
+                notifyDataSetChanged()
+            }, 300)
+
             reminder.active = !reminder.active
+
+            last = convertView
         }
 
+    }
+
+    private fun fade(element: View?) {
+        if (element == null) return
+        val anim = ObjectAnimator.ofFloat(element, "alpha", 1f, 0f, 1f)
+        anim.duration = 600
+        anim.start()
+    }
+
+    private fun shine(element: View?) {
+        if (element == null) return
+        val anim = ObjectAnimator.ofFloat(element, "alpha", 0f, 1f)
+        anim.duration = 300
+        anim.start()
     }
 
     override fun getItem(p0: Int): Any {
