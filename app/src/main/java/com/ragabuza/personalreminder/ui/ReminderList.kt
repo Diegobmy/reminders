@@ -14,6 +14,7 @@ import com.ragabuza.personalreminder.adapter.DialogAdapter
 import java.util.*
 import android.view.View
 import android.content.Context
+import android.content.Intent
 import android.graphics.Typeface
 import android.text.SpannableString
 import android.text.Spanned
@@ -34,15 +35,19 @@ import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface {
+
     override fun wifiCall(text: CharSequence) {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+        startActivity(editIntent)
     }
 
     override fun blueCall(text: CharSequence) {
+        startActivity(editIntent)
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 
     private fun timeCall(date: Calendar) {
+        startActivity(editIntent)
         Toast.makeText(this, date.time.toString(), Toast.LENGTH_LONG).show()
     }
 
@@ -95,6 +100,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 
     private lateinit var reminders: List<Reminder>
 
+    private lateinit var editIntent: Intent
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
@@ -102,6 +109,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
         fabMenu.setClosedOnTouchOutside(true)
 
         setupDrawer()
+
+        editIntent = Intent(this, NewReminder::class.java)
 
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
@@ -270,6 +279,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
                     fabMenu.visibility = View.VISIBLE
                 }
                 R.id.ROld -> {
+                    btClipboard.visibility = View.GONE
                     lvRemind.startAnimation(inAnimation)
                     adapter.doFilter(adapter.oldRemindersFilter)
                     supportActionBar!!.title = getString(R.string.oldReminders)

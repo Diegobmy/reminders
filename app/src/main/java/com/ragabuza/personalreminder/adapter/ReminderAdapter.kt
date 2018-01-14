@@ -30,9 +30,8 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         return R.id.slReminders
     }
 
-    private var last: View? = null
-
     private val originalList: List<Reminder> = reminders.toList()
+    private val viewList = mutableListOf<View>()
 
     override fun generateView(position: Int, parent: ViewGroup?): View {
         val inflater = LayoutInflater.from(context)
@@ -109,7 +108,10 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         val reminder: Reminder = reminders[position]
 
-        convertView?.tag = reminder.id
+        if (convertView != null) {
+            convertView.tag = reminder.id
+            viewList.add(convertView)
+        }
 
         val tvLink = convertView?.findViewById<TextView>(R.id.tvLink)
         val tvName = convertView?.findViewById<TextView>(R.id.tvName)
@@ -206,10 +208,17 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                 }
             }
 
-            toRemove.forEach {
-                if (last?.tag == it.id)
-                    fade(last)
+            var removeView: View? = null
+
+            if(toRemove.isNotEmpty())
+            viewList.forEach {
+                if (toRemove[0].id == it.tag){
+                    fade(it)
+                    removeView = it
+                }
             }
+
+            viewList.remove(removeView)
 
             reminders.removeAll(toRemove)
 
@@ -221,7 +230,6 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
             reminder.active = !reminder.active
 
-            last = convertView
         }
 
     }
@@ -235,7 +243,8 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
     private fun shine(element: View?) {
         if (element == null) return
-        val anim = ObjectAnimator.ofFloat(element, "alpha", 0f, 1f)
+        val y = element.translationY
+        val anim = ObjectAnimator.ofFloat(element, "translationY", y, y-20, y)
         anim.duration = 300
         anim.start()
     }
