@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.support.v4.app.NotificationCompat
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.ui.ReminderList
@@ -20,6 +21,7 @@ class NotificationHelper {
                 .setSmallIcon(R.drawable.ic_simple)
                 .setContentTitle("BitAlarme")
                 .setStyle(NotificationCompat.BigTextStyle().bigText(description))
+                .setColor(p0?.resources.getColor(R.color.colorPrimary))
                 .setContentText(description)
                 .setDefaults(type)
         val intentDestination = Intent(p0, ReminderList::class.java)

@@ -36,20 +36,32 @@ import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface {
+    override fun contactCall(text: CharSequence) {}
+
+    override fun other(text: CharSequence) {}
 
     override fun wifiCall(text: CharSequence) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+        editIntent.putExtra("condition", text)
+        editIntent.putExtra("type", "Rede WiFi")
         startActivity(editIntent)
     }
 
     override fun blueCall(text: CharSequence) {
+        editIntent.putExtra("condition", text)
+        editIntent.putExtra("type", "Dispositivo Bluetooth")
         startActivity(editIntent)
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 
     private fun timeCall(date: Calendar) {
+        editIntent.putExtra("condition", date)
+        editIntent.putExtra("type", "Horário")
         startActivity(editIntent)
-        Toast.makeText(this, date.time.toString(), Toast.LENGTH_LONG).show()
+    }
+
+    private fun simpleCall() {
+        editIntent.putExtra("condition", "")
+        editIntent.putExtra("type", "Simple")
+        startActivity(editIntent)
     }
 
     private lateinit var adapter: ReminderAdapter

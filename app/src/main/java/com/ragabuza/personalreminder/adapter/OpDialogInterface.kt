@@ -7,4 +7,6 @@ package com.ragabuza.personalreminder.adapter
 interface OpDialogInterface {
     fun wifiCall(text: CharSequence)
     fun blueCall(text: CharSequence)
+    fun other(text: CharSequence)
+    fun contactCall(text: CharSequence)
 }
