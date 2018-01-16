@@ -193,6 +193,10 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 //            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
 
+        fabSimple.setOnClickListener {
+            simpleCall()
+        }
+
         setupFilter()
 
     }

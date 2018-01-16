@@ -72,8 +72,8 @@ class DialogAdapter(val context: Context, val type: String) {
         } else if (type == "CON"){
             webList.addAll(getContactList())
         } else if(type == "OWEB"){
-            webList.add("Se conectou de")
-            webList.add("Se desconectou de")
+            webList.add("Se conectar em")
+            webList.add("Se desconectar de")
             filter.visibility = View.GONE
         } else if(type == "OLOC"){
             webList.add("Está em")

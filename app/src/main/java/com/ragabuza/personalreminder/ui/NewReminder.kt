@@ -38,6 +38,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
 
+        etReminder.requestFocus()
+
         val extras = intent.extras
 
         val condition = extras.getString("condition")
@@ -45,22 +47,29 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         val type = extras.getString("type")
 
-        etCondition.hint = type
+        hintCondition.hint = type
 
         if (type == "Simple"){
             etCondition.visibility = View.GONE
             etConditionExtra.visibility = View.GONE
         } else if (type == "Horário"){
-            etConditionExtra.visibility = View.GONE
+            etCondition.visibility = View.GONE
         }
 
         etCondition.keyListener = null
         etCondition.setOnFocusChangeListener { _, b ->
             if (b) DialogAdapter(this, "W").show()
         }
+        etCondition.setOnClickListener {
+            DialogAdapter(this, "W").show()
+        }
+
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
             if (b) DialogAdapter(this, "OWEB").show()
+        }
+        etConditionExtra.setOnClickListener {
+            DialogAdapter(this, "OWEB").show()
         }
 
 
