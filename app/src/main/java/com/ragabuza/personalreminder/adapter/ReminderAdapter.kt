@@ -20,6 +20,7 @@ import android.view.animation.Animation
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator.REVERSE
 import android.graphics.Color
+import com.ragabuza.personalreminder.dao.ReminderDAO
 
 
 /**
@@ -229,6 +230,9 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             }, 300)
 
             reminder.active = !reminder.active
+            val dao = ReminderDAO(context)
+            dao.alt(reminder)
+            dao.close()
 
         }
 

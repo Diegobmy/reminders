@@ -30,37 +30,45 @@ import android.support.v4.widget.DrawerLayout
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
+import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.util.NotificationHelper
+import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface {
+    override fun timeCall(date: Calendar) {
+        editIntent.putExtra("condition", TimeString(date).getString())
+        editIntent.putExtra("type", ReminderType.TIME.toString())
+        startActivity(editIntent)
+    }
+
     override fun contactCall(text: CharSequence) {}
 
     override fun other(text: CharSequence) {}
 
     override fun wifiCall(text: CharSequence) {
         editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", "Rede WiFi")
+        editIntent.putExtra("type", ReminderType.WIFI.toString())
         startActivity(editIntent)
     }
 
     override fun blueCall(text: CharSequence) {
         editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", "Dispositivo Bluetooth")
+        editIntent.putExtra("type", ReminderType.BLUETOOTH.toString())
         startActivity(editIntent)
     }
 
-    private fun timeCall(date: Calendar) {
-        editIntent.putExtra("condition", date)
-        editIntent.putExtra("type", "Horário")
+    private fun locationCall() {
+        editIntent.putExtra("condition", "")
+        editIntent.putExtra("type", ReminderType.LOCATION.toString())
         startActivity(editIntent)
     }
 
     private fun simpleCall() {
         editIntent.putExtra("condition", "")
-        editIntent.putExtra("type", "Simple")
+        editIntent.putExtra("type", ReminderType.SIMPLE.toString())
         startActivity(editIntent)
     }
 
@@ -127,23 +135,14 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 
         this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
-        reminders = listOf(
-                Reminder(1, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangs", ReminderType.TIME, ReminderWhen.IS, "Today 03:02"),
-                Reminder(2, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuang1", ReminderType.WIFI, ReminderWhen.IS, "Baidu Installer"),
-                Reminder(3, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangraeiungreiuangreaiu12", ReminderType.SIMPLE, ReminderWhen.IS, ""),
-                Reminder(4, true, "fnvuierfniwraeonfgiureagnraiugnreaiungreaiungeaiugnuirangra", ReminderType.TIME, ReminderWhen.IS, "Jan 21 13:90", "https://www.4site.com.br"),
-                Reminder(5, true, "", ReminderType.BLUETOOTH, ReminderWhen.IS, "Teleplumps", "https://www.5site.com.br"),
-                Reminder(6, true, "6", ReminderType.WIFI, ReminderWhen.IS, "CMOYSES-5G", "https://www.6site.com.br"),
-                Reminder(7, false, "7", ReminderType.LOCATION, ReminderWhen.IS, "g", "https://www.7site.com.br"),
-                Reminder(8, false, "8", ReminderType.TIME, ReminderWhen.IS, "h"),
-                Reminder(9, false, "9", ReminderType.BLUETOOTH, ReminderWhen.IS, "i"),
-                Reminder(10, false, "10", ReminderType.WIFI, ReminderWhen.IS, "j"),
-                Reminder(11, false, "11", ReminderType.LOCATION, ReminderWhen.IS, "k", "https://www.11site.com.br"),
-                Reminder(12, false, "12", ReminderType.TIME, ReminderWhen.IS, "l")
-        )
+        val dao = ReminderDAO(this)
 
-        val mutAlarms = reminders.toMutableList()
-        adapter = ReminderAdapter(this, mutAlarms)
+        reminders = dao.get()
+
+        dao.close()
+
+        val mutList = reminders.toMutableList()
+        adapter = ReminderAdapter(this, mutList)
         adapter.doFilter(adapter.newRemindersFilter, true)
         lvRemind.adapter = adapter
         lvRemind.emptyView = tvEmpty
@@ -160,37 +159,13 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
             DialogAdapter(this, "W").show()
         }
         fabTime.setOnClickListener {
-            val mcurrentTime = Calendar.getInstance()
-            val minute = mcurrentTime.get(Calendar.MINUTE)
-            val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
-
-            val day = mcurrentTime.get(Calendar.DAY_OF_MONTH)
-            val month = mcurrentTime.get(Calendar.MONTH)
-            val year = mcurrentTime.get(Calendar.YEAR)
-
-            val date = Calendar.getInstance()
-
-            val datePicker = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
-                date.set(Calendar.DAY_OF_MONTH, pckDay)
-                date.set(Calendar.MONTH, pckMonth)
-                date.set(Calendar.YEAR, pckYear)
-                timeCall(date)
-            }, year, month, day)
-
-            val timePicker = TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, pckMinute, pckHour ->
-                date.set(Calendar.MINUTE, pckMinute)
-                date.set(Calendar.HOUR_OF_DAY, pckHour)
-                date.set(Calendar.SECOND, 0)
-                datePicker.show()
-            }, hour, minute, true)
-
-            timePicker.show()
-
+            DialogAdapter(this, "T").show()
         }
         fabLocation.setOnClickListener {
             //            val PLACE_PICKER_REQUEST = 1
 //            val builder = PlacePicker.IntentBuilder()
 //            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
+            locationCall()
         }
 
         fabSimple.setOnClickListener {

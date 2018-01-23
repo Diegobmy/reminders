@@ -1,7 +1,9 @@
 package com.ragabuza.personalreminder.adapter
 
 import android.annotation.SuppressLint
+import android.app.DatePickerDialog
 import android.app.Dialog
+import android.app.TimePickerDialog
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.text.Editable
@@ -16,19 +18,18 @@ import android.view.View
 import android.content.ContentValues.TAG
 import android.provider.ContactsContract
 import android.content.ContentResolver
-
-
+import java.util.*
 
 
 /**
-* Created by diego.moyses on 1/2/2018.
-*/
+ * Created by diego.moyses on 1/2/2018.
+ */
 class DialogAdapter(val context: Context, val type: String) {
 
     private val listener: OpDialogInterface = context as OpDialogInterface
 
     @SuppressLint("InflateParams")
-    fun show(){
+    fun show() {
 
         val dialog = Dialog(context)
         val inflater = LayoutInflater.from(context)
@@ -43,7 +44,7 @@ class DialogAdapter(val context: Context, val type: String) {
             dialog.dismiss()
         }
 
-        if (type == "W"){
+        if (type == "W") {
             title.text = context.getString(R.string.selectWifi)
             val wifiService: WifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
             if (wifiService.isWifiEnabled) {
@@ -57,7 +58,7 @@ class DialogAdapter(val context: Context, val type: String) {
                 Toast.makeText(context, context.getString(R.string.turnOnWiFi), Toast.LENGTH_LONG).show()
                 return
             }
-        } else if(type == "B"){
+        } else if (type == "B") {
             title.text = context.getString(R.string.selectBluetooth)
             val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
             if (bluetoothAdapter.isEnabled) {
@@ -69,18 +70,19 @@ class DialogAdapter(val context: Context, val type: String) {
                 Toast.makeText(context, context.getString(R.string.turnOnBluetooth), Toast.LENGTH_LONG).show()
                 return
             }
-        } else if (type == "CON"){
+        } else if (type == "T") {
+            showTimeDialog()
+        } else if (type == "CON") {
             webList.addAll(getContactList())
-        } else if(type == "OWEB"){
+        } else if (type == "OWEB") {
             webList.add("Se conectar em")
             webList.add("Se desconectar de")
             filter.visibility = View.GONE
-        } else if(type == "OLOC"){
+        } else if (type == "OLOC") {
             webList.add("Está em")
             webList.add("Não está em")
             filter.visibility = View.GONE
         }
-
 
 
         val linkedHashSet = LinkedHashSet<String>()
@@ -90,7 +92,7 @@ class DialogAdapter(val context: Context, val type: String) {
         lv.adapter = adapter
 
 
-        filter.addTextChangedListener(object : TextWatcher{
+        filter.addTextChangedListener(object : TextWatcher {
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 adapter.filter.filter(p0)
@@ -105,25 +107,53 @@ class DialogAdapter(val context: Context, val type: String) {
 
         view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
             val item = iView.findViewById<TextView>(android.R.id.text1)
-            if(type == "W")
+            if (type == "W")
                 listener.wifiCall(item.text)
-            else if(type == "B")
+            else if (type == "B")
                 listener.blueCall(item.text)
-            else if(type == "OWEB"||type == "OLOC")
+            else if (type == "OWEB" || type == "OLOC")
                 listener.other(item.text)
-            else if(type == "CON")
+            else if (type == "CON")
                 listener.contactCall(item.text)
 
-                dialog.dismiss()
+            dialog.dismiss()
         }
 
+        if (type != "T")
         dialog.show()
-
 
 
     }
 
-    private fun getContactList():List<String> {
+    private fun showTimeDialog() {
+        val mcurrentTime = Calendar.getInstance()
+        val minute = mcurrentTime.get(Calendar.MINUTE)
+        val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
+
+        val day = mcurrentTime.get(Calendar.DAY_OF_YEAR)
+        val month = mcurrentTime.get(Calendar.MONTH)
+        val year = mcurrentTime.get(Calendar.YEAR)
+
+        val date = Calendar.getInstance()
+
+        val datePicker = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
+            date.set(Calendar.DAY_OF_YEAR, pckDay)
+            date.set(Calendar.MONTH, pckMonth+1)
+            date.set(Calendar.YEAR, pckYear)
+            listener.timeCall(date)
+        }, year, month, day)
+
+        val timePicker = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { _, pckHour, pckMinute ->
+            date.set(Calendar.MINUTE, pckMinute)
+            date.set(Calendar.HOUR_OF_DAY, pckHour)
+            date.set(Calendar.SECOND, 0)
+            datePicker.show()
+        }, hour, minute, true)
+
+        timePicker.show()
+    }
+
+    private fun getContactList(): List<String> {
         val cr = context.contentResolver
         val cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
         val contacts = mutableListOf<String>()

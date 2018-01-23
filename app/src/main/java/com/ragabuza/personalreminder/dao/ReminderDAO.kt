@@ -48,12 +48,11 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
 
         val dados = getInfo(reminder)
 
-        db.insert("Alarm", null, dados)
+        db.insert("Reminder", null, dados)
     }
 
     private fun getInfo(reminder: Reminder): ContentValues {
         val dados = ContentValues()
-        dados.put("id", reminder.id)
         dados.put("active", reminder.active)
         dados.put("reminder", reminder.reminder)
         dados.put("type", reminder.type.ordinal)
@@ -65,7 +64,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
     }
 
         fun get(): List<Reminder> {
-            val sql = "SELECT * FROM Alarm;"
+            val sql = "SELECT * FROM Reminder;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
 

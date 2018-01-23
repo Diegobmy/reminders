@@ -37,7 +37,9 @@
                 <data android:mimeType="text/*"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.NewReminder" />
+
+        <activity android:name=".ui.NewReminder"
+            android:windowSoftInputMode="adjustResize"/>
 
         <receiver android:name=".receivers.WifiReceiver">
             <intent-filter>

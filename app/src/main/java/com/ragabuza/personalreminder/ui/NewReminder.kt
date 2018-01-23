@@ -1,6 +1,7 @@
 package com.ragabuza.personalreminder.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -12,12 +13,21 @@ import android.view.View
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
+import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.model.ReminderType
+import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.activity_reminder.*
+import java.util.*
 
 /**
  * Created by diego.moyses on 1/12/2018.
  */
 class NewReminder : AppCompatActivity(), OpDialogInterface {
+    override fun timeCall(date: Calendar) {
+        etCondition.setText(TimeString(date).getString())
+    }
+
     override fun contactCall(text: CharSequence) {
         etExtra.setText(text)
     }
@@ -31,7 +41,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
     }
 
     override fun blueCall(text: CharSequence) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        etCondition.setText(text)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,21 +57,36 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         val type = extras.getString("type")
 
-        hintCondition.hint = type
+        hintCondition.hint = when (type) {
+            "WIFI" -> "Rede WiFi"
+            "BLUETOOTH" -> "Dispositivo Bluetooth"
+            "LOCATION" -> "Local"
+            "TIME" -> "Horário"
+            else -> "Condição"
+        }
 
-        if (type == "Simple"){
+        if (type == "SIMPLE") {
             etCondition.visibility = View.GONE
             etConditionExtra.visibility = View.GONE
-        } else if (type == "Horário"){
-            etCondition.visibility = View.GONE
+        } else if (type == "TIME") {
+            etConditionExtra.visibility = View.GONE
         }
 
         etCondition.keyListener = null
+
         etCondition.setOnFocusChangeListener { _, b ->
-            if (b) DialogAdapter(this, "W").show()
+            if (b) when (type) {
+                "WIFI" -> DialogAdapter(this, "W").show()
+                "BLUETOOTH" -> DialogAdapter(this, "B").show()
+                "TIME" -> DialogAdapter(this, "T").show()
+            }
         }
         etCondition.setOnClickListener {
-            DialogAdapter(this, "W").show()
+            when (type) {
+                "WIFI" -> DialogAdapter(this, "W").show()
+                "BLUETOOTH" -> DialogAdapter(this, "B").show()
+                "TIME" -> DialogAdapter(this, "T").show()
+            }
         }
 
         etConditionExtra.keyListener = null
@@ -75,9 +100,18 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         ibContacts.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,arrayOf(Manifest.permission.READ_CONTACTS), 0)
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
             } else
-            DialogAdapter(this, "CON").show()
+                DialogAdapter(this, "CON").show()
+        }
+
+        btn_cancel.setOnClickListener { finish() }
+        btn_save.setOnClickListener {
+            val DAO = ReminderDAO(this)
+            DAO.add(Reminder(1, true, etReminder.text.toString(), ReminderType.SIMPLE))
+            DAO.close()
+            val intent = Intent(this, ReminderList::class.java)
+            startActivity(intent)
         }
 
         val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
