@@ -18,4 +18,8 @@
     <string name="number_reminders_new">lembretes ativos</string>
     <string name="number_reminders_old">lembretes completados</string>
     <string name="simple">Simples</string>
+    <string name="when_is">Se conectar em</string>
+    <string name="when_isnot">Se desconectar de</string>
+    <string name="when_is_2">Está em</string>
+    <string name="when_isnot_2">Não está em</string>
 </resources>

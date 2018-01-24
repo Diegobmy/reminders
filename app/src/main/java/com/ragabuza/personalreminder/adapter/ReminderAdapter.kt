@@ -21,6 +21,9 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator.REVERSE
 import android.graphics.Color
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.util.TimeString
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -124,6 +127,12 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
 
+        if (reminder.type == ReminderType.TIME) {
+            val cal = Calendar.getInstance()
+            val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
+            cal.time = sdf.parse(reminder.condition)
+            tvCond?.text = TimeString(cal).getString(true)
+        } else
         tvCond?.text = reminder.condition
 
         when (reminder.type) {

@@ -26,9 +26,9 @@ class TimeString(val date: Calendar) {
         val intervalHour = intervalHalfHour / 2
 
         return when {
-            hourSensitive && intervalMin < 60 -> "Em $intervalMin minutos"
+            hourSensitive && intervalMin < 60 -> "Em $intervalMin minuto${if(intervalMin> 1) "s" else ""}"
             hourSensitive && intervalHalfHour < 10 -> if(intervalHalfHour.isOdd()) "Em $intervalHour hora${if(intervalHour > 1) "s" else ""} e meia" else "Em $intervalHour horas"
-            else -> "$completeDay, $hour:$minute"
+            else -> "$completeDay, ${if (hour < 10) "0" else ""}$hour:${if (minute < 10) "0" else ""}$minute"
         }
     }
     private fun Long.isOdd(): Boolean{

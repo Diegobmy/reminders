@@ -16,6 +16,7 @@ import android.view.View
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.os.Handler
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -39,7 +40,7 @@ import kotlinx.android.synthetic.main.drawer_header.*
 
 class ReminderList : AppCompatActivity(), OpDialogInterface {
     override fun timeCall(date: Calendar) {
-        editIntent.putExtra("condition", TimeString(date).getString())
+        editIntent.putExtra("condition", date.time.toString())
         editIntent.putExtra("type", ReminderType.TIME.toString())
         startActivity(editIntent)
     }
@@ -86,7 +87,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
         return true
     }
 
-    fun fillInfo(){
+    fun fillInfo() {
         tvNumberOfRemindersNew.text = "${reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
         tvNumberOfRemindersOld.text = "${reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
     }
@@ -174,6 +175,15 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 
         setupFilter()
 
+        val handler = Handler()
+        val timedTask = object : Runnable {
+
+            override fun run() {
+                adapter.notifyDataSetChanged()
+                handler.postDelayed(this, 1000*60)
+            }
+        }
+        handler.post(timedTask)
     }
 
     private fun setupFilter() {
@@ -254,9 +264,11 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
             override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
                 fillInfo()
             }
+
             override fun onDrawerOpened(drawerView: View?) {
                 fabMenu.close(true)
             }
+
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerClosed(drawerView: View?) {}
         })
