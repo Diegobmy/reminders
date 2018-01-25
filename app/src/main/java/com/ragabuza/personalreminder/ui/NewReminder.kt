@@ -17,6 +17,7 @@ import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.util.TimeString
 import com.ragabuza.personalreminder.util.ReminderTranslation
+import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,6 +28,7 @@ import java.util.*
 class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     var cond: String = ""
+    private lateinit var preferences: Shared
 
     override fun contactCall(text: CharSequence) {
         etExtra.setText(text)
@@ -55,6 +57,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
 
+        preferences = Shared(this)
+
         etReminder.requestFocus()
 
         val extras = intent.extras
@@ -62,13 +66,14 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         val condition = extras.getString("condition")
         val type = extras.getString("type")
 
+        cond = condition
+
         if (condition != null)
             if (type == "TIME") {
                 val cal = Calendar.getInstance()
                 val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
                 cal.time = sdf.parse(condition)
                 etCondition.setText(TimeString(cal).getString(false))
-                cond = condition
             } else
             etCondition.setText(condition)
 
@@ -92,25 +97,25 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         etCondition.setOnFocusChangeListener { _, b ->
             if (b) when (type) {
-                "WIFI" -> DialogAdapter(this, "W").show()
-                "BLUETOOTH" -> DialogAdapter(this, "B").show()
-                "TIME" -> DialogAdapter(this, "T").show()
+                "WIFI" -> DialogAdapter(this, this,"W").show()
+                "BLUETOOTH" -> DialogAdapter(this, this,"B").show()
+                "TIME" -> DialogAdapter(this, this,"T").show()
             }
         }
         etCondition.setOnClickListener {
             when (type) {
-                "WIFI" -> DialogAdapter(this, "W").show()
-                "BLUETOOTH" -> DialogAdapter(this, "B").show()
-                "TIME" -> DialogAdapter(this, "T").show()
+                "WIFI" -> DialogAdapter(this, this,"W").show()
+                "BLUETOOTH" -> DialogAdapter(this, this,"B").show()
+                "TIME" -> DialogAdapter(this, this,"T").show()
             }
         }
 
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
-            if (b) DialogAdapter(this, "OWEB").show()
+            if (b) DialogAdapter(this, this,"OWEB").show()
         }
         etConditionExtra.setOnClickListener {
-            DialogAdapter(this, "OWEB").show()
+            DialogAdapter(this, this,"OWEB").show()
         }
 
 
@@ -118,14 +123,14 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
             } else
-                DialogAdapter(this, "CON").show()
+                DialogAdapter(this, this,"CON").show()
         }
 
         btn_cancel.setOnClickListener { finish() }
         btn_save.setOnClickListener {
-            val DAO = ReminderDAO(this)
+            val dao = ReminderDAO(this)
             val translator = ReminderTranslation(this)
-            DAO.add(Reminder(
+            dao.add(Reminder(
                     1,
                     true,
                     etReminder.text.toString(),
@@ -134,7 +139,12 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     cond,
                     etExtra.text.toString()
             ))
-            DAO.close()
+            dao.close()
+
+            when(type){
+                "WIFI"->preferences.addToCheckedWifi(cond)
+            }
+
             val intent = Intent(this, ReminderList::class.java)
             startActivity(intent)
         }

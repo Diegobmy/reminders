@@ -88,6 +88,14 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         return reminders
     }
 
+    fun count(string: String): Int {
+        val sql = "SELECT * FROM Reminder where condition='$string' and active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+
+        return c.count
+    }
+
     fun del(reminder: Reminder) {
         val db = writableDatabase
 

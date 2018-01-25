@@ -1,6 +1,8 @@
 package com.ragabuza.personalreminder.adapter
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
@@ -12,19 +14,18 @@ import android.view.LayoutInflater
 import android.widget.*
 import com.ragabuza.personalreminder.R
 import android.bluetooth.BluetoothAdapter
-import android.content.BroadcastReceiver
-import android.text.method.TextKeyListener.clear
+import android.content.pm.PackageManager
 import android.view.View
-import android.content.ContentValues.TAG
 import android.provider.ContactsContract
-import android.content.ContentResolver
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import java.util.*
 
 
 /**
  * Created by diego.moyses on 1/2/2018.
  */
-class DialogAdapter(val context: Context, val type: String) {
+class DialogAdapter(val context: Context, val activity: Activity, val type: String) {
 
     private val listener: OpDialogInterface = context as OpDialogInterface
 
@@ -44,44 +45,28 @@ class DialogAdapter(val context: Context, val type: String) {
             dialog.dismiss()
         }
 
-        if (type == "W") {
-            title.text = context.getString(R.string.selectWifi)
-            val wifiService: WifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-            if (wifiService.isWifiEnabled) {
-                wifiService.configuredNetworks.forEach { web ->
-                    webList.add(web.SSID.toString().substring(1, web.SSID.toString().length - 1))
-                }
-                wifiService.scanResults.forEach { web ->
-                    webList.add(web.SSID)
-                }
-            } else {
-                Toast.makeText(context, context.getString(R.string.turnOnWiFi), Toast.LENGTH_LONG).show()
-                return
+        when (type) {
+            "W" -> {
+                if (wifiDialog(title, webList)) return
             }
-        } else if (type == "B") {
-            title.text = context.getString(R.string.selectBluetooth)
-            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-            if (bluetoothAdapter.isEnabled) {
-                val pairedDevices = bluetoothAdapter.bondedDevices
-                pairedDevices.forEach { blue ->
-                    webList.add(blue.name)
-                }
-            } else {
-                Toast.makeText(context, context.getString(R.string.turnOnBluetooth), Toast.LENGTH_LONG).show()
-                return
+            "B" -> {
+                if (bluetoothDialog(title, webList)) return
             }
-        } else if (type == "T") {
-            showTimeDialog()
-        } else if (type == "CON") {
-            webList.addAll(getContactList())
-        } else if (type == "OWEB") {
-            webList.add(context.getString(R.string.when_is))
-            webList.add(context.getString(R.string.when_isnot))
-            filter.visibility = View.GONE
-        } else if (type == "OLOC") {
-            webList.add(context.getString(R.string.when_is_2))
-            webList.add(context.getString(R.string.when_isnot_2))
-            filter.visibility = View.GONE
+            "T" -> {
+                showTimeDialog()
+            }
+            "CON" -> {
+                webList.addAll(getContactList())
+            }
+            "OWEB" -> {
+                webList.add(context.getString(R.string.when_is_2))
+                webList.add(context.getString(R.string.when_isnot_2))
+            }
+            "OLOC" -> {
+                webList.add(context.getString(R.string.when_is_2))
+                webList.add(context.getString(R.string.when_isnot_2))
+                filter.visibility = View.GONE
+            }
         }
 
 
@@ -120,9 +105,47 @@ class DialogAdapter(val context: Context, val type: String) {
         }
 
         if (type != "T")
-        dialog.show()
+            dialog.show()
 
 
+    }
+
+    private fun bluetoothDialog(title: TextView, webList: MutableList<String>): Boolean {
+        title.text = context.getString(R.string.selectBluetooth)
+        val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+        if (bluetoothAdapter.isEnabled) {
+            val pairedDevices = bluetoothAdapter.bondedDevices
+            pairedDevices.forEach { blue ->
+                webList.add(blue.name)
+            }
+        } else {
+            Toast.makeText(context, context.getString(R.string.turnOnBluetooth), Toast.LENGTH_LONG).show()
+            return true
+        }
+        return false
+    }
+
+    private fun wifiDialog(title: TextView, webList: MutableList<String>): Boolean {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 0)
+        } else {
+            title.text = context.getString(R.string.selectWifi)
+            val wifiService: WifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+            if (wifiService.isWifiEnabled) {
+                wifiService.configuredNetworks.forEach { web ->
+                    webList.add(web.SSID.toString().substring(1, web.SSID.toString().length - 1))
+                }
+                wifiService.scanResults.forEach { web ->
+                    webList.add(web.SSID)
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.turnOnWiFi), Toast.LENGTH_LONG).show()
+                return true
+            }
+            return false
+        }
+        return false
     }
 
     private fun showTimeDialog() {
@@ -138,7 +161,7 @@ class DialogAdapter(val context: Context, val type: String) {
 
         val datePicker = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
             date.set(Calendar.DAY_OF_YEAR, pckDay)
-            date.set(Calendar.MONTH, pckMonth+1)
+            date.set(Calendar.MONTH, pckMonth + 1)
             date.set(Calendar.YEAR, pckYear)
             listener.timeCall(date)
         }, year, month, day)

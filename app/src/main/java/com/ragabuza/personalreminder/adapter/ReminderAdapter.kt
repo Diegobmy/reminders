@@ -1,6 +1,6 @@
 package com.ragabuza.personalreminder.adapter
 
-import android.animation.ArgbEvaluator
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.text.SpannableString
 import android.text.Spanned
@@ -12,24 +12,23 @@ import android.view.ViewGroup
 import android.widget.*
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.adapters.BaseSwipeAdapter
-import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.model.ReminderType
-import android.widget.LinearLayout
-import android.view.animation.Animation
-import android.animation.ObjectAnimator
-import android.animation.ValueAnimator.REVERSE
-import android.graphics.Color
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.model.ReminderType
+import com.ragabuza.personalreminder.util.Shared
 import com.ragabuza.personalreminder.util.TimeString
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 /**
- * Created by diego.moyses on 12/28/2017.
- */
+* Created by diego.moyses on 12/28/2017.
+*/
 class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
+
+    private val preferences = Shared(context)
+
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
     }
@@ -161,7 +160,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                 swipe?.close()
         }
 
-        var text: String
+        val text: String
 
         if (reminder.extra.isNotEmpty() && reminder.reminder.isNotEmpty()) {
             linkArea?.visibility = View.VISIBLE
@@ -242,6 +241,9 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             val dao = ReminderDAO(context)
             dao.alt(reminder)
             dao.close()
+            when(reminder.type){
+                ReminderType.WIFI -> if(reminder.active) preferences.addToCheckedWifi(reminder.condition) else preferences.refreshCheckedWifi(reminder.condition)
+            }
 
         }
 

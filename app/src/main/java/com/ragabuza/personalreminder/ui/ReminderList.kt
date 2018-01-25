@@ -1,5 +1,6 @@
 package com.ragabuza.personalreminder.ui
 
+import android.Manifest
 import android.animation.LayoutTransition
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -15,8 +16,11 @@ import java.util.*
 import android.view.View
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -33,6 +37,7 @@ import android.view.animation.AnimationUtils
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.util.NotificationHelper
+import com.ragabuza.personalreminder.util.Shared
 import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
@@ -154,13 +159,13 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
         }
 
         fabBluetooth.setOnClickListener {
-            DialogAdapter(this, "B").show()
+            DialogAdapter(this, this,"B").show()
         }
         fabWifi.setOnClickListener {
-            DialogAdapter(this, "W").show()
+            DialogAdapter(this, this,"W").show()
         }
         fabTime.setOnClickListener {
-            DialogAdapter(this, "T").show()
+            DialogAdapter(this, this,"T").show()
         }
         fabLocation.setOnClickListener {
             //            val PLACE_PICKER_REQUEST = 1
