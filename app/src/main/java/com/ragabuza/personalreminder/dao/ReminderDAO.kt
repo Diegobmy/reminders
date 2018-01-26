@@ -98,7 +98,6 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
 
     fun del(reminder: Reminder) {
         val db = writableDatabase
-
         val params = arrayOf<String>(reminder.id.toString())
         db.delete("Reminder", "id = ?", params)
     }

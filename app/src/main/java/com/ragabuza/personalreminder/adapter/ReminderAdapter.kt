@@ -2,14 +2,17 @@ package com.ragabuza.personalreminder.adapter
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
+import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.daimajia.swipe.SwipeLayout
 import com.daimajia.swipe.adapters.BaseSwipeAdapter
 import com.ragabuza.personalreminder.R
@@ -23,9 +26,9 @@ import java.util.*
 
 
 /**
-* Created by diego.moyses on 12/28/2017.
-*/
-class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
+ * Created by diego.moyses on 12/28/2017.
+ */
+class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
 
     private val preferences = Shared(context)
 
@@ -33,7 +36,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         return R.id.slReminders
     }
 
-    private val originalList: List<Reminder> = reminders.toList()
+    private val originalList: MutableList<Reminder> = reminders.toMutableList()
     private val viewList = mutableListOf<View>()
 
     override fun generateView(position: Int, parent: ViewGroup?): View {
@@ -122,6 +125,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         val ivBigLink = convertView?.findViewById<ImageView>(R.id.ivBigLink)
         val ivCheckbox = convertView?.findViewById<ImageView>(R.id.ivCheckbox)
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
+        val ivLink = convertView?.findViewById<ImageView>(R.id.ivLink)
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
@@ -132,7 +136,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             cal.time = sdf.parse(reminder.condition)
             tvCond?.text = TimeString(cal).getString(true)
         } else
-        tvCond?.text = reminder.condition
+            tvCond?.text = reminder.condition
 
         when (reminder.type) {
             ReminderType.WIFI -> iconElement?.setImageResource(R.drawable.ic_wifi)
@@ -145,7 +149,28 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
 
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
-            Toast.makeText(context, "Deleted", Toast.LENGTH_SHORT).show()
+            val alert = SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(context.getString(R.string.really_delete))
+                    .setContentText(context.getString(R.string.cannot_be_undone))
+                    .setConfirmText(context.getString(R.string.yes_delete))
+                    .setCancelText(context.getString(R.string.no_delete))
+                    .setConfirmClickListener {
+                        val dao = ReminderDAO(context)
+                        dao.del(reminder)
+                        dao.close()
+                        originalList.remove(reminder)
+                        it.setTitleText(context.getString(R.string.deleted))
+                                .setContentText(context.getString(R.string.reminder_deleted))
+                                .setConfirmText("OK")
+                                .setConfirmClickListener(null)
+                                .showCancelButton(false)
+                                .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
+                        reminders.remove(reminder)
+                        preferences.refreshCheckedWifi(reminder.condition)
+                        closeAllItems()
+                        notifyDataSetChanged()
+                    }
+                    alert.show()
         }
         convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.setOnClickListener {
             Toast.makeText(context, "Edited", Toast.LENGTH_SHORT).show()
@@ -162,6 +187,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
         val text: String
 
+
         if (reminder.extra.isNotEmpty() && reminder.reminder.isNotEmpty()) {
             linkArea?.visibility = View.VISIBLE
             tvLink?.text = reminder.extra
@@ -174,6 +200,22 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             text = reminder.reminder
             ivBigLink?.visibility = View.GONE
             linkArea?.visibility = View.GONE
+        }
+
+        val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
+        when {
+            reminder.extra.contains("CONTACT: ") -> {
+                ivLink?.setImageResource(R.drawable.ic_contact)
+                ivLink?.visibility = View.VISIBLE
+                val ss = SpannableString(reminder.extra.substring(9 until reminder.extra.length))
+                ss.setSpan(ForegroundColorSpan(context.resources.getColor(R.color.contactColor)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                tvLink?.text = ss
+            }
+            reminder.extra.matches(regex) -> {
+                ivLink?.visibility = View.VISIBLE
+                ivLink?.setImageResource(R.drawable.ic_link)
+            }
+            else -> ivLink?.visibility = View.GONE
         }
 
         val span = SpannableString(text)
@@ -219,13 +261,13 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
             var removeView: View? = null
 
-            if(toRemove.isNotEmpty())
-            viewList.forEach {
-                if (toRemove[0].id == it.tag){
-                    fade(it)
-                    removeView = it
+            if (toRemove.isNotEmpty())
+                viewList.forEach {
+                    if (toRemove[0].id == it.tag) {
+                        fade(it)
+                        removeView = it
+                    }
                 }
-            }
 
             viewList.remove(removeView)
 
@@ -241,8 +283,8 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             val dao = ReminderDAO(context)
             dao.alt(reminder)
             dao.close()
-            when(reminder.type){
-                ReminderType.WIFI -> if(reminder.active) preferences.addToCheckedWifi(reminder.condition) else preferences.refreshCheckedWifi(reminder.condition)
+            when (reminder.type) {
+                ReminderType.WIFI -> if (reminder.active) preferences.addToCheckedWifi(reminder.condition) else preferences.refreshCheckedWifi(reminder.condition)
             }
 
         }
@@ -259,7 +301,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
     private fun shine(element: View?) {
         if (element == null) return
         val y = element.translationY
-        val anim = ObjectAnimator.ofFloat(element, "translationY", y, y-20, y)
+        val anim = ObjectAnimator.ofFloat(element, "translationY", y, y - 20, y)
         anim.duration = 300
         anim.start()
     }

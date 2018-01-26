@@ -3,12 +3,12 @@ package com.ragabuza.personalreminder.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
+import android.graphics.Typeface.ITALIC
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
@@ -21,6 +21,12 @@ import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
 import java.util.*
+import android.text.style.ImageSpan
+import android.graphics.drawable.Drawable
+import android.text.*
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+
 
 /**
  * Created by diego.moyses on 1/12/2018.
@@ -28,10 +34,23 @@ import java.util.*
 class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     var cond: String = ""
+    var contact = false
+
     private lateinit var preferences: Shared
 
     override fun contactCall(text: CharSequence) {
-        etExtra.setText(text)
+        contact = false
+        val ss = SpannableString(" $text")
+        val d = resources.getDrawable(R.drawable.ic_contact)
+        d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
+        val span = ImageSpan(d, ImageSpan.ALIGN_BOTTOM)
+        ss.setSpan(span, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ss.setSpan( StyleSpan(ITALIC), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ss.setSpan( ForegroundColorSpan(resources.getColor(R.color.contactColor)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        etExtra.setText(ss)
+        etExtra.setSelection(ss.length)
+        etExtra.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+        contact = true
     }
 
     override fun other(text: CharSequence) {
@@ -62,11 +81,14 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         etReminder.requestFocus()
 
         val extras = intent.extras
-
         val condition = extras.getString("condition")
         val type = extras.getString("type")
-
         cond = condition
+
+        if (type == "LOCATION")
+            etConditionExtra.setText(getString(R.string.when_is_2))
+        else
+            etConditionExtra.setText(getString(R.string.when_is))
 
         if (condition != null)
             if (type == "TIME") {
@@ -75,7 +97,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 cal.time = sdf.parse(condition)
                 etCondition.setText(TimeString(cal).getString(false))
             } else
-            etCondition.setText(condition)
+                etCondition.setText(condition)
 
 
         hintCondition.hint = when (type) {
@@ -97,25 +119,25 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         etCondition.setOnFocusChangeListener { _, b ->
             if (b) when (type) {
-                "WIFI" -> DialogAdapter(this, this,"W").show()
-                "BLUETOOTH" -> DialogAdapter(this, this,"B").show()
-                "TIME" -> DialogAdapter(this, this,"T").show()
+                "WIFI" -> DialogAdapter(this, this, "W").show()
+                "BLUETOOTH" -> DialogAdapter(this, this, "B").show()
+                "TIME" -> DialogAdapter(this, this, "T").show()
             }
         }
         etCondition.setOnClickListener {
             when (type) {
-                "WIFI" -> DialogAdapter(this, this,"W").show()
-                "BLUETOOTH" -> DialogAdapter(this, this,"B").show()
-                "TIME" -> DialogAdapter(this, this,"T").show()
+                "WIFI" -> DialogAdapter(this, this, "W").show()
+                "BLUETOOTH" -> DialogAdapter(this, this, "B").show()
+                "TIME" -> DialogAdapter(this, this, "T").show()
             }
         }
 
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
-            if (b) DialogAdapter(this, this,"OWEB").show()
+            if (b) DialogAdapter(this, this, "OWEB").show()
         }
         etConditionExtra.setOnClickListener {
-            DialogAdapter(this, this,"OWEB").show()
+            DialogAdapter(this, this, "OWEB").show()
         }
 
 
@@ -123,11 +145,15 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
             } else
-                DialogAdapter(this, this,"CON").show()
+                DialogAdapter(this, this, "CON").show()
         }
 
         btn_cancel.setOnClickListener { finish() }
         btn_save.setOnClickListener {
+            if (etReminder.text.toString() == "") {
+                etReminder.error = getString(R.string.please_fill_reminder)
+                return@setOnClickListener
+            }
             val dao = ReminderDAO(this)
             val translator = ReminderTranslation(this)
             dao.add(Reminder(
@@ -137,12 +163,12 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     translator.type(type),
                     translator.`when`(etConditionExtra.text.toString()),
                     cond,
-                    etExtra.text.toString()
+                    if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
             ))
             dao.close()
 
-            when(type){
-                "WIFI"->preferences.addToCheckedWifi(cond)
+            when (type) {
+                "WIFI" -> preferences.addToCheckedWifi(cond)
             }
 
             val intent = Intent(this, ReminderList::class.java)
@@ -159,7 +185,22 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (contact) {
+                    contact = false
+                    if (p0 != null) {
+                        if(p2 > p3)
+                            etExtra.setText("")
+                        else
+                            etExtra.setText(p0.toString().substring(p0.length - 1 until p0.length))
+                    }
+                    else
+                        etExtra.setText("")
+                    etExtra.setSelection(etExtra.text.length)
+                    etExtra.inputType = InputType.TYPE_CLASS_TEXT
+                }
+            }
         })
     }
 

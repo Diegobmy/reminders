@@ -33,5 +33,6 @@ dependencies {
     compile 'com.android.support:design:26.1.0'
     compile "com.daimajia.swipelayout:library:1.2.0@aar"
     compile 'com.github.clans:fab:1.6.4'
-    compile "org.jetbrains.anko:anko-sqlite:0.10.4"
+//    compile "org.jetbrains.anko:anko-sqlite:0.10.4"
+    compile 'com.github.f0ris.sweetalert:library:1.5.1'
 }

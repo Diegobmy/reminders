@@ -22,4 +22,11 @@
     <string name="when_isnot">Se desconectar de</string>
     <string name="when_is_2">Está em</string>
     <string name="when_isnot_2">Não está em</string>
+    <string name="really_delete">Tem certeza que deseja deletar este lembrete?</string>
+    <string name="cannot_be_undone">Esta ação não pode ser desfeita!</string>
+    <string name="yes_delete">Deletar lembrete</string>
+    <string name="no_delete">Não deletar</string>
+    <string name="deleted">Deletado!</string>
+    <string name="reminder_deleted">O seu lembrete foi deletado!</string>
+    <string name="please_fill_reminder">Preencher com algum lembrete</string>
 </resources>

@@ -93,8 +93,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
     }
 
     fun fillInfo() {
-        tvNumberOfRemindersNew.text = "${reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
+        tvNumberOfRemindersNew.text = "${adapter.reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${adapter.reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
