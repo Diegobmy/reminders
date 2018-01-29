@@ -35,4 +35,5 @@ dependencies {
     compile 'com.github.clans:fab:1.6.4'
 //    compile "org.jetbrains.anko:anko-sqlite:0.10.4"
     compile 'com.github.f0ris.sweetalert:library:1.5.1'
+    compile "com.google.android.gms:play-services-places:10.2.0"
 }

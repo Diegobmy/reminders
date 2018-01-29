@@ -34,8 +34,11 @@ import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.dao.WifiDAO
+import com.ragabuza.personalreminder.receivers.LocationReceiver
 import com.ragabuza.personalreminder.util.NotificationHelper
 import com.ragabuza.personalreminder.util.Shared
 import com.ragabuza.personalreminder.util.TimeString
@@ -44,6 +47,9 @@ import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface {
+
+    val PLACE_PICKER_REQUEST = 1
+
     override fun timeCall(date: Calendar) {
         editIntent.putExtra("condition", date.time.toString())
         editIntent.putExtra("type", ReminderType.TIME.toString())
@@ -93,8 +99,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
     }
 
     fun fillInfo() {
-        tvNumberOfRemindersNew.text = "${adapter.reminders.count { it.active }} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${adapter.reminders.count { !it.active }} ${getString(R.string.number_reminders_old)}."
+        tvNumberOfRemindersNew.text = "${adapter.originalList.count { it.active }} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${adapter.originalList.count { !it.active }} ${getString(R.string.number_reminders_old)}."
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -159,19 +165,17 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
         }
 
         fabBluetooth.setOnClickListener {
-            DialogAdapter(this, this,"B").show()
+            DialogAdapter(this, this, "B").show()
         }
         fabWifi.setOnClickListener {
-            DialogAdapter(this, this,"W").show()
+            DialogAdapter(this, this, "W").show()
         }
         fabTime.setOnClickListener {
-            DialogAdapter(this, this,"T").show()
+            DialogAdapter(this, this, "T").show()
         }
         fabLocation.setOnClickListener {
-            //            val PLACE_PICKER_REQUEST = 1
-//            val builder = PlacePicker.IntentBuilder()
-//            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
-            locationCall()
+            val builder = PlacePicker.IntentBuilder()
+            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
 
         fabSimple.setOnClickListener {
@@ -185,7 +189,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 
             override fun run() {
                 adapter.notifyDataSetChanged()
-                handler.postDelayed(this, 1000*60)
+                handler.postDelayed(this, 1000 * 60)
             }
         }
         handler.post(timedTask)
@@ -295,7 +299,11 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
                     fabMenu.startAnimation(outAnimation)
                     fabMenu.visibility = View.GONE
                 }
-                R.id.config -> Toast.makeText(this, "config", Toast.LENGTH_SHORT).show()
+                R.id.config -> {
+                    val dao = WifiDAO(this)
+                    Toast.makeText(this, dao.get().toString(), Toast.LENGTH_SHORT).show()
+                    dao.close()
+                }
             }
             menuItem.isChecked = true
             drawer_layout.closeDrawers()
@@ -340,6 +348,15 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
                 btClipboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
         } else {
             btClipboard.visibility = View.GONE
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                val place = PlacePicker.getPlace(data, this)
+                Toast.makeText(this, place.latLng.toString(), Toast.LENGTH_LONG).show()
+            }
         }
     }
 

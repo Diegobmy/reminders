@@ -167,10 +167,6 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             ))
             dao.close()
 
-            when (type) {
-                "WIFI" -> preferences.addToCheckedWifi(cond)
-            }
-
             val intent = Intent(this, ReminderList::class.java)
             startActivity(intent)
         }

@@ -1,4 +1,6 @@
 <resources>
+    <string name="google_maps_api">AIzaSyAK7NnlD9JE1QUEXr4hnfR0h36CqqLzUeg</string>
+
     <string name="app_name">personalreminder</string>
     <string name="share_url">Lembrete URL</string>
     <string name="filter">Filtro</string>
@@ -29,4 +31,6 @@
     <string name="deleted">Deletado!</string>
     <string name="reminder_deleted">O seu lembrete foi deletado!</string>
     <string name="please_fill_reminder">Preencher com algum lembrete</string>
+    <string name="contected_to">Conectado em</string>
+    <string name="descontected_to">Desconectado de</string>
 </resources>

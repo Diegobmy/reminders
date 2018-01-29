@@ -181,7 +181,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
         val contacts = mutableListOf<String>()
 
-        if ((if (cur != null) cur.count else 0) > 0) {
+        if ((cur?.count ?: 0) > 0) {
             while (cur != null && cur.moveToNext()) {
                 val id = cur.getString(
                         cur.getColumnIndex(ContactsContract.Contacts._ID))
@@ -201,9 +201,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 }
             }
         }
-        if (cur != null) {
-            cur.close()
-        }
+        cur?.close()
         return contacts
     }
 

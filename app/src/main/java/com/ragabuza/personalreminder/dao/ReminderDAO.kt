@@ -8,6 +8,7 @@ import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.model.ReminderType
 import com.ragabuza.personalreminder.model.ReminderWhen
 import java.util.ArrayList
+import java.util.HashSet
 
 //val id: Long
 //var active: Boolean
@@ -88,12 +89,28 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         return reminders
     }
 
-    fun count(string: String): Int {
-        val sql = "SELECT * FROM Reminder where condition='$string' and active=1;"
+    fun getActive(string: String, connected: ReminderWhen): List<Reminder> {
+        val sql = "SELECT * FROM Reminder where condition='$string' and rWhen='${connected.ordinal}' and active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
+        val reminders = ArrayList<Reminder>()
 
-        return c.count
+        while (c.moveToNext()) {
+            val reminder = Reminder(
+                    c.getLong(c.getColumnIndex("id")),
+                    c.getInt(c.getColumnIndex("active")) == 1,
+                    c.getString(c.getColumnIndex("reminder")),
+                    ReminderType.values()[c.getInt(c.getColumnIndex("type"))],
+                    ReminderWhen.values()[c.getInt(c.getColumnIndex("rWhen"))],
+                    c.getString(c.getColumnIndex("condition")),
+                    c.getString(c.getColumnIndex("extra"))
+            )
+
+            reminders.add(reminder)
+        }
+        c.close()
+
+        return reminders
     }
 
     fun del(reminder: Reminder) {
@@ -109,5 +126,18 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
 
         val params = arrayOf<String>(reminder.id.toString())
         db.update("Reminder", dados, "id = ?", params)
+    }
+
+    fun getUniqueWifi(): HashSet<String> {
+        val sql = "SELECT * FROM Reminder where type='${ReminderType.WIFI.ordinal}' and active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+        val wifi = HashSet<String>()
+
+        while (c.moveToNext()) {
+            wifi.add(c.getString(c.getColumnIndex("condition")))
+        }
+        c.close()
+        return wifi
     }
 }

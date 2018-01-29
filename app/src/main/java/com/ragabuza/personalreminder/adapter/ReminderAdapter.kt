@@ -28,15 +28,13 @@ import java.util.*
 /**
  * Created by diego.moyses on 12/28/2017.
  */
-class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
-
-    private val preferences = Shared(context)
+class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
 
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
     }
 
-    private val originalList: MutableList<Reminder> = reminders.toMutableList()
+    val originalList: MutableList<Reminder> = reminders.toMutableList()
     private val viewList = mutableListOf<View>()
 
     override fun generateView(position: Int, parent: ViewGroup?): View {
@@ -166,7 +164,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                                 .showCancelButton(false)
                                 .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
                         reminders.remove(reminder)
-                        preferences.refreshCheckedWifi(reminder.condition)
                         closeAllItems()
                         notifyDataSetChanged()
                     }
@@ -283,9 +280,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             val dao = ReminderDAO(context)
             dao.alt(reminder)
             dao.close()
-            when (reminder.type) {
-                ReminderType.WIFI -> if (reminder.active) preferences.addToCheckedWifi(reminder.condition) else preferences.refreshCheckedWifi(reminder.condition)
-            }
 
         }
 
