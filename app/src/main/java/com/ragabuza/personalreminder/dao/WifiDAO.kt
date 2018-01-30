@@ -16,7 +16,7 @@ class WifiDAO(context: Context?) : SQLiteOpenHelper(context, "OldWifi", null, 1)
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 //        var sql = ""
-//        when (oldVersion) {
+//        toSave (oldVersion) {
 //            1 -> {
 //                sql = "ALTER TABLE Alunos ADD COLUMN caminhoFoto TEXT"
 //                db.execSQL(sql) // indo para versao 2

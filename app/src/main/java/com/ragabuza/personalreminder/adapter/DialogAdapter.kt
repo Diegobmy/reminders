@@ -29,6 +29,15 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
 
     private val listener: OpDialogInterface = context as OpDialogInterface
 
+    companion object {
+        val WIFI = "W"
+        val BLUETOOTH = "B"
+        val TIME = "T"
+        val CONTACTS = "CON"
+        val CHOICE_WEB = "OWEB"
+        val CHOICE_LOCATION = "OLOC"
+    }
+
     @SuppressLint("InflateParams")
     fun show() {
 
@@ -59,8 +68,8 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 webList.addAll(getContactList())
             }
             "OWEB" -> {
-                webList.add(context.getString(R.string.when_is_2))
-                webList.add(context.getString(R.string.when_isnot_2))
+                webList.add(context.getString(R.string.when_is))
+                webList.add(context.getString(R.string.when_isnot))
             }
             "OLOC" -> {
                 webList.add(context.getString(R.string.when_is_2))

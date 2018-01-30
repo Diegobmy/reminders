@@ -18,8 +18,6 @@ import com.daimajia.swipe.adapters.BaseSwipeAdapter
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
-import com.ragabuza.personalreminder.model.ReminderType
-import com.ragabuza.personalreminder.util.Shared
 import com.ragabuza.personalreminder.util.TimeString
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,6 +30,10 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
+    }
+
+    interface ReminderClickCallback{
+        fun edit(reminder: Reminder)
     }
 
     val originalList: MutableList<Reminder> = reminders.toMutableList()
@@ -84,11 +86,11 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             when (t) {
                 newRemindersFilter -> originalList.filterTo(toRemove) { !it.active }
                 oldRemindersFilter -> originalList.filterTo(toRemove) { it.active }
-                bluetoothFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.BLUETOOTH }
-                wifiFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.WIFI }
-                locationFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.LOCATION }
-                timeFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.TIME }
-                simpleFilter -> originalList.filterTo(toAdd) { it.type == ReminderType.SIMPLE }
+                bluetoothFilter -> originalList.filterTo(toAdd) { it.type == Reminder.BLUETOOTH }
+                wifiFilter -> originalList.filterTo(toAdd) { it.type == Reminder.WIFI }
+                locationFilter -> originalList.filterTo(toAdd) { it.type == Reminder.LOCATION }
+                timeFilter -> originalList.filterTo(toAdd) { it.type == Reminder.TIME }
+                simpleFilter -> originalList.filterTo(toAdd) { it.type == Reminder.SIMPLE }
             }
         }
         originalList.filterTo(toRemove) {
@@ -128,7 +130,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
 
-        if (reminder.type == ReminderType.TIME) {
+        if (reminder.type == Reminder.TIME) {
             val cal = Calendar.getInstance()
             val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(reminder.condition)
@@ -137,11 +139,11 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             tvCond?.text = reminder.condition
 
         when (reminder.type) {
-            ReminderType.WIFI -> iconElement?.setImageResource(R.drawable.ic_wifi)
-            ReminderType.BLUETOOTH -> iconElement?.setImageResource(R.drawable.ic_bluetooth)
-            ReminderType.LOCATION -> iconElement?.setImageResource(R.drawable.ic_location)
-            ReminderType.TIME -> iconElement?.setImageResource(R.drawable.ic_time)
-            ReminderType.SIMPLE -> iconElement?.visibility = View.GONE
+            Reminder.WIFI -> iconElement?.setImageResource(R.drawable.ic_wifi)
+            Reminder.BLUETOOTH -> iconElement?.setImageResource(R.drawable.ic_bluetooth)
+            Reminder.LOCATION -> iconElement?.setImageResource(R.drawable.ic_location)
+            Reminder.TIME -> iconElement?.setImageResource(R.drawable.ic_time)
+            Reminder.SIMPLE -> iconElement?.visibility = View.GONE
         }
 
 
@@ -167,10 +169,10 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                         closeAllItems()
                         notifyDataSetChanged()
                     }
-                    alert.show()
+            alert.show()
         }
         convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.setOnClickListener {
-            Toast.makeText(context, "Edited", Toast.LENGTH_SHORT).show()
+            (context as ReminderClickCallback).edit(reminder)
         }
 
         val swipe = convertView?.findViewById<SwipeLayout>(R.id.slReminders)
@@ -277,6 +279,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
             }, 300)
 
             reminder.active = !reminder.active
+            reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getSimple()
             val dao = ReminderDAO(context)
             dao.alt(reminder)
             dao.close()

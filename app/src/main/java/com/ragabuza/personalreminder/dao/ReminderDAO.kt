@@ -5,8 +5,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.ragabuza.personalreminder.model.Reminder
-import com.ragabuza.personalreminder.model.ReminderType
-import com.ragabuza.personalreminder.model.ReminderWhen
 import java.util.ArrayList
 import java.util.HashSet
 
@@ -25,9 +23,10 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         val sql = "CREATE TABLE Reminder (" +
                 "id INTEGER PRIMARY KEY, " +
                 "active INTEGER, " +
+                "done TEXT, " +
                 "reminder TEXT, " +
-                "type INTEGER, " +
-                "rWhen INTEGER, " +
+                "type TEXT, " +
+                "rWhen TEXT, " +
                 "condition TEXT, " +
                 "extra TEXT);"
         db.execSQL(sql)
@@ -35,7 +34,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
 //        var sql = ""
-//        when (oldVersion) {
+//        toSave (oldVersion) {
 //            1 -> {
 //                sql = "ALTER TABLE Alunos ADD COLUMN caminhoFoto TEXT"
 //                db.execSQL(sql) // indo para versao 2
@@ -55,9 +54,10 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
     private fun getInfo(reminder: Reminder): ContentValues {
         val dados = ContentValues()
         dados.put("active", reminder.active)
+        dados.put("done", reminder.done)
         dados.put("reminder", reminder.reminder)
-        dados.put("type", reminder.type.ordinal)
-        dados.put("rWhen", reminder.rWhen.ordinal)
+        dados.put("type", reminder.type)
+        dados.put("rWhen", reminder.rWhen)
         dados.put("condition", reminder.condition)
         dados.put("extra", reminder.extra)
 
@@ -74,10 +74,11 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         while (c.moveToNext()) {
             val reminder = Reminder(
                     c.getLong(c.getColumnIndex("id")),
+                    c.getString(c.getColumnIndex("done")),
                     c.getInt(c.getColumnIndex("active")) == 1,
                     c.getString(c.getColumnIndex("reminder")),
-                    ReminderType.values()[c.getInt(c.getColumnIndex("type"))],
-                    ReminderWhen.values()[c.getInt(c.getColumnIndex("rWhen"))],
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("rWhen")),
                     c.getString(c.getColumnIndex("condition")),
                     c.getString(c.getColumnIndex("extra"))
             )
@@ -89,8 +90,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         return reminders
     }
 
-    fun getActive(string: String, connected: ReminderWhen): List<Reminder> {
-        val sql = "SELECT * FROM Reminder where condition='$string' and rWhen='${connected.ordinal}' and active=1;"
+    fun getActive(string: String, connected: String): List<Reminder> {
+        val sql = "SELECT * FROM Reminder where condition='$string' and rWhen='$connected' and active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
         val reminders = ArrayList<Reminder>()
@@ -98,10 +99,11 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         while (c.moveToNext()) {
             val reminder = Reminder(
                     c.getLong(c.getColumnIndex("id")),
+                    "",
                     c.getInt(c.getColumnIndex("active")) == 1,
                     c.getString(c.getColumnIndex("reminder")),
-                    ReminderType.values()[c.getInt(c.getColumnIndex("type"))],
-                    ReminderWhen.values()[c.getInt(c.getColumnIndex("rWhen"))],
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("rWhen")),
                     c.getString(c.getColumnIndex("condition")),
                     c.getString(c.getColumnIndex("extra"))
             )
@@ -129,7 +131,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
     }
 
     fun getUniqueWifi(): HashSet<String> {
-        val sql = "SELECT * FROM Reminder where type='${ReminderType.WIFI.ordinal}' and active=1;"
+        val sql = "SELECT * FROM Reminder where type='${Reminder.WIFI}' and active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
         val wifi = HashSet<String>()

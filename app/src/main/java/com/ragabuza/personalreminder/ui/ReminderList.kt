@@ -46,13 +46,18 @@ import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
 
 
-class ReminderList : AppCompatActivity(), OpDialogInterface {
+class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+    override fun edit(reminder: Reminder) {
+        val inte = Intent(this, NewReminder::class.java)
+        inte.putExtra("Reminder", reminder)
+        startActivity(inte)
+    }
 
     val PLACE_PICKER_REQUEST = 1
 
     override fun timeCall(date: Calendar) {
         editIntent.putExtra("condition", date.time.toString())
-        editIntent.putExtra("type", ReminderType.TIME.toString())
+        editIntent.putExtra("type", Reminder.TIME)
         startActivity(editIntent)
     }
 
@@ -62,25 +67,25 @@ class ReminderList : AppCompatActivity(), OpDialogInterface {
 
     override fun wifiCall(text: CharSequence) {
         editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", ReminderType.WIFI.toString())
+        editIntent.putExtra("type", Reminder.WIFI)
         startActivity(editIntent)
     }
 
     override fun blueCall(text: CharSequence) {
         editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", ReminderType.BLUETOOTH.toString())
+        editIntent.putExtra("type", Reminder.BLUETOOTH)
         startActivity(editIntent)
     }
 
     private fun locationCall() {
         editIntent.putExtra("condition", "")
-        editIntent.putExtra("type", ReminderType.LOCATION.toString())
+        editIntent.putExtra("type", Reminder.LOCATION)
         startActivity(editIntent)
     }
 
     private fun simpleCall() {
         editIntent.putExtra("condition", "")
-        editIntent.putExtra("type", ReminderType.SIMPLE.toString())
+        editIntent.putExtra("type", Reminder.SIMPLE)
         startActivity(editIntent)
     }
 

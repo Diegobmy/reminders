@@ -6,6 +6,17 @@ import java.util.*
  * Created by diego.moyses on 1/23/2018.
  */
 class TimeString(private val date: Calendar) {
+    fun getSimple(): String{
+        val day = date.get(Calendar.DAY_OF_MONTH)
+        val month = date.get(Calendar.MONTH) + 1
+        val hour = date.get(Calendar.HOUR_OF_DAY)
+        val minute = date.get(Calendar.MINUTE)
+
+        val sDay = "${if (day < 10) "0" else ""}$day/${if (month < 10) "0" else ""}$month"
+        val sTime = "${if (hour < 10) "0" else ""}$hour:${if (minute < 10) "0" else ""}$minute"
+
+        return "$sDay, $sTime"
+    }
     fun getString(hourSensitive: Boolean = false): String {
         val completeDay: String
 

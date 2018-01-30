@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.dao.WifiDAO
-import com.ragabuza.personalreminder.util.NotificationHelper
 import java.util.*
 
 
@@ -37,7 +36,7 @@ class WifiReceiver : BroadcastReceiver() {
             if (!oldWifi.contains(it) && newWifi.contains(it)) {
                 trigger.connected(it)
             } else if (oldWifi.contains(it) && !newWifi.contains(it)) {
-                trigger.desconnected(it)
+                trigger.disconnected(it)
             }
         }
 

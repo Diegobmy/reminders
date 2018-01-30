@@ -3,7 +3,6 @@ package com.ragabuza.personalreminder.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Typeface
 import android.graphics.Typeface.ITALIC
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -22,7 +21,6 @@ import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
 import java.util.*
 import android.text.style.ImageSpan
-import android.graphics.drawable.Drawable
 import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
@@ -35,6 +33,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     var cond: String = ""
     var contact = false
+    private val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
 
     private lateinit var preferences: Shared
 
@@ -45,8 +44,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         d.setBounds(0, 0, d.intrinsicWidth, d.intrinsicHeight)
         val span = ImageSpan(d, ImageSpan.ALIGN_BOTTOM)
         ss.setSpan(span, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        ss.setSpan( StyleSpan(ITALIC), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-        ss.setSpan( ForegroundColorSpan(resources.getColor(R.color.contactColor)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ss.setSpan(StyleSpan(ITALIC), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        ss.setSpan(ForegroundColorSpan(resources.getColor(R.color.contactColor)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         etExtra.setText(ss)
         etExtra.setSelection(ss.length)
         etExtra.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
@@ -81,37 +80,49 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         etReminder.requestFocus()
 
         val extras = intent.extras
-        val condition = extras.getString("condition")
-        val type = extras.getString("type")
-        cond = condition
+        cond = extras.getString("condition", "")
+        var type = extras.getString("type", "")
 
-        if (type == "LOCATION")
+        etExtra.setText(extras.getString("shareExtra", ""))
+        etReminder.setText(extras.getString("shareText", ""))
+        if (extras.getString("shareExtra", "").matches(regex))
+            etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
+
+        if (type == Reminder.LOCATION)
             etConditionExtra.setText(getString(R.string.when_is_2))
         else
             etConditionExtra.setText(getString(R.string.when_is))
 
-        if (condition != null)
-            if (type == "TIME") {
-                val cal = Calendar.getInstance()
-                val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
-                cal.time = sdf.parse(condition)
-                etCondition.setText(TimeString(cal).getString(false))
-            } else
-                etCondition.setText(condition)
+        val reminderEdited = extras.getParcelable<Reminder>("Reminder")
+        if(reminderEdited != null){
+            type = reminderEdited.type
+            etCondition.setText(reminderEdited.condition)
+            etConditionExtra.setText(ReminderTranslation(this).toString(reminderEdited.rWhen, type))
+            etReminder.setText(reminderEdited.reminder)
+            etExtra.setText(reminderEdited.extra)
+        }
+
+        if (type == Reminder.TIME) {
+            val cal = Calendar.getInstance()
+            val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
+            cal.time = sdf.parse(cond)
+            etCondition.setText(TimeString(cal).getString(false))
+        } else
+            etCondition.setText(cond)
 
 
         hintCondition.hint = when (type) {
-            "WIFI" -> "Rede WiFi"
-            "BLUETOOTH" -> "Dispositivo Bluetooth"
-            "LOCATION" -> "Local"
-            "TIME" -> "Horário"
+            Reminder.WIFI -> "Rede WiFi"
+            Reminder.BLUETOOTH -> "Dispositivo Bluetooth"
+            Reminder.LOCATION -> "Local"
+            Reminder.TIME -> "Horário"
             else -> "Condição"
         }
 
-        if (type == "SIMPLE") {
+        if (type == Reminder.SIMPLE) {
             etCondition.visibility = View.GONE
             etConditionExtra.visibility = View.GONE
-        } else if (type == "TIME") {
+        } else if (type == Reminder.TIME) {
             etConditionExtra.visibility = View.GONE
         }
 
@@ -119,25 +130,32 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         etCondition.setOnFocusChangeListener { _, b ->
             if (b) when (type) {
-                "WIFI" -> DialogAdapter(this, this, "W").show()
-                "BLUETOOTH" -> DialogAdapter(this, this, "B").show()
-                "TIME" -> DialogAdapter(this, this, "T").show()
+                Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
+                Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
+                Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
             }
         }
         etCondition.setOnClickListener {
             when (type) {
-                "WIFI" -> DialogAdapter(this, this, "W").show()
-                "BLUETOOTH" -> DialogAdapter(this, this, "B").show()
-                "TIME" -> DialogAdapter(this, this, "T").show()
+                Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
+                Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
+                Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
             }
         }
 
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
-            if (b) DialogAdapter(this, this, "OWEB").show()
+            if (b)
+                if (type == Reminder.LOCATION)
+                    DialogAdapter(this, this, DialogAdapter.CHOICE_LOCATION).show()
+                else
+                    DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
         }
         etConditionExtra.setOnClickListener {
-            DialogAdapter(this, this, "OWEB").show()
+            if (type == Reminder.LOCATION)
+                DialogAdapter(this, this, DialogAdapter.CHOICE_LOCATION).show()
+            else
+                DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
         }
 
 
@@ -145,23 +163,23 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
             } else
-                DialogAdapter(this, this, "CON").show()
+                DialogAdapter(this, this, DialogAdapter.CONTACTS).show()
         }
 
         btn_cancel.setOnClickListener { finish() }
         btn_save.setOnClickListener {
-            if (etReminder.text.toString() == "") {
+            if (etReminder.text.toString() == "" && etExtra.text.toString() == "") {
                 etReminder.error = getString(R.string.please_fill_reminder)
                 return@setOnClickListener
             }
             val dao = ReminderDAO(this)
-            val translator = ReminderTranslation(this)
             dao.add(Reminder(
                     1,
+                    "",
                     true,
                     etReminder.text.toString(),
-                    translator.type(type),
-                    translator.`when`(etConditionExtra.text.toString()),
+                    type,
+                    ReminderTranslation(this).toSave(etConditionExtra.text.toString()),
                     cond,
                     if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
             ))
@@ -171,7 +189,6 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             startActivity(intent)
         }
 
-        val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
         etExtra.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
                 if (p0.toString().matches(regex))
@@ -186,12 +203,11 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 if (contact) {
                     contact = false
                     if (p0 != null) {
-                        if(p2 > p3)
+                        if (p2 > p3)
                             etExtra.setText("")
                         else
                             etExtra.setText(p0.toString().substring(p0.length - 1 until p0.length))
-                    }
-                    else
+                    } else
                         etExtra.setText("")
                     etExtra.setSelection(etExtra.text.length)
                     etExtra.inputType = InputType.TYPE_CLASS_TEXT

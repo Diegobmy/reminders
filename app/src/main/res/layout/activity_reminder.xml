@@ -1,113 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        android:background="@android:color/white"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <android.support.design.widget.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp">
-
-            <EditText
-                android:id="@+id/etConditionExtra"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Quando" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/hintCondition"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp">
-
-            <EditText
-                android:id="@+id/etCondition"
-                android:layout_width="match_parent"
-                android:textColorHint="@android:color/transparent"
-                android:layout_height="wrap_content"
-                android:hint="Condição" />
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp">
-
-            <EditText
-                android:id="@+id/etReminder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Nota"
-                android:inputType="textCapSentences|textMultiLine"
-                android:maxLength="1024"
-                android:maxLines="8" />
-        </android.support.design.widget.TextInputLayout>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp">
+            android:layout_margin="8dp"
+            android:paddingBottom="150dp"
+            android:background="@android:color/white"
+            android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="36dp">
+                android:layout_margin="8dp">
 
                 <EditText
-                    android:id="@+id/etExtra"
+                    android:id="@+id/etConditionExtra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Extra"
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:maxLength="256"
-                    android:maxLines="1" />
+                    android:hint="Quando" />
             </android.support.design.widget.TextInputLayout>
 
-            <ImageButton
-                android:id="@+id/ibContacts"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/hintCondition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <EditText
+                    android:id="@+id/etCondition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Condição"
+                    android:textColorHint="@android:color/transparent" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <EditText
+                    android:id="@+id/etReminder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nota"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="1024"
+                    android:maxLines="8" />
+            </android.support.design.widget.TextInputLayout>
+
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@null"
-                android:src="@drawable/ic_contacts" />
-        </RelativeLayout>
-    </LinearLayout>
+                android:layout_margin="8dp">
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="36dp">
+
+                    <EditText
+                        android:id="@+id/etExtra"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Extra"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:maxLength="256"
+                        android:maxLines="2" />
+                </android.support.design.widget.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/ibContacts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@null"
+                    android:src="@drawable/ic_contacts" />
+            </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent">
+
         <Button
             android:id="@+id/btn_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:textColor="@color/colorPrimaryLight"
             android:layout_marginStart="8dp"
-            android:text="Cancelar" />
+            android:background="@null"
+            android:text="Cancelar"
+            android:textColor="@color/colorPrimaryLight" />
+
         <Space
             android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
         <Button
             android:id="@+id/btn_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@null"
-            android:textColor="@color/colorPrimaryLight"
             android:layout_marginEnd="8dp"
-            android:text="Salvar" />
+            android:background="@null"
+            android:text="Salvar"
+            android:textColor="@color/colorPrimaryLight" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
