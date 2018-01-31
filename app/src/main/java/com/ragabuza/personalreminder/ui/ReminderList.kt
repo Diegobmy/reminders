@@ -47,6 +47,10 @@ import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+    override fun closed() {
+        editIntent.removeExtra("shareText")
+    }
+
     override fun edit(reminder: Reminder) {
         val inte = Intent(this, NewReminder::class.java)
         inte.putExtra("Reminder", reminder)
@@ -90,6 +94,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     }
 
     private lateinit var adapter: ReminderAdapter
+    private lateinit var clip: CharSequence
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -117,6 +122,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         if (item?.itemId == R.id.filter) {
             drawer_layout.closeDrawer(GravityCompat.START)
             btClipboard.visibility = View.GONE
+            llClipOptions.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
                 fabMenu.close(true)
                 ivFilterIcon.setImageResource(R.drawable.ic_filter_list)
@@ -170,13 +176,13 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         }
 
         fabBluetooth.setOnClickListener {
-            DialogAdapter(this, this, "B").show()
+            DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
         }
         fabWifi.setOnClickListener {
-            DialogAdapter(this, this, "W").show()
+            DialogAdapter(this, this, DialogAdapter.WIFI).show()
         }
         fabTime.setOnClickListener {
-            DialogAdapter(this, this, "T").show()
+            DialogAdapter(this, this, DialogAdapter.TIME).show()
         }
         fabLocation.setOnClickListener {
             val builder = PlacePicker.IntentBuilder()
@@ -186,6 +192,35 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         fabSimple.setOnClickListener {
             simpleCall()
         }
+
+
+        btClipboard.setOnClickListener {
+            btClipboard.visibility = View.GONE
+            llClipOptions.visibility = View.VISIBLE
+        }
+        ibClipBluetooth.setOnClickListener {
+            editIntent.putExtra("shareText", clip)
+            DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
+        }
+        ibClipWifi.setOnClickListener {
+            editIntent.putExtra("shareText", clip)
+            DialogAdapter(this, this, DialogAdapter.WIFI).show()
+        }
+        ibClipTime.setOnClickListener {
+            editIntent.putExtra("shareText", clip)
+            DialogAdapter(this, this, DialogAdapter.TIME).show()
+        }
+        ibClipLocation.setOnClickListener {
+            editIntent.putExtra("shareText", clip)
+            val builder = PlacePicker.IntentBuilder()
+            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
+        }
+        ibClipSimple.setOnClickListener {
+            editIntent.putExtra("shareText", clip)
+            simpleCall()
+        }
+
+
 
         setupFilter()
 
@@ -298,6 +333,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
                 }
                 R.id.ROld -> {
                     btClipboard.visibility = View.GONE
+                    llClipOptions.visibility = View.GONE
                     lvRemind.startAnimation(inAnimation)
                     adapter.doFilter(adapter.oldRemindersFilter)
                     supportActionBar!!.title = getString(R.string.oldReminders)
@@ -328,7 +364,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
 
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
-        var clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
+        clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
 
         if (!clip.isEmpty() && clip.toString() != sharedPref.getString("clip", "")) {
             editor.putString("clip", clip.toString())
@@ -352,6 +388,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
             else
                 btClipboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
         } else {
+            llClipOptions.visibility = View.GONE
             btClipboard.visibility = View.GONE
         }
     }

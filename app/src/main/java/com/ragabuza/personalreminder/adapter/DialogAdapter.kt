@@ -51,6 +51,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val filter = view.findViewById<EditText>(R.id.etFilter)
 
         view.findViewById<ImageButton>(R.id.ibClose).setOnClickListener {
+            listener.closed()
             dialog.dismiss()
         }
 

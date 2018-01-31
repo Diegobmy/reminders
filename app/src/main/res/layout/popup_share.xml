@@ -20,8 +20,8 @@
         android:gravity="center"
         android:orientation="vertical"
         android:paddingBottom="8dp"
-        android:paddingLeft="30dp"
-        android:paddingRight="30dp"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
         android:paddingTop="8dp">
 
         <TextView
@@ -63,6 +63,14 @@
                 android:src="@drawable/ic_wifi_white" />
 
             <ImageButton
+                android:id="@+id/ibTimeShare"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_margin="8dp"
+                android:background="@android:color/holo_orange_dark"
+                android:src="@drawable/ic_time_white" />
+
+            <ImageButton
                 android:id="@+id/ibLocShare"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
@@ -71,12 +79,12 @@
                 android:src="@drawable/ic_location_white" />
 
             <ImageButton
-                android:id="@+id/ibTimeShare"
+                android:id="@+id/ibSimpleShare"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_orange_dark"
-                android:src="@drawable/ic_time_white" />
+                android:background="@android:color/darker_gray"
+                android:src="@drawable/ic_simple_white" />
 
         </LinearLayout>
 

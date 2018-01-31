@@ -30,7 +30,9 @@ import android.text.style.StyleSpan
  * Created by diego.moyses on 1/12/2018.
  */
 class NewReminder : AppCompatActivity(), OpDialogInterface {
+    override fun closed() {    }
 
+    var ID: Long = 1
     var cond: String = ""
     var contact = false
     private val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
@@ -94,9 +96,11 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             etConditionExtra.setText(getString(R.string.when_is))
 
         val reminderEdited = extras.getParcelable<Reminder>("Reminder")
-        if(reminderEdited != null){
+        if (reminderEdited != null) {
+            ID = reminderEdited.id
             type = reminderEdited.type
             etCondition.setText(reminderEdited.condition)
+            cond = reminderEdited.condition
             etConditionExtra.setText(ReminderTranslation(this).toString(reminderEdited.rWhen, type))
             etReminder.setText(reminderEdited.reminder)
             etExtra.setText(reminderEdited.extra)
@@ -172,9 +176,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 etReminder.error = getString(R.string.please_fill_reminder)
                 return@setOnClickListener
             }
-            val dao = ReminderDAO(this)
-            dao.add(Reminder(
-                    1,
+            val reminder = Reminder(
+                    ID,
                     "",
                     true,
                     etReminder.text.toString(),
@@ -182,7 +185,12 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     ReminderTranslation(this).toSave(etConditionExtra.text.toString()),
                     cond,
                     if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
-            ))
+            )
+            val dao = ReminderDAO(this)
+            if (ID == 1L)
+                dao.add(reminder)
+            else
+                dao.alt(reminder)
             dao.close()
 
             val intent = Intent(this, ReminderList::class.java)

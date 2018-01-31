@@ -12,4 +12,5 @@ interface OpDialogInterface {
     fun timeCall(date: Calendar)
     fun other(text: CharSequence)
     fun contactCall(text: CharSequence)
+    fun closed()
 }

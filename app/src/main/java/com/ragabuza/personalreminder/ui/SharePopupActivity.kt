@@ -20,6 +20,10 @@ import java.util.*
  * Created by diego.moyses on 1/2/2018.
  */
 class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
+    override fun closed() {
+        finish()
+    }
+
     override fun wifiCall(text: CharSequence) {
         val intent = Intent(this, NewReminder::class.java)
         intent.putExtra("type", Reminder.WIFI)
@@ -42,6 +46,13 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         val intent = Intent(this, NewReminder::class.java)
         intent.putExtra("type", Reminder.TIME)
         intent.putExtra("condition", date.time.toString())
+        intent.putExtra("shareText", reminder)
+        intent.putExtra("shareExtra", extra)
+        startActivity(intent)
+    }
+    private fun simpleCall() {
+        val intent = Intent(this, NewReminder::class.java)
+        intent.putExtra("type", Reminder.SIMPLE)
         intent.putExtra("shareText", reminder)
         intent.putExtra("shareExtra", extra)
         startActivity(intent)
@@ -92,6 +103,9 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         }
         ibTimeShare.setOnClickListener {
             DialogAdapter(this, this, DialogAdapter.TIME).show()
+        }
+        ibSimpleShare.setOnClickListener {
+            simpleCall()
         }
 
 
