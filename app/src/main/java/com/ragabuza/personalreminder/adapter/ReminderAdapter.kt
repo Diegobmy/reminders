@@ -26,7 +26,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 12/28/2017.
  */
-class ReminderAdapter(private val context: Context, private val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
+class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
 
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
@@ -34,6 +34,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
 
     interface ReminderClickCallback{
         fun edit(reminder: Reminder)
+        fun delete(reminder: Reminder)
     }
 
     val originalList: MutableList<Reminder> = reminders.toMutableList()
@@ -155,9 +156,7 @@ class ReminderAdapter(private val context: Context, private val reminders: Mutab
                     .setConfirmText(context.getString(R.string.yes_delete))
                     .setCancelText(context.getString(R.string.no_delete))
                     .setConfirmClickListener {
-                        val dao = ReminderDAO(context)
-                        dao.del(reminder)
-                        dao.close()
+                        (context as ReminderClickCallback).delete(reminder)
                         originalList.remove(reminder)
                         it.setTitleText(context.getString(R.string.deleted))
                                 .setContentText(context.getString(R.string.reminder_deleted))

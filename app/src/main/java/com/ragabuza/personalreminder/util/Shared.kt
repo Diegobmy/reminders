@@ -1,8 +1,8 @@
 package com.ragabuza.personalreminder.util
 
 import android.content.Context
-import com.ragabuza.personalreminder.dao.ReminderDAO
-import java.util.HashSet
+import com.google.gson.Gson
+import com.ragabuza.personalreminder.model.Reminder
 
 /**
  * Created by diego.moyses on 1/25/2018.
@@ -11,33 +11,29 @@ class Shared(val context: Context) {
     private val preferences = context.getSharedPreferences("reminders", 0)
     private val editor = preferences.edit()
 
-//    fun getOldWifi(): MutableSet<String> {
-//        return preferences.getStringSet("oldWifi", HashSet<String>())
-//    }
-//
-//    fun setOldWifi(newWifi: MutableSet<String>?) {
-//        editor?.putStringSet("oldWifi", newWifi)
-//        editor?.commit()
-//    }
-//
-//    fun getCheckedWifi(): MutableSet<String> {
-//        return preferences.getStringSet("checkedWifi", HashSet<String>())
-//    }
-//
-//    fun addToCheckedWifi(wifi: String) {
-//        val check = preferences.getStringSet("checkedWifi", HashSet<String>())
-//        check.add(wifi)
-//        editor.putStringSet("checkedWifi", check)
-//        editor.commit()
-//    }
-//
-//    fun refreshCheckedWifi(wifi: String) {
-//        val check = preferences.getStringSet("checkedWifi", HashSet<String>())
-//        val dao = ReminderDAO(context)
-//        if (dao.count(wifi) < 1)
-//            check.remove(wifi)
-//        editor.putStringSet("checkedWifi", check)
-//        editor.commit()
-//        dao.close()
-//    }
+    fun setLastDeleted(reminder: Reminder){
+        val Gson = Gson()
+        val regStr = Gson.toJson(reminder)
+        editor.putString("LastDeleted", regStr)
+        editor.apply()
+    }
+    fun getLastDeleted(): Reminder{
+        val Gson = Gson()
+        val json = preferences.getString("LastDeleted", "")
+        return Gson.fromJson(json, Reminder::class.java)
+    }
+    fun setHome(condition:String){
+        editor.putString("Home", condition)
+        editor.apply()
+    }
+    fun getHome(): String{
+        return preferences.getString("Home", "")
+    }
+    fun setWork(condition:String){
+        editor.putString("Work", condition)
+        editor.apply()
+    }
+    fun getWork(): String{
+        return preferences.getString("Work", "")
+    }
 }

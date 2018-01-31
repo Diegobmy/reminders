@@ -30,7 +30,7 @@ import android.text.style.StyleSpan
  * Created by diego.moyses on 1/12/2018.
  */
 class NewReminder : AppCompatActivity(), OpDialogInterface {
-    override fun closed() {    }
+    override fun closed(tag: String?) {    }
 
     var ID: Long = 1
     var cond: String = ""
@@ -39,7 +39,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     private lateinit var preferences: Shared
 
-    override fun contactCall(text: CharSequence) {
+    override fun contactCall(text: CharSequence, tag: String?) {
         contact = false
         val ss = SpannableString(" $text")
         val d = resources.getDrawable(R.drawable.ic_contact)
@@ -54,21 +54,21 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         contact = true
     }
 
-    override fun other(text: CharSequence) {
+    override fun other(text: CharSequence, tag: String?) {
         etConditionExtra.setText(text)
     }
 
-    override fun timeCall(date: Calendar) {
+    override fun timeCall(date: Calendar, tag: String?) {
         cond = date.time.toString()
         etCondition.setText(TimeString(date).getString(false))
     }
 
-    override fun wifiCall(text: CharSequence) {
+    override fun wifiCall(text: CharSequence, tag: String?) {
         cond = text.toString()
         etCondition.setText(text)
     }
 
-    override fun blueCall(text: CharSequence) {
+    override fun blueCall(text: CharSequence, tag: String?) {
         cond = text.toString()
         etCondition.setText(text)
     }

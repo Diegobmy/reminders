@@ -1,9 +1,5 @@
 package com.ragabuza.personalreminder.ui
 
-import android.Manifest
-import android.animation.LayoutTransition
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.content.ClipboardManager
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -16,11 +12,8 @@ import java.util.*
 import android.view.View
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Handler
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -32,22 +25,29 @@ import android.view.MenuItem
 import android.widget.Toast
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
-import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
-import com.ragabuza.personalreminder.dao.WifiDAO
-import com.ragabuza.personalreminder.receivers.LocationReceiver
-import com.ragabuza.personalreminder.util.NotificationHelper
 import com.ragabuza.personalreminder.util.Shared
-import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
-    override fun closed() {
+    lateinit var pref: Shared
+    val PLACE_PICKER_REQUEST = 1
+
+    override fun delete(reminder: Reminder) {
+        val dao = ReminderDAO(this)
+        dao.del(reminder)
+        dao.close()
+        pref.setLastDeleted(reminder)
+        fabLastDeleted.visibility = View.VISIBLE
+    }
+
+    override fun closed(tag: String?) {
+        llClipOptions.visibility = View.GONE
         editIntent.removeExtra("shareText")
     }
 
@@ -57,25 +57,23 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         startActivity(inte)
     }
 
-    val PLACE_PICKER_REQUEST = 1
-
-    override fun timeCall(date: Calendar) {
+    override fun timeCall(date: Calendar, tag: String?) {
         editIntent.putExtra("condition", date.time.toString())
         editIntent.putExtra("type", Reminder.TIME)
         startActivity(editIntent)
     }
 
-    override fun contactCall(text: CharSequence) {}
+    override fun contactCall(text: CharSequence, tag: String?) {}
 
-    override fun other(text: CharSequence) {}
+    override fun other(text: CharSequence, tag: String?) {}
 
-    override fun wifiCall(text: CharSequence) {
+    override fun wifiCall(text: CharSequence, tag: String?) {
         editIntent.putExtra("condition", text)
         editIntent.putExtra("type", Reminder.WIFI)
         startActivity(editIntent)
     }
 
-    override fun blueCall(text: CharSequence) {
+    override fun blueCall(text: CharSequence, tag: String?) {
         editIntent.putExtra("condition", text)
         editIntent.putExtra("type", Reminder.BLUETOOTH)
         startActivity(editIntent)
@@ -149,6 +147,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
+        pref = Shared(this)
 
         fabMenu.setClosedOnTouchOutside(true)
 
@@ -156,7 +155,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
 
         editIntent = Intent(this, NewReminder::class.java)
 
-        this.supportActionBar!!.title = getString(R.string.remindersActivityTitle)
+        supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
         val dao = ReminderDAO(this)
 
@@ -220,7 +219,13 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
             simpleCall()
         }
 
-
+        fabLastDeleted.setOnClickListener {
+                fabLastDeleted.visibility = View.GONE
+            dao.add(pref.getLastDeleted())
+            adapter.originalList.add(pref.getLastDeleted())
+            adapter.reminders.add(pref.getLastDeleted())
+            adapter.notifyDataSetChanged()
+        }
 
         setupFilter()
 
@@ -302,6 +307,11 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         })
     }
 
+    override fun onPause() {
+        fabLastDeleted.visibility = View.GONE
+        super.onPause()
+    }
+
     private fun setupDrawer() {
         this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -341,9 +351,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
                     fabMenu.visibility = View.GONE
                 }
                 R.id.config -> {
-                    val dao = WifiDAO(this)
-                    Toast.makeText(this, dao.get().toString(), Toast.LENGTH_SHORT).show()
-                    dao.close()
+                    val i = Intent(this, SettingsActivity::class.java)
+                    startActivity(i)
                 }
             }
             menuItem.isChecked = true

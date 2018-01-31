@@ -7,10 +7,10 @@ import java.util.*
  */
 
 interface OpDialogInterface {
-    fun wifiCall(text: CharSequence)
-    fun blueCall(text: CharSequence)
-    fun timeCall(date: Calendar)
-    fun other(text: CharSequence)
-    fun contactCall(text: CharSequence)
-    fun closed()
+    fun wifiCall(text: CharSequence, tag: String?)
+    fun blueCall(text: CharSequence, tag: String?)
+    fun timeCall(date: Calendar, tag: String?)
+    fun other(text: CharSequence, tag: String?)
+    fun contactCall(text: CharSequence, tag: String?)
+    fun closed(tag: String?)
 }

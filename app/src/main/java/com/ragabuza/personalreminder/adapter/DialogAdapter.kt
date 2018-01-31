@@ -25,7 +25,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 1/2/2018.
  */
-class DialogAdapter(val context: Context, val activity: Activity, val type: String) {
+class DialogAdapter(val context: Context, val activity: Activity, val type: String, val tag: String? = null) {
 
     private val listener: OpDialogInterface = context as OpDialogInterface
 
@@ -51,7 +51,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val filter = view.findViewById<EditText>(R.id.etFilter)
 
         view.findViewById<ImageButton>(R.id.ibClose).setOnClickListener {
-            listener.closed()
+            listener.closed(tag)
             dialog.dismiss()
         }
 
@@ -103,13 +103,13 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
             val item = iView.findViewById<TextView>(android.R.id.text1)
             if (type == "W")
-                listener.wifiCall(item.text)
+                listener.wifiCall(item.text, tag)
             else if (type == "B")
-                listener.blueCall(item.text)
+                listener.blueCall(item.text, tag)
             else if (type == "OWEB" || type == "OLOC")
-                listener.other(item.text)
+                listener.other(item.text, tag)
             else if (type == "CON")
-                listener.contactCall(item.text)
+                listener.contactCall(item.text, tag)
 
             dialog.dismiss()
         }
@@ -173,7 +173,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
             date.set(Calendar.DAY_OF_YEAR, pckDay)
             date.set(Calendar.MONTH, pckMonth + 1)
             date.set(Calendar.YEAR, pckYear)
-            listener.timeCall(date)
+            listener.timeCall(date, tag)
         }, year, month, day)
 
         val timePicker = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { _, pckHour, pckMinute ->

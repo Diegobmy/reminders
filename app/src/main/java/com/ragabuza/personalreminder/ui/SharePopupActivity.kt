@@ -20,11 +20,11 @@ import java.util.*
  * Created by diego.moyses on 1/2/2018.
  */
 class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
-    override fun closed() {
+    override fun closed(tag: String?) {
         finish()
     }
 
-    override fun wifiCall(text: CharSequence) {
+    override fun wifiCall(text: CharSequence, tag: String?) {
         val intent = Intent(this, NewReminder::class.java)
         intent.putExtra("type", Reminder.WIFI)
         intent.putExtra("condition", text)
@@ -33,7 +33,7 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         startActivity(intent)
     }
 
-    override fun blueCall(text: CharSequence) {
+    override fun blueCall(text: CharSequence, tag: String?) {
         val intent = Intent(this, NewReminder::class.java)
         intent.putExtra("type", Reminder.BLUETOOTH)
         intent.putExtra("condition", text)
@@ -42,7 +42,7 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         startActivity(intent)
     }
 
-    override fun timeCall(date: Calendar) {
+    override fun timeCall(date: Calendar, tag: String?) {
         val intent = Intent(this, NewReminder::class.java)
         intent.putExtra("type", Reminder.TIME)
         intent.putExtra("condition", date.time.toString())
@@ -58,8 +58,8 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         startActivity(intent)
     }
 
-    override fun other(text: CharSequence) {}
-    override fun contactCall(text: CharSequence) {}
+    override fun other(text: CharSequence, tag: String?) {}
+    override fun contactCall(text: CharSequence, tag: String?) {}
 
     var reminder: String = ""
     var extra: String = ""

@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.ragabuza.personalreminder">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -21,42 +21,47 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:icon">
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_api"/>
-        <service android:name=".receivers.LocationReceiver" android:process=":reminders_location" />
+            android:value="@string/google_maps_api" />
 
+        <service
+            android:name=".receivers.LocationReceiver"
+            android:process=":reminders_location" />
 
         <activity android:name=".ui.ReminderList">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ui.SharePopupActivity"
+        <activity
+            android:name=".ui.SharePopupActivity"
+            android:excludeFromRecents="true"
             android:launchMode="singleInstance"
-            android:theme="@style/Theme.Transparent"
-            android:excludeFromRecents="true">
+            android:theme="@style/Theme.Transparent">
             <intent-filter android:label="teste">
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="text/*"/>
+
+                <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".ui.NewReminder"
-            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".ui.NewReminder"
+            android:windowSoftInputMode="adjustResize" />
 
         <receiver android:name=".receivers.WifiReceiver">
             <intent-filter>
-                <action android:name="android.net.wifi.SCAN_RESULTS"/>
-                <!--<action android:name="android.net.wifi.STATE_CHANGE"/>-->
-                <!--<action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />-->
+                <action android:name="android.net.wifi.SCAN_RESULTS" />
+                <!-- <action android:name="android.net.wifi.STATE_CHANGE"/> -->
+                <!-- <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" /> -->
             </intent-filter>
         </receiver>
 
+        <activity android:name=".ui.SettingsActivity"></activity>
     </application>
 
 </manifest>
