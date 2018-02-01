@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -14,6 +15,14 @@
         android:orientation="vertical"
         android:paddingBottom="150dp">
 
+        <LinearLayout
+            android:id="@+id/FocusGetter"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -22,6 +31,7 @@
             <EditText
                 android:id="@+id/etHome"
                 android:layout_width="match_parent"
+                android:drawableStart="@drawable/ic_home_black"
                 android:layout_height="wrap_content"
                 android:hint="Casa"
                 android:textColorHint="@android:color/transparent" />
@@ -34,9 +44,23 @@
                 android:id="@+id/etWork"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_work_black"
                 android:hint="Trabalho"
                 android:textColorHint="@android:color/transparent" />
         </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/btSettingsUndo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recuperar última notificação"
+            android:textColor="@color/dark"
+            android:drawableStart="@drawable/ic_undo_dark"
+            android:layout_margin="8dp"
+            android:layout_gravity="center"
+            android:drawablePadding="4dp"
+            android:background="@null"
+            />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

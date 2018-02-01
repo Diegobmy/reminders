@@ -22,11 +22,13 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlacePicker
+import com.google.android.gms.maps.model.LatLng
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.util.Shared
@@ -79,8 +81,8 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         startActivity(editIntent)
     }
 
-    private fun locationCall() {
-        editIntent.putExtra("condition", "")
+    private fun locationCall(location: String) {
+        editIntent.putExtra("condition", location)
         editIntent.putExtra("type", Reminder.LOCATION)
         startActivity(editIntent)
     }
@@ -157,16 +159,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
 
         supportActionBar!!.title = getString(R.string.remindersActivityTitle)
 
-        val dao = ReminderDAO(this)
 
-        reminders = dao.get()
-
-        dao.close()
-
-        val mutList = reminders.toMutableList()
-        adapter = ReminderAdapter(this, mutList)
-        adapter.doFilter(adapter.newRemindersFilter, true)
-        lvRemind.adapter = adapter
         lvRemind.emptyView = tvEmpty
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
@@ -220,11 +213,13 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         }
 
         fabLastDeleted.setOnClickListener {
-                fabLastDeleted.visibility = View.GONE
+            val dao = ReminderDAO(this)
+            fabLastDeleted.visibility = View.GONE
             dao.add(pref.getLastDeleted())
             adapter.originalList.add(pref.getLastDeleted())
             adapter.reminders.add(pref.getLastDeleted())
             adapter.notifyDataSetChanged()
+            dao.close()
         }
 
         setupFilter()
@@ -308,7 +303,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     }
 
     override fun onPause() {
-        fabLastDeleted.visibility = View.GONE
+        hideUndo()
         super.onPause()
     }
 
@@ -335,6 +330,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         navigation_view.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.RNew -> {
+                    hideUndo()
                     lvRemind.startAnimation(inAnimation)
                     adapter.doFilter(adapter.newRemindersFilter)
                     supportActionBar!!.title = getString(R.string.remindersActivityTitle)
@@ -342,6 +338,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
                     fabMenu.visibility = View.VISIBLE
                 }
                 R.id.ROld -> {
+                    hideUndo()
                     btClipboard.visibility = View.GONE
                     llClipOptions.visibility = View.GONE
                     lvRemind.startAnimation(inAnimation)
@@ -361,8 +358,25 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         }
     }
 
+    private fun hideUndo() {
+        if (fabLastDeleted.visibility == View.VISIBLE) {
+            fabLastDeleted.visibility = View.GONE
+            Toast.makeText(this, "Para recuperar sua última notificação deletada, vá para as configurações", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+        val dao = ReminderDAO(this)
+
+        reminders = dao.get()
+
+        dao.close()
+
+        val mutList = reminders.toMutableList()
+        adapter = ReminderAdapter(this, mutList)
+        adapter.doFilter(adapter.newRemindersFilter, true)
+        lvRemind.adapter = adapter
         clipShow()
     }
 
@@ -406,7 +420,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
                 val place = PlacePicker.getPlace(data, this)
-                Toast.makeText(this, place.latLng.toString(), Toast.LENGTH_LONG).show()
+                locationCall("${place.latLng.latitude},${place.latLng.longitude}")
             }
         }
     }

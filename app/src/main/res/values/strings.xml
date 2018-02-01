@@ -9,7 +9,7 @@
     <string name="selectWifi">Selecionar rede Wifi</string>
     <string name="selectBluetooth">Selecionar disposítivo Bluetooth</string>
     <string name="clipboard">Criar nota usando:</string>
-    <string name="turnOnBluetooth">Por favor ligue o BLuetooth para usar este tipo de lembrete.</string>
+    <string name="turnOnBluetooth">Por favor ligue o Bluetooth para usar este tipo de lembrete.</string>
     <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
     <string name="remindersActivityTitle">Lembretes</string>
     <string name="newReminders">Lembretes Novos</string>
@@ -33,4 +33,7 @@
     <string name="please_fill_reminder">Preencher com algum lembrete</string>
     <string name="contected_to">Conectado em</string>
     <string name="descontected_to">Desconectado de</string>
+    <string name="select_contact">Selecione um contato</string>
+    <string name="when_dialog">Quando</string>
+    <string name="apply">Aplicar</string>
 </resources>

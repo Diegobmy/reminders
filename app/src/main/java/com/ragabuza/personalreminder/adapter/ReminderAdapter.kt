@@ -123,6 +123,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val tvLink = convertView?.findViewById<TextView>(R.id.tvLink)
         val tvName = convertView?.findViewById<TextView>(R.id.tvName)
         val tvCond = convertView?.findViewById<TextView>(R.id.tvCondition)
+        val tvDone = convertView?.findViewById<TextView>(R.id.tvDone)
         val ivBigLink = convertView?.findViewById<ImageView>(R.id.ivBigLink)
         val ivCheckbox = convertView?.findViewById<ImageView>(R.id.ivCheckbox)
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
@@ -147,7 +148,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             Reminder.SIMPLE -> iconElement?.visibility = View.GONE
         }
 
-
+        tvDone?.text = reminder.done
 
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
             val alert = SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)

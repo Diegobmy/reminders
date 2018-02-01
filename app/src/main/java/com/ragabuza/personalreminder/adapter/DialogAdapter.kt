@@ -56,23 +56,28 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         }
 
         when (type) {
-            "W" -> {
-                if (wifiDialog(title, webList)) return
+            WIFI -> {
+                if (wifiDialog(title, webList)) return@show
             }
-            "B" -> {
-                if (bluetoothDialog(title, webList)) return
+            BLUETOOTH -> {
+                if (bluetoothDialog(title, webList)) return@show
             }
-            "T" -> {
+            TIME -> {
                 showTimeDialog()
+                return@show
             }
-            "CON" -> {
+            CONTACTS -> {
+                title.text = context.getString(R.string.select_contact)
                 webList.addAll(getContactList())
+                if (getContactList().isEmpty()) return@show
             }
-            "OWEB" -> {
+            CHOICE_WEB -> {
+                title.text = context.getString(R.string.when_dialog)
                 webList.add(context.getString(R.string.when_is))
                 webList.add(context.getString(R.string.when_isnot))
             }
-            "OLOC" -> {
+            CHOICE_LOCATION -> {
+                title.text = context.getString(R.string.when_dialog)
                 webList.add(context.getString(R.string.when_is_2))
                 webList.add(context.getString(R.string.when_isnot_2))
                 filter.visibility = View.GONE
@@ -102,20 +107,19 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
 
         view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
             val item = iView.findViewById<TextView>(android.R.id.text1)
-            if (type == "W")
+            if (type == WIFI)
                 listener.wifiCall(item.text, tag)
-            else if (type == "B")
+            else if (type == BLUETOOTH)
                 listener.blueCall(item.text, tag)
-            else if (type == "OWEB" || type == "OLOC")
+            else if (type == CHOICE_WEB || type == CHOICE_LOCATION)
                 listener.other(item.text, tag)
-            else if (type == "CON")
+            else if (type == CONTACTS)
                 listener.contactCall(item.text, tag)
 
             dialog.dismiss()
         }
 
-        if (type != "T")
-            dialog.show()
+        dialog.show()
 
 
     }
@@ -139,6 +143,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 0)
+            return true
         } else {
             title.text = context.getString(R.string.selectWifi)
             val wifiService: WifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -197,7 +202,6 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                         cur.getColumnIndex(ContactsContract.Contacts._ID))
                 val name = cur.getString(cur.getColumnIndex(
                         ContactsContract.Contacts.DISPLAY_NAME))
-
                 if (cur.getInt(cur.getColumnIndex(
                         ContactsContract.Contacts.HAS_PHONE_NUMBER)) > 0) {
                     val pCur = cr.query(
@@ -205,7 +209,9 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
                             arrayOf<String>(id), null)
                     while (pCur!!.moveToNext()) {
-                        contacts.add(name)
+                        val phoneNo = pCur.getString(pCur.getColumnIndex(
+                                ContactsContract.CommonDataKinds.Phone.NUMBER))
+                        contacts.add("$name - $phoneNo")
                     }
                     pCur.close()
                 }

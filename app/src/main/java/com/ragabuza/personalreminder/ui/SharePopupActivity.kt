@@ -13,6 +13,7 @@ import android.text.style.StyleSpan
 import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Shared
 import java.util.*
 
 
@@ -25,37 +26,33 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
     }
 
     override fun wifiCall(text: CharSequence, tag: String?) {
-        val intent = Intent(this, NewReminder::class.java)
-        intent.putExtra("type", Reminder.WIFI)
-        intent.putExtra("condition", text)
-        intent.putExtra("shareText", reminder)
-        intent.putExtra("shareExtra", extra)
-        startActivity(intent)
+        shareIntent.putExtra("type", Reminder.WIFI)
+        shareIntent.putExtra("condition", text)
+        shareIntent.putExtra("shareText", reminder)
+        shareIntent.putExtra("shareExtra", extra)
+        startActivity(shareIntent)
     }
 
     override fun blueCall(text: CharSequence, tag: String?) {
-        val intent = Intent(this, NewReminder::class.java)
-        intent.putExtra("type", Reminder.BLUETOOTH)
-        intent.putExtra("condition", text)
-        intent.putExtra("shareText", reminder)
-        intent.putExtra("shareExtra", extra)
-        startActivity(intent)
+        shareIntent.putExtra("type", Reminder.BLUETOOTH)
+        shareIntent.putExtra("condition", text)
+        shareIntent.putExtra("shareText", reminder)
+        shareIntent.putExtra("shareExtra", extra)
+        startActivity(shareIntent)
     }
 
     override fun timeCall(date: Calendar, tag: String?) {
-        val intent = Intent(this, NewReminder::class.java)
-        intent.putExtra("type", Reminder.TIME)
-        intent.putExtra("condition", date.time.toString())
-        intent.putExtra("shareText", reminder)
-        intent.putExtra("shareExtra", extra)
+        shareIntent.putExtra("type", Reminder.TIME)
+        shareIntent.putExtra("condition", date.time.toString())
+        shareIntent.putExtra("shareText", reminder)
+        shareIntent.putExtra("shareExtra", extra)
         startActivity(intent)
     }
     private fun simpleCall() {
-        val intent = Intent(this, NewReminder::class.java)
-        intent.putExtra("type", Reminder.SIMPLE)
-        intent.putExtra("shareText", reminder)
-        intent.putExtra("shareExtra", extra)
-        startActivity(intent)
+        shareIntent.putExtra("type", Reminder.SIMPLE)
+        shareIntent.putExtra("shareText", reminder)
+        shareIntent.putExtra("shareExtra", extra)
+        startActivity(shareIntent)
     }
 
     override fun other(text: CharSequence, tag: String?) {}
@@ -63,11 +60,15 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
 
     var reminder: String = ""
     var extra: String = ""
+    lateinit var pref: Shared
+    lateinit var shareIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.popup_share)
 
+        pref = Shared(this)
+        shareIntent = Intent(this, NewReminder::class.java)
 
         val imageSpan = ImageSpan(this, R.drawable.ic_link_white)
 
@@ -106,6 +107,20 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         }
         ibSimpleShare.setOnClickListener {
             simpleCall()
+        }
+        ibInHouseShare.setOnClickListener {
+            wifiCall(pref.getHome(), "")
+        }
+        ibOutHouseShare.setOnClickListener {
+            shareIntent.putExtra("isOut", true)
+            wifiCall(pref.getHome(), "")
+        }
+        ibInWorkShare.setOnClickListener {
+            wifiCall(pref.getWork(), "")
+        }
+        ibOutWorkShare.setOnClickListener {
+            shareIntent.putExtra("isOut", true)
+            wifiCall(pref.getWork(), "")
         }
 
 

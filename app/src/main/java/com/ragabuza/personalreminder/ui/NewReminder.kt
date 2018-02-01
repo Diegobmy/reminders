@@ -24,15 +24,21 @@ import android.text.style.ImageSpan
 import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import com.google.android.gms.location.places.ui.PlacePicker
+import com.ragabuza.personalreminder.util.DownloadImage
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 
 
 /**
  * Created by diego.moyses on 1/12/2018.
  */
 class NewReminder : AppCompatActivity(), OpDialogInterface {
-    override fun closed(tag: String?) {    }
 
-    var ID: Long = 1
+    val PLACE_PICKER_REQUEST = 1
+
+    override fun closed(tag: String?) {}
+
+    var ID: Long = 0
     var cond: String = ""
     var contact = false
     private val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
@@ -73,17 +79,21 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         etCondition.setText(text)
     }
 
+    private var mapWidth: Int = 400
+    private var mapHeight: Int = 200
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
 
         preferences = Shared(this)
-
         etReminder.requestFocus()
 
         val extras = intent.extras
         cond = extras.getString("condition", "")
         var type = extras.getString("type", "")
+
+        supportActionBar?.title = ReminderTranslation(this).reminderType(type)
 
         etExtra.setText(extras.getString("shareExtra", ""))
         etReminder.setText(extras.getString("shareText", ""))
@@ -94,6 +104,9 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             etConditionExtra.setText(getString(R.string.when_is_2))
         else
             etConditionExtra.setText(getString(R.string.when_is))
+
+        if (extras.getBoolean("isOut", false))
+            etConditionExtra.setText(getString(R.string.when_isnot))
 
         val reminderEdited = extras.getParcelable<Reminder>("Reminder")
         if (reminderEdited != null) {
@@ -111,6 +124,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(cond)
             etCondition.setText(TimeString(cal).getString(false))
+        } else if (type == Reminder.LOCATION) {
+
         } else
             etCondition.setText(cond)
 
@@ -123,30 +138,43 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             else -> "Condição"
         }
 
-        if (type == Reminder.SIMPLE) {
-            etCondition.visibility = View.GONE
-            etConditionExtra.visibility = View.GONE
-        } else if (type == Reminder.TIME) {
-            etConditionExtra.visibility = View.GONE
-        }
-
-        etCondition.keyListener = null
-
-        etCondition.setOnFocusChangeListener { _, b ->
-            if (b) when (type) {
-                Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
-                Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
-                Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
+        when (type) {
+            Reminder.SIMPLE -> {
+                etCondition.visibility = View.GONE
+                etConditionExtra.visibility = View.GONE
             }
-        }
-        etCondition.setOnClickListener {
-            when (type) {
-                Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
-                Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
-                Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
+            Reminder.TIME -> {
+                etConditionExtra.visibility = View.GONE
+            }
+            Reminder.LOCATION -> {
+                etCondition.visibility = View.GONE
+                mapView.visibility = View.VISIBLE
+                getMap()
             }
         }
 
+        if (type != Reminder.LOCATION) {
+            etCondition.keyListener = null
+            etCondition.setOnFocusChangeListener { _, b ->
+                if (b) when (type) {
+                    Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
+                    Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
+                    Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
+                }
+            }
+            etCondition.setOnClickListener {
+                when (type) {
+                    Reminder.WIFI -> DialogAdapter(this, this, DialogAdapter.WIFI).show()
+                    Reminder.BLUETOOTH -> DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
+                    Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
+                }
+            }
+        }else{
+            mapView.setOnClickListener {
+                val builder = PlacePicker.IntentBuilder()
+                startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
+            }
+        }
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
             if (b)
@@ -187,7 +215,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
             )
             val dao = ReminderDAO(this)
-            if (ID == 1L)
+            if (ID == 0L)
                 dao.add(reminder)
             else
                 dao.alt(reminder)
@@ -222,6 +250,25 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 }
             }
         })
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                val place = PlacePicker.getPlace(data, this)
+                locationCall("${place.latLng.latitude},${place.latLng.longitude}")
+            }
+        }
+    }
+
+    private fun locationCall(location: String){
+        cond = location
+        getMap()
+    }
+
+    private fun getMap() {
+        val request = "https://maps.googleapis.com/maps/api/staticmap?markers=$cond&size=${mapWidth}x$mapHeight&key=${getString(R.string.google_maps_api)}"
+        DownloadImage(mapView).execute(request)
     }
 
 }

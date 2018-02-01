@@ -11,15 +11,24 @@ class Shared(val context: Context) {
     private val preferences = context.getSharedPreferences("reminders", 0)
     private val editor = preferences.edit()
 
+    fun hasDeleted(): Boolean{
+        return preferences.getBoolean("HasDeleted", false)
+    }
+    private fun setHasDeleted(status: Boolean){
+        editor.putBoolean("HasDeleted", status)
+        editor.apply()
+    }
     fun setLastDeleted(reminder: Reminder){
         val Gson = Gson()
         val regStr = Gson.toJson(reminder)
+        setHasDeleted(true)
         editor.putString("LastDeleted", regStr)
         editor.apply()
     }
     fun getLastDeleted(): Reminder{
         val Gson = Gson()
         val json = preferences.getString("LastDeleted", "")
+        setHasDeleted(false)
         return Gson.fromJson(json, Reminder::class.java)
     }
     fun setHome(condition:String){

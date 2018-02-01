@@ -50,13 +50,13 @@
         android:paddingBottom="14dp">
 
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/llConditionArea"
                 android:layout_width="match_parent"
                 android:layout_height="16dp"
                 android:paddingStart="16dp"
+                android:paddingEnd="8dp"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
                 android:paddingBottom="1dp">
 
                 <ImageView
@@ -70,9 +70,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="1dp"
+                    android:layout_toEndOf="@id/ivIcon"
                     android:text="fawefewafweafawfaewfweafawefa"
                     android:textSize="11sp" />
-            </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/doneColor"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="end"
+                    android:text="11:22"
+                    android:textSize="11sp"
+                    android:textStyle="italic" />
+            </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -138,8 +150,11 @@
                     android:text="fawefewafweafawfaewfweafawefa"
                     android:textSize="11sp"
                     android:textStyle="italic" />
+
             </LinearLayout>
         </LinearLayout>
+
+
 
     </LinearLayout>
 

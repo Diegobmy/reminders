@@ -32,4 +32,16 @@ class ReminderTranslation(val context: Context) {
                 else -> context.getString(R.string.when_is_2)
             }
     }
+
+    fun reminderType(string: String): String{
+        return when (string){
+            Reminder.WIFI -> "Lembrete WiFi"
+            Reminder.BLUETOOTH -> "Lembrete Bluetooth"
+            Reminder.TIME -> "Lembrete agendado"
+            Reminder.LOCATION -> "Lembrete de Localização"
+            Reminder.SIMPLE -> "Lembrete"
+            else -> ""
+        }
+    }
+
 }
