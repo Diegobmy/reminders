@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.dao.WifiDAO
+import com.ragabuza.personalreminder.triggers.WifiReminderTrigger
 import java.util.*
 
 

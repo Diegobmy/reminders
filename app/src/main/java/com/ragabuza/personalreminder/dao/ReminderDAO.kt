@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.location.Location
 import com.ragabuza.personalreminder.model.Reminder
 import java.util.ArrayList
 import java.util.HashSet
@@ -141,5 +142,41 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         }
         c.close()
         return wifi
+    }
+    fun getLocations(): HashSet<Location> {
+        val sql = "SELECT * FROM Reminder where type='${Reminder.LOCATION}' and active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+        val locations = HashSet<Location>()
+
+        while (c.moveToNext()) {
+            val loc = Location("db")
+            loc.latitude = c.getString(c.getColumnIndex("condition")).split(",")[0].toDouble()
+            loc.longitude = c.getString(c.getColumnIndex("condition")).split(",")[1].toDouble()
+            locations.add(loc)
+        }
+        c.close()
+        return locations
+    }
+    fun getOne(id: Long): Reminder?{
+        val sql = "SELECT * FROM Reminder where id='$id' and active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+        var reminder: Reminder? = null
+
+        while (c.moveToNext()) {
+            reminder = Reminder(
+                    c.getLong(c.getColumnIndex("id")),
+                    c.getString(c.getColumnIndex("done")),
+                    c.getInt(c.getColumnIndex("active")) == 1,
+                    c.getString(c.getColumnIndex("reminder")),
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("rWhen")),
+                    c.getString(c.getColumnIndex("condition")),
+                    c.getString(c.getColumnIndex("extra"))
+            )
+        }
+        c.close()
+        return reminder
     }
 }

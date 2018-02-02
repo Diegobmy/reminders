@@ -25,9 +25,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_api" />
 
-        <service
-            android:name=".receivers.LocationReceiver"
-            android:process=":reminders_location" />
+        <service android:name=".receivers.LocationReceiver" />
 
         <activity android:name=".ui.ReminderList">
             <intent-filter>

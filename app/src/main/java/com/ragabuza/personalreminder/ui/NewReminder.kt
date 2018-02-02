@@ -1,6 +1,10 @@
 package com.ragabuza.personalreminder.ui
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface.ITALIC
@@ -14,9 +18,6 @@ import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
-import com.ragabuza.personalreminder.util.TimeString
-import com.ragabuza.personalreminder.util.ReminderTranslation
-import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,8 +26,9 @@ import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
-import com.ragabuza.personalreminder.util.DownloadImage
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import com.ragabuza.personalreminder.receivers.TimeReceiver
+import com.ragabuza.personalreminder.util.*
 
 
 /**
@@ -82,6 +84,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
     private var mapWidth: Int = 400
     private var mapHeight: Int = 200
 
+    private var edition: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
@@ -100,16 +104,14 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         if (extras.getString("shareExtra", "").matches(regex))
             etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
 
-        if (type == Reminder.LOCATION)
-            etConditionExtra.setText(getString(R.string.when_is_2))
-        else
-            etConditionExtra.setText(getString(R.string.when_is))
+        etConditionExtra.setText(getString(R.string.when_is))
 
         if (extras.getBoolean("isOut", false))
             etConditionExtra.setText(getString(R.string.when_isnot))
 
         val reminderEdited = extras.getParcelable<Reminder>("Reminder")
         if (reminderEdited != null) {
+            edition = true
             ID = reminderEdited.id
             type = reminderEdited.type
             etCondition.setText(reminderEdited.condition)
@@ -148,6 +150,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             }
             Reminder.LOCATION -> {
                 etCondition.visibility = View.GONE
+                etConditionExtra.visibility = View.GONE
                 mapView.visibility = View.VISIBLE
                 getMap()
             }
@@ -169,7 +172,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     Reminder.TIME -> DialogAdapter(this, this, DialogAdapter.TIME).show()
                 }
             }
-        }else{
+        } else {
             mapView.setOnClickListener {
                 val builder = PlacePicker.IntentBuilder()
                 startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
@@ -177,17 +180,10 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         }
         etConditionExtra.keyListener = null
         etConditionExtra.setOnFocusChangeListener { _, b ->
-            if (b)
-                if (type == Reminder.LOCATION)
-                    DialogAdapter(this, this, DialogAdapter.CHOICE_LOCATION).show()
-                else
-                    DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
+            if (b) DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
         }
         etConditionExtra.setOnClickListener {
-            if (type == Reminder.LOCATION)
-                DialogAdapter(this, this, DialogAdapter.CHOICE_LOCATION).show()
-            else
-                DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
+            DialogAdapter(this, this, DialogAdapter.CHOICE_WEB).show()
         }
 
 
@@ -204,13 +200,17 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 etReminder.error = getString(R.string.please_fill_reminder)
                 return@setOnClickListener
             }
+            val rWhen: String = if (type == Reminder.LOCATION) {
+                ReminderTranslation(this).locationAddress(cond)
+            } else
+                ReminderTranslation(this).toSave(etConditionExtra.text.toString())
             val reminder = Reminder(
                     ID,
                     "",
                     true,
                     etReminder.text.toString(),
                     type,
-                    ReminderTranslation(this).toSave(etConditionExtra.text.toString()),
+                    rWhen,
                     cond,
                     if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
             )
@@ -220,9 +220,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             else
                 dao.alt(reminder)
             dao.close()
-
-            val intent = Intent(this, ReminderList::class.java)
-            startActivity(intent)
+            if (type == Reminder.TIME) setAlarm()
+            finish()
         }
 
         etExtra.addTextChangedListener(object : TextWatcher {
@@ -252,6 +251,16 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         })
     }
 
+    private fun setAlarm() {
+        val alarm = AlarmHelper(this)
+        val cal = Calendar.getInstance()
+        val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
+        cal.time = sdf.parse(cond)
+        if (edition)
+            alarm.stopAlarm(ID)
+        alarm.setAlarm(ID, cal.timeInMillis)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
@@ -261,7 +270,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         }
     }
 
-    private fun locationCall(location: String){
+    private fun locationCall(location: String) {
         cond = location
         getMap()
     }

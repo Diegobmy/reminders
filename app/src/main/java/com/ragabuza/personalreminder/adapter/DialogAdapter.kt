@@ -35,7 +35,6 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val TIME = "T"
         val CONTACTS = "CON"
         val CHOICE_WEB = "OWEB"
-        val CHOICE_LOCATION = "OLOC"
     }
 
     @SuppressLint("InflateParams")
@@ -75,11 +74,6 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 title.text = context.getString(R.string.when_dialog)
                 webList.add(context.getString(R.string.when_is))
                 webList.add(context.getString(R.string.when_isnot))
-            }
-            CHOICE_LOCATION -> {
-                title.text = context.getString(R.string.when_dialog)
-                webList.add(context.getString(R.string.when_is_2))
-                webList.add(context.getString(R.string.when_isnot_2))
                 filter.visibility = View.GONE
             }
         }
@@ -111,7 +105,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 listener.wifiCall(item.text, tag)
             else if (type == BLUETOOTH)
                 listener.blueCall(item.text, tag)
-            else if (type == CHOICE_WEB || type == CHOICE_LOCATION)
+            else if (type == CHOICE_WEB)
                 listener.other(item.text, tag)
             else if (type == CONTACTS)
                 listener.contactCall(item.text, tag)

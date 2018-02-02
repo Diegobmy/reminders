@@ -59,7 +59,8 @@
             android:layout_margin="8dp"
             android:layout_gravity="center"
             android:drawablePadding="4dp"
-            android:background="@null"
+            android:padding="6dp"
+            android:background="@drawable/blue_button_background"
             />
 
     </LinearLayout>

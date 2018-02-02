@@ -137,7 +137,9 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(reminder.condition)
             tvCond?.text = TimeString(cal).getString(true)
-        } else
+        } else if (reminder.type == Reminder.LOCATION)
+            tvCond?.text = reminder.rWhen
+        else
             tvCond?.text = reminder.condition
 
         when (reminder.type) {

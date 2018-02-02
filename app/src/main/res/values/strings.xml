@@ -22,8 +22,6 @@
     <string name="simple">Simples</string>
     <string name="when_is">Se conectar em</string>
     <string name="when_isnot">Se desconectar de</string>
-    <string name="when_is_2">Está em</string>
-    <string name="when_isnot_2">Não está em</string>
     <string name="really_delete">Tem certeza que deseja deletar este lembrete?</string>
     <string name="cannot_be_undone">Esta ação não pode ser desfeita!</string>
     <string name="yes_delete">Deletar lembrete</string>
@@ -36,4 +34,5 @@
     <string name="select_contact">Selecione um contato</string>
     <string name="when_dialog">Quando</string>
     <string name="apply">Aplicar</string>
+    <string name="you_are_in">Você está em</string>
 </resources>

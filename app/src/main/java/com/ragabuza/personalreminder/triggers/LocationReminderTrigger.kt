@@ -1,6 +1,7 @@
-package com.ragabuza.personalreminder.receivers
+package com.ragabuza.personalreminder.triggers
 
 import android.content.Context
+import android.location.Location
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
@@ -11,17 +12,12 @@ import java.util.*
 /**
  * Created by diego.moyses on 1/29/2018.
  */
-class WifiReminderTrigger(val context: Context) {
+class LocationReminderTrigger(val context: Context) {
 
-    fun connected(web: String){
+    fun inRange(location: Location){
+        val condition = "${location.latitude},${location.longitude}"
         val dao = ReminderDAO(context)
-        val reminders = dao.getActive(web, Reminder.IS)
-        dao.close()
-        notifyReminders(reminders)
-    }
-    fun disconnected(web: String){
-        val dao = ReminderDAO(context)
-        val reminders = dao.getActive(web, Reminder.ISNOT)
+        val reminders = dao.getActive(condition, Reminder.IS)
         dao.close()
         notifyReminders(reminders)
     }
@@ -31,8 +27,8 @@ class WifiReminderTrigger(val context: Context) {
             it.active = false
             it.done = TimeString(Calendar.getInstance()).getSimple()
             dao.alt(it)
-            val connect = if(it.rWhen == Reminder.IS) context.getString(R.string.contected_to) else context.getString(R.string.descontected_to)
-            NotificationHelper(context).showNotification(it.id.toInt(), it.reminder, "$connect ${it.condition}")
+            val connect = context.getString(R.string.you_are_in)
+            NotificationHelper(context).showNotification(it.id.toInt(), it.reminder, "$connect ${it.rWhen}")
         }
         dao.close()
     }

@@ -31,6 +31,7 @@ import com.google.android.gms.location.places.ui.PlacePicker
 import com.google.android.gms.maps.model.LatLng
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.receivers.LocationReceiver
 import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.drawer_header.*
@@ -378,6 +379,11 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         adapter.doFilter(adapter.newRemindersFilter, true)
         lvRemind.adapter = adapter
         clipShow()
+
+        val intent = Intent(this, LocationReceiver::class.java)
+        startService(intent)
+
+
     }
 
     private fun clipShow() {

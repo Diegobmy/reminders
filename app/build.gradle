@@ -35,9 +35,9 @@ dependencies {
     compile 'com.github.clans:fab:1.6.4'
 //    compile "org.jetbrains.anko:anko-sqlite:0.10.4"
     compile 'com.github.f0ris.sweetalert:library:1.5.1'
-    compile "com.google.android.gms:play-services-places:10.2.0"
-    compile 'com.google.code.gson:gson:2.8.0'
-
+    compile "com.google.android.gms:play-services-places:11.8.0"
+    compile 'com.google.code.gson:gson:2.8.2'
+    compile 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.github.kittinunf.fuel:fuel-android:1.9.0'
     compile 'com.github.kittinunf.fuel:fuel-gson:1.9.0'
 

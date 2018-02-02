@@ -1,87 +1,114 @@
 package com.ragabuza.personalreminder.receivers
 
+import android.Manifest
 import android.app.Service
-import android.content.Context
-import android.location.LocationManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
-import android.os.IBinder
 import android.os.Bundle
+import android.os.IBinder
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
+
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationListener
+
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.triggers.LocationReminderTrigger
 import com.ragabuza.personalreminder.util.NotificationHelper
+import com.ragabuza.personalreminder.util.timeGet
+import java.util.*
+import android.content.BroadcastReceiver
+import android.content.Context
 
 
-/**
- * Created by diego.moyses on 1/29/2018.
- */
-class LocationReceiver : Service() {
-    private var mLocationManager: LocationManager? = null
+class LocationReceiver : Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+    private lateinit var mLocationClient: GoogleApiClient
+    private var mLocationRequest = LocationRequest()
 
-    private var mLocationListeners = arrayOf(LocationListener(LocationManager.GPS_PROVIDER), LocationListener(LocationManager.NETWORK_PROVIDER))
-
-    inner class LocationListener(provider: String) : android.location.LocationListener {
-        private var mLastLocation: Location = Location(provider)
-
-        override fun onLocationChanged(location: Location) {
-            mLastLocation.set(location)
-            NotificationHelper(this@LocationReceiver).showNotification(0, "hello", "${location.latitude}/${location.longitude}")
-        }
-
-        override fun onProviderDisabled(provider: String) { }
-
-        override fun onProviderEnabled(provider: String) {  }
-
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {   }
+    override fun onDestroy() {
+        super.onDestroy()
+        val broadcastIntent = Intent(this, ServiceRestart::class.java)
+        sendBroadcast(broadcastIntent)
     }
 
-    override fun onBind(arg0: Intent): IBinder? {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        mLocationClient = GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build()
+
+        mLocationRequest.interval = timeGet(60).minutes()
+        mLocationRequest.fastestInterval = timeGet(1).minutes()
+
+
+        val priority = LocationRequest.PRIORITY_HIGH_ACCURACY //by default
+        //PRIORITY_BALANCED_POWER_ACCURACY, PRIORITY_LOW_POWER, PRIORITY_NO_POWER are the other priority modes
+
+
+        mLocationRequest.priority = priority
+        mLocationClient.connect()
+
+        //Make it stick to the notification panel so it is less prone to get cancelled by the Operating System.
+        return Service.START_STICKY
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        return START_STICKY
+    /*
+     * LOCATION CALLBACKS
+     */
+    override fun onConnected(dataBundle: Bundle?) {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, mLocationRequest, this)
     }
 
-    override fun onCreate() {
-        initializeLocationManager()
-        try {
-            mLocationManager!!.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE,
-                    mLocationListeners[1])
-        } catch (ex: java.lang.SecurityException) { } catch (ex: IllegalArgumentException) {    }
-
-        try {
-            mLocationManager!!.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE,
-                    mLocationListeners[0])
-        } catch (ex: java.lang.SecurityException) { } catch (ex: IllegalArgumentException) {    }
-
-
+    /*
+     * Called by Location Services if the connection to the
+     * location client drops because of an error.
+     */
+    override fun onConnectionSuspended(i: Int) {
     }
 
-    override fun onDestroy() {
-        Log.e(TAG, "onDestroy")
-        super.onDestroy()
-        if (mLocationManager != null) {
-            for (i in mLocationListeners.indices) {
-                try {
-                    mLocationManager!!.removeUpdates(mLocationListeners[i])
-                } catch (ex: Exception) {   }
+    //to get the location change
+    override fun onLocationChanged(location: Location?) {
+        if (location != null) {
+            val checkLocDAO = ReminderDAO(this)
+            val checkedLocations = checkLocDAO.getLocations()
+            checkLocDAO.close()
+            if (checkedLocations.isEmpty()) return
 
+            val trigger = LocationReminderTrigger(this)
+
+            checkedLocations.forEach {
+                if (it.distanceTo(location) < 50)
+                    trigger.inRange(it)
             }
         }
     }
 
-    private fun initializeLocationManager() {
-        if (mLocationManager == null) {
-            mLocationManager = applicationContext.getSystemService(Context.LOCATION_SERVICE) as LocationManager?
-        }
-    }
+    override fun onConnectionFailed(connectionResult: ConnectionResult) {
 
-    companion object {
-        private val TAG = "BOOMBOOMTESTGPS"
-        private val LOCATION_INTERVAL = 10000
-        private val LOCATION_DISTANCE = 0f
+    }
+}
+
+class ServiceRestart : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) {
+        context.startService(Intent(context, LocationReceiver::class.java))
     }
 }
