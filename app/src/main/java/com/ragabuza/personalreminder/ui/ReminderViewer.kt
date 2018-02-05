@@ -50,10 +50,7 @@ class ReminderViewer : AppCompatActivity() {
         tvType.text = translator.reminderType(reminder.type)
         tvType.setCompoundDrawablesWithIntrinsicBounds(translator.reminderIcon(reminder.type), 0, 0, 0)
 
-        if (reminder.type == Reminder.WIFI || reminder.type == Reminder.BLUETOOTH)
-            tvRWhen.text = "${translator.toString(reminder.rWhen)} ${reminder.condition}"
-        else
-            tvRWhen.visibility = View.GONE
+            tvRWhen.text = translator.getNotification(reminder)
 
         when {
             translator.extraIsLink(reminder.extra) -> {

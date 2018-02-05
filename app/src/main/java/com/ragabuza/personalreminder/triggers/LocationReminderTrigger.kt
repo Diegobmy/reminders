@@ -26,6 +26,7 @@ class LocationReminderTrigger(context: Context): BaseTrigger(context) {
             setDone(it)
             NotificationHelper(context).showNotification(it)
         }
+        refreshIfActive()
     }
 
 

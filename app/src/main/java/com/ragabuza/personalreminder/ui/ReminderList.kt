@@ -36,6 +36,14 @@ import java.util.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+    override fun getType(): Boolean {
+        return seeOld
+    }
+
+    override fun requestRefresh() {
+        refreshList()
+    }
+
     override fun finishedLoading() {}
 
     private var killIt = false
@@ -49,6 +57,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
 
     lateinit var pref: Shared
     val PLACE_PICKER_REQUEST = 1
+    var seeOld = false
 
     override fun delete(reminder: Reminder) {
         val dao = ReminderDAO(this)
@@ -119,8 +128,10 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     }
 
     fun fillInfo() {
-        tvNumberOfRemindersNew.text = "${adapter.originalList.count { it.active }} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${adapter.originalList.count { !it.active }} ${getString(R.string.number_reminders_old)}."
+        val dao = ReminderDAO(this)
+        tvNumberOfRemindersNew.text = "${dao.countNew()} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${dao.countOld()} ${getString(R.string.number_reminders_old)}."
+        dao.close()
     }
 
     private lateinit var reminders: List<Reminder>
@@ -340,18 +351,20 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
             when (menuItem.itemId) {
                 R.id.RNew -> {
                     hideUndo()
+                    seeOld = false
+                    refreshList()
                     lvRemind.startAnimation(inAnimation)
-                    adapter.doFilter(adapter.newRemindersFilter)
                     supportActionBar!!.title = getString(R.string.remindersActivityTitle)
                     fabMenu.startAnimation(inAnimation)
                     fabMenu.visibility = View.VISIBLE
                 }
                 R.id.ROld -> {
                     hideUndo()
+                    seeOld = true
+                    refreshList()
                     btClipboard.visibility = View.GONE
                     llClipOptions.visibility = View.GONE
                     lvRemind.startAnimation(inAnimation)
-                    adapter.doFilter(adapter.oldRemindersFilter)
                     supportActionBar!!.title = getString(R.string.oldReminders)
                     fabMenu.startAnimation(outAnimation)
                     fabMenu.visibility = View.GONE
@@ -374,18 +387,25 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         }
     }
 
+    fun refreshList() {
+        val dao = ReminderDAO(this)
+        reminders = if (!seeOld)
+            dao.get()
+        else
+            dao.getOld()
+
+        dao.close()
+        val mutList = reminders.toMutableList()
+        mutList.sortBy { !it.done.contains("WAITING") }
+        adapter = ReminderAdapter(this, mutList)
+        lvRemind.adapter = adapter
+    }
+
     override fun onResume() {
         super.onResume()
-        val dao = ReminderDAO(this)
-        reminders = dao.get()
-        dao.close()
 
         if (!killIt) {
-            val mutList = reminders.toMutableList()
-            mutList.sortBy { it.done.contains("WAITING") }
-            adapter = ReminderAdapter(this, mutList)
-            adapter.doFilter(adapter.newRemindersFilter, true)
-            lvRemind.adapter = adapter
+            refreshList()
             clipShow()
         }
 

@@ -12,5 +12,6 @@ class TimeReminderTrigger(context: Context) : BaseTrigger(context) {
     fun notifyReminders(reminder: Reminder) {
         setDone(reminder)
         NotificationHelper(context).showNotification(reminder)
+        refreshIfActive()
     }
 }

@@ -65,8 +65,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         return dados
     }
 
-        fun get(): List<Reminder> {
-            val sql = "SELECT * FROM Reminder where active=1;"
+    fun get(): List<Reminder> {
+        val sql = "SELECT * FROM Reminder where active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
 
@@ -89,6 +89,24 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         c.close()
 
         return reminders
+    }
+
+    fun countNew(): Int {
+        val sql = "SELECT * FROM Reminder where active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+        val count = c.count
+        c.close()
+        return count
+    }
+
+    fun countOld(): Int {
+        val sql = "SELECT * FROM Reminder where active=0;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+        val count = c.count
+        c.close()
+        return count
     }
 
     fun getOld(): List<Reminder> {
@@ -172,6 +190,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         c.close()
         return wifi
     }
+
     fun getLocations(): HashSet<Location> {
         val sql = "SELECT * FROM Reminder where type='${Reminder.LOCATION}' and active=1;"
         val db = readableDatabase
@@ -187,7 +206,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         c.close()
         return locations
     }
-    fun getOne(id: Long): Reminder?{
+
+    fun getOne(id: Long): Reminder? {
         val sql = "SELECT * FROM Reminder where id='$id' and active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)

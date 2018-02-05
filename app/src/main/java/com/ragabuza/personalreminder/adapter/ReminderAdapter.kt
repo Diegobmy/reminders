@@ -19,6 +19,7 @@ import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.util.TimeString
+import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,6 +37,8 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         fun edit(reminder: Reminder)
         fun delete(reminder: Reminder)
         fun view(reminder: Reminder)
+        fun requestRefresh()
+        fun getType(): Boolean
     }
 
     val originalList: MutableList<Reminder> = reminders.toMutableList()
@@ -47,8 +50,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         return inflater.inflate(R.layout.list_item, parent, false)
     }
 
-    val newRemindersFilter = 1
-    val oldRemindersFilter = 2
     val bluetoothFilter = 3
     val wifiFilter = 4
     val locationFilter = 5
@@ -86,8 +87,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
 
         filters.forEach { t ->
             when (t) {
-                newRemindersFilter -> originalList.filterTo(toRemove) { !it.active }
-                oldRemindersFilter -> originalList.filterTo(toRemove) { it.active }
                 bluetoothFilter -> originalList.filterTo(toAdd) { it.type == Reminder.BLUETOOTH }
                 wifiFilter -> originalList.filterTo(toAdd) { it.type == Reminder.WIFI }
                 locationFilter -> originalList.filterTo(toAdd) { it.type == Reminder.LOCATION }
@@ -263,15 +262,14 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             }
 
             val toRemove = mutableListOf<Reminder>()
-            if (filters.contains(newRemindersFilter)) {
+            if (!(context as ReminderClickCallback).getType())
                 reminders.filterTo(toRemove) {
                     (!it.active && (reminder.id != it.id))
                 }
-            } else if (filters.contains(oldRemindersFilter)) {
+            else
                 reminders.filterTo(toRemove) {
                     (it.active && (reminder.id != it.id))
                 }
-            }
 
             var removeView: View? = null
 
@@ -295,8 +293,26 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
 
             reminder.active = !reminder.active
             reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getSimple()
+
             val dao = ReminderDAO(context)
-            dao.alt(reminder)
+            if (reminder.type == Reminder.TIME && reminder.active) {
+                val newReminder = Reminder(reminder.id,
+                        "",
+                        true,
+                        reminder.reminder,
+                        Reminder.SIMPLE,
+                        "",
+                        "",
+                        reminder.extra
+                )
+                originalList.remove(reminder)
+                reminders.remove(reminder)
+                originalList.add(newReminder)
+                reminders.add(newReminder)
+                notifyDataSetChanged()
+                dao.alt(newReminder)
+            } else
+                dao.alt(reminder)
             dao.close()
 
         }

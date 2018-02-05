@@ -30,6 +30,7 @@ class WifiReminderTrigger(context: Context): BaseTrigger(context) {
             setDone(it)
             NotificationHelper(context).showNotification(it)
         }
+        refreshIfActive()
     }
 
 
