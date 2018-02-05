@@ -216,7 +216,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             )
             val dao = ReminderDAO(this)
             if (ID == 0L)
-                dao.add(reminder)
+                ID = dao.add(reminder)
             else
                 dao.alt(reminder)
             dao.close()
@@ -254,6 +254,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
     private fun setAlarm() {
         val alarm = AlarmHelper(this)
         val cal = Calendar.getInstance()
+        cal.timeInMillis = System.currentTimeMillis()
         val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
         cal.time = sdf.parse(cond)
         if (edition)

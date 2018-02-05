@@ -162,15 +162,15 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val minute = mcurrentTime.get(Calendar.MINUTE)
         val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
 
-        val day = mcurrentTime.get(Calendar.DAY_OF_YEAR)
+        val day = mcurrentTime.get(Calendar.DAY_OF_MONTH)
         val month = mcurrentTime.get(Calendar.MONTH)
         val year = mcurrentTime.get(Calendar.YEAR)
 
         val date = Calendar.getInstance()
 
         val datePicker = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
-            date.set(Calendar.DAY_OF_YEAR, pckDay)
-            date.set(Calendar.MONTH, pckMonth + 1)
+            date.set(Calendar.DAY_OF_MONTH, pckDay)
+            date.set(Calendar.MONTH, pckMonth)
             date.set(Calendar.YEAR, pckYear)
             listener.timeCall(date, tag)
         }, year, month, day)

@@ -44,12 +44,12 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
 
     }
 
-    fun add(reminder: Reminder) {
+    fun add(reminder: Reminder): Long {
         val db = writableDatabase
 
         val dados = getInfo(reminder)
 
-        db.insert("Reminder", null, dados)
+        return db.insert("Reminder", null, dados)
     }
 
     private fun getInfo(reminder: Reminder): ContentValues {
@@ -91,8 +91,11 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
         return reminders
     }
 
-    fun getActive(string: String, connected: String): List<Reminder> {
-        val sql = "SELECT * FROM Reminder where condition='$string' and rWhen='$connected' and active=1;"
+    fun getActive(string: String, connected: String?): List<Reminder> {
+        val sql = if (connected != null)
+            "SELECT * FROM Reminder where condition='$string' and rWhen='$connected' and active=1;"
+        else
+            "SELECT * FROM Reminder where condition='$string' and active=1;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
         val reminders = ArrayList<Reminder>()

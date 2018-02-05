@@ -17,7 +17,7 @@ class LocationReminderTrigger(val context: Context) {
     fun inRange(location: Location){
         val condition = "${location.latitude},${location.longitude}"
         val dao = ReminderDAO(context)
-        val reminders = dao.getActive(condition, Reminder.IS)
+        val reminders = dao.getActive(condition, null)
         dao.close()
         notifyReminders(reminders)
     }

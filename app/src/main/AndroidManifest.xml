@@ -58,8 +58,9 @@
                 <!-- <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" /> -->
             </intent-filter>
         </receiver>
+        <receiver android:name=".receivers.TimeReceiver"/>
 
-        <activity android:name=".ui.SettingsActivity"></activity>
+        <activity android:name=".ui.SettingsActivity"/>
     </application>
 
 </manifest>

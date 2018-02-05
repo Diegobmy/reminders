@@ -8,6 +8,7 @@ import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.dao.WifiDAO
 import com.ragabuza.personalreminder.triggers.WifiReminderTrigger
 import com.ragabuza.personalreminder.util.NotificationHelper
+import com.ragabuza.personalreminder.util.TimeString
 import java.util.*
 
 
@@ -22,7 +23,7 @@ class TimeReceiver : BroadcastReceiver() {
             val reminder = reminderDAO.getOne(id)
             if (reminder != null) {
                 val cal = Calendar.getInstance()
-                NotificationHelper(p0).showNotification(reminder.id.toInt(), reminder.reminder, cal.time.toString())
+                NotificationHelper(p0).showNotification(reminder.id.toInt(), reminder.reminder, TimeString(cal).getSimple())
             }
         }
     }
