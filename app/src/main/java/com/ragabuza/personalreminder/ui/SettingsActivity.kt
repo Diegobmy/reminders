@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_configuration.*
 import java.util.*
 
 class SettingsActivity : AppCompatActivity(), OpDialogInterface {
+    override fun finishedLoading() {}
 
     lateinit var pref: Shared
 

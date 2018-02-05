@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.wifi.WifiManager
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.dao.WifiDAO
+import com.ragabuza.personalreminder.triggers.TimeReminderTrigger
 import com.ragabuza.personalreminder.triggers.WifiReminderTrigger
 import com.ragabuza.personalreminder.util.NotificationHelper
 import com.ragabuza.personalreminder.util.TimeString
@@ -22,8 +23,7 @@ class TimeReceiver : BroadcastReceiver() {
             val id = intent?.getLongExtra("reminderID", 0) ?: 0
             val reminder = reminderDAO.getOne(id)
             if (reminder != null) {
-                val cal = Calendar.getInstance()
-                NotificationHelper(p0).showNotification(reminder.id.toInt(), reminder.reminder, TimeString(cal).getSimple())
+                TimeReminderTrigger(p0).notifyReminders(reminder)
             }
         }
     }

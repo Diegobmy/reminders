@@ -12,4 +12,5 @@
     <color name="colorPrimaryDarkAlpha">#40000234</color>
     <color name="contactColor">#222266</color>
     <color name="doneColor">#aa2222</color>
+    <color name="waiting">#ffccff</color>
 </resources>

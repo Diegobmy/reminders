@@ -11,7 +11,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 1/29/2018.
  */
-class WifiReminderTrigger(val context: Context) {
+class WifiReminderTrigger(context: Context): BaseTrigger(context) {
 
     fun connected(web: String){
         val dao = ReminderDAO(context)
@@ -26,15 +26,10 @@ class WifiReminderTrigger(val context: Context) {
         notifyReminders(reminders)
     }
     private fun notifyReminders(reminders: List<Reminder>) {
-        val dao = ReminderDAO(context)
         reminders.forEach {
-            it.active = false
-            it.done = TimeString(Calendar.getInstance()).getSimple()
-            dao.alt(it)
-            val connect = if(it.rWhen == Reminder.IS) context.getString(R.string.contected_to) else context.getString(R.string.descontected_to)
-            NotificationHelper(context).showNotification(it.id.toInt(), it.reminder, "$connect ${it.condition}")
+            setDone(it)
+            NotificationHelper(context).showNotification(it)
         }
-        dao.close()
     }
 
 

@@ -113,6 +113,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
             dialog.dismiss()
         }
 
+        listener.finishedLoading()
         dialog.show()
 
 

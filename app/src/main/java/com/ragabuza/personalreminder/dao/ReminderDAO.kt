@@ -66,7 +66,33 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, "Reminder", nul
     }
 
         fun get(): List<Reminder> {
-            val sql = "SELECT * FROM Reminder;"
+            val sql = "SELECT * FROM Reminder where active=1;"
+        val db = readableDatabase
+        val c = db.rawQuery(sql, null)
+
+        val reminders = ArrayList<Reminder>()
+
+        while (c.moveToNext()) {
+            val reminder = Reminder(
+                    c.getLong(c.getColumnIndex("id")),
+                    c.getString(c.getColumnIndex("done")),
+                    c.getInt(c.getColumnIndex("active")) == 1,
+                    c.getString(c.getColumnIndex("reminder")),
+                    c.getString(c.getColumnIndex("type")),
+                    c.getString(c.getColumnIndex("rWhen")),
+                    c.getString(c.getColumnIndex("condition")),
+                    c.getString(c.getColumnIndex("extra"))
+            )
+
+            reminders.add(reminder)
+        }
+        c.close()
+
+        return reminders
+    }
+
+    fun getOld(): List<Reminder> {
+        val sql = "SELECT * FROM Reminder where active=0;"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
 

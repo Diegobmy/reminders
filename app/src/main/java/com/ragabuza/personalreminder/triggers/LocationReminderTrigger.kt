@@ -12,7 +12,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 1/29/2018.
  */
-class LocationReminderTrigger(val context: Context) {
+class LocationReminderTrigger(context: Context): BaseTrigger(context) {
 
     fun inRange(location: Location){
         val condition = "${location.latitude},${location.longitude}"
@@ -22,15 +22,10 @@ class LocationReminderTrigger(val context: Context) {
         notifyReminders(reminders)
     }
     private fun notifyReminders(reminders: List<Reminder>) {
-        val dao = ReminderDAO(context)
         reminders.forEach {
-            it.active = false
-            it.done = TimeString(Calendar.getInstance()).getSimple()
-            dao.alt(it)
-            val connect = context.getString(R.string.you_are_in)
-            NotificationHelper(context).showNotification(it.id.toInt(), it.reminder, "$connect ${it.rWhen}")
+            setDone(it)
+            NotificationHelper(context).showNotification(it)
         }
-        dao.close()
     }
 
 

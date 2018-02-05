@@ -13,4 +13,5 @@ interface OpDialogInterface {
     fun other(text: CharSequence, tag: String?)
     fun contactCall(text: CharSequence, tag: String?)
     fun closed(tag: String?)
+    fun finishedLoading()
 }

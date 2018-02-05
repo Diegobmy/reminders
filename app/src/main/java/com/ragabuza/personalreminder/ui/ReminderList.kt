@@ -1,43 +1,52 @@
 package com.ragabuza.personalreminder.ui
 
 import android.content.ClipboardManager
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import com.ragabuza.personalreminder.adapter.ReminderAdapter
-import com.ragabuza.personalreminder.model.*
-import kotlinx.android.synthetic.main.activity_reminder_list.*
-import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.adapter.DialogAdapter
-import java.util.*
-import android.view.View
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.os.Bundle
 import android.os.Handler
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.StyleSpan
 import android.support.v4.view.GravityCompat
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.Menu
-import android.view.MenuItem
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.TextWatcher
+import android.text.style.StyleSpan
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
-import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlacePicker
-import com.google.android.gms.maps.model.LatLng
+import com.ragabuza.personalreminder.R
+import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
+import com.ragabuza.personalreminder.adapter.ReminderAdapter
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.receivers.LocationReceiver
 import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.action_item_filter.*
+import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
+import java.util.*
 
 
 class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+    override fun finishedLoading() {}
+
+    private var killIt = false
+
+    override fun view(reminder: Reminder) {
+        val inte = Intent(this, ReminderViewer::class.java)
+        inte.putExtra("Reminder", reminder)
+        killIt = true
+        startActivity(inte)
+    }
+
     lateinit var pref: Shared
     val PLACE_PICKER_REQUEST = 1
 
@@ -94,7 +103,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         startActivity(editIntent)
     }
 
-    private lateinit var adapter: ReminderAdapter
+    private var adapter = ReminderAdapter(this, mutableListOf())
     private lateinit var clip: CharSequence
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -113,6 +122,9 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         tvNumberOfRemindersNew.text = "${adapter.originalList.count { it.active }} ${getString(R.string.number_reminders_new)}."
         tvNumberOfRemindersOld.text = "${adapter.originalList.count { !it.active }} ${getString(R.string.number_reminders_old)}."
     }
+
+    private lateinit var reminders: List<Reminder>
+    private lateinit var editIntent: Intent
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         if (item?.itemId == android.R.id.home) {
@@ -142,10 +154,6 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         }
         return super.onOptionsItemSelected(item)
     }
-
-    private lateinit var reminders: List<Reminder>
-
-    private lateinit var editIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -369,16 +377,19 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     override fun onResume() {
         super.onResume()
         val dao = ReminderDAO(this)
-
         reminders = dao.get()
-
         dao.close()
 
-        val mutList = reminders.toMutableList()
-        adapter = ReminderAdapter(this, mutList)
-        adapter.doFilter(adapter.newRemindersFilter, true)
-        lvRemind.adapter = adapter
-        clipShow()
+        if (!killIt) {
+            val mutList = reminders.toMutableList()
+            mutList.sortBy { it.done.contains("WAITING") }
+            adapter = ReminderAdapter(this, mutList)
+            adapter.doFilter(adapter.newRemindersFilter, true)
+            lvRemind.adapter = adapter
+            clipShow()
+        }
+
+        killIt = false
 
         val intent = Intent(this, LocationReceiver::class.java)
         startService(intent)

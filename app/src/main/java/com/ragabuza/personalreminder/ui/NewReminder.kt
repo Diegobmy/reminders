@@ -1,14 +1,11 @@
 package com.ragabuza.personalreminder.ui
 
 import android.Manifest
-import android.app.AlarmManager
-import android.app.Notification
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface.ITALIC
 import android.os.Bundle
+import android.os.UserManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -26,15 +23,17 @@ import android.text.*
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import com.ragabuza.personalreminder.receivers.TimeReceiver
 import com.ragabuza.personalreminder.util.*
+import android.app.ProgressDialog
 
 
 /**
  * Created by diego.moyses on 1/12/2018.
  */
 class NewReminder : AppCompatActivity(), OpDialogInterface {
+    override fun finishedLoading() {
+        progress.dismiss()
+    }
 
     val PLACE_PICKER_REQUEST = 1
 
@@ -86,6 +85,8 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     private var edition: Boolean = false
 
+    private lateinit var progress: ProgressDialog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
@@ -97,7 +98,6 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         cond = extras.getString("condition", "")
         var type = extras.getString("type", "")
 
-        supportActionBar?.title = ReminderTranslation(this).reminderType(type)
 
         etExtra.setText(extras.getString("shareExtra", ""))
         etReminder.setText(extras.getString("shareText", ""))
@@ -116,10 +116,12 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             type = reminderEdited.type
             etCondition.setText(reminderEdited.condition)
             cond = reminderEdited.condition
-            etConditionExtra.setText(ReminderTranslation(this).toString(reminderEdited.rWhen, type))
+            etConditionExtra.setText(ReminderTranslation(this).toString(reminderEdited.rWhen))
             etReminder.setText(reminderEdited.reminder)
             etExtra.setText(reminderEdited.extra)
         }
+
+        supportActionBar?.title = ReminderTranslation(this).reminderType(type)
 
         if (type == Reminder.TIME) {
             val cal = Calendar.getInstance()
@@ -190,11 +192,23 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
         ibContacts.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
-            } else
+            } else {
+                progress = ProgressDialog(this)
+                progress.setTitle("Loading")
+                progress.setCancelable(false) // disable dismiss by tapping outside of the dialog
+                progress.show()
                 DialogAdapter(this, this, DialogAdapter.CONTACTS).show()
+            }
         }
 
-        btn_cancel.setOnClickListener { finish() }
+        val killIt = extras.getBoolean("killIt", false)
+
+        btn_cancel.setOnClickListener {
+            if (killIt)
+                finishAndRemoveTaskCompat()
+            else
+                finish()
+        }
         btn_save.setOnClickListener {
             if (etReminder.text.toString() == "" && etExtra.text.toString() == "") {
                 etReminder.error = getString(R.string.please_fill_reminder)
@@ -221,7 +235,10 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 dao.alt(reminder)
             dao.close()
             if (type == Reminder.TIME) setAlarm()
-            finish()
+            if (killIt)
+                finishAndRemoveTaskCompat()
+            else
+                finish()
         }
 
         etExtra.addTextChangedListener(object : TextWatcher {

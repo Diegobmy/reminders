@@ -32,9 +32,10 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         return R.id.slReminders
     }
 
-    interface ReminderClickCallback{
+    interface ReminderClickCallback {
         fun edit(reminder: Reminder)
         fun delete(reminder: Reminder)
+        fun view(reminder: Reminder)
     }
 
     val originalList: MutableList<Reminder> = reminders.toMutableList()
@@ -128,6 +129,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val ivCheckbox = convertView?.findViewById<ImageView>(R.id.ivCheckbox)
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
         val ivLink = convertView?.findViewById<ImageView>(R.id.ivLink)
+        val background = convertView?.findViewById<LinearLayout>(R.id.llUpper)
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE
@@ -150,7 +152,14 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             Reminder.SIMPLE -> iconElement?.visibility = View.GONE
         }
 
-        tvDone?.text = reminder.done
+        if (reminder.done != "WAITING") {
+            tvDone?.text = reminder.done
+            background?.setBackgroundColor(context.resources.getColor(android.R.color.white))
+        } else {
+            tvDone?.text = ""
+            background?.setBackgroundColor(context.resources.getColor(R.color.waiting))
+        }
+
 
         convertView?.findViewById<RelativeLayout>(R.id.rlDelete)?.setOnClickListener {
             val alert = SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
@@ -184,6 +193,10 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                 swipe?.open()
             else
                 swipe?.close()
+        }
+        convertView?.findViewById<TextView>(R.id.tvName)?.setOnLongClickListener {
+            (context as ReminderClickCallback).view(reminder)
+            return@setOnLongClickListener true
         }
 
         val text: String

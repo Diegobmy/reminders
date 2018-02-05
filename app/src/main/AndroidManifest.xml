@@ -50,6 +50,10 @@
         <activity
             android:name=".ui.NewReminder"
             android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".util.ExitAndRemoveFromRecentAppsDummyActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            />
 
         <receiver android:name=".receivers.WifiReceiver">
             <intent-filter>
@@ -58,9 +62,12 @@
                 <!-- <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" /> -->
             </intent-filter>
         </receiver>
-        <receiver android:name=".receivers.TimeReceiver"/>
+        <receiver android:name=".receivers.TimeReceiver" />
 
-        <activity android:name=".ui.SettingsActivity"/>
+        <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.ReminderViewer"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.Transparent"/>
     </application>
 
 </manifest>
