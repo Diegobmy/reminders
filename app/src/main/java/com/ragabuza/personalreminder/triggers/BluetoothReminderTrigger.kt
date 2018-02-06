@@ -11,17 +11,17 @@ import java.util.*
 /**
  * Created by diego.moyses on 1/29/2018.
  */
-class WifiReminderTrigger(context: Context): BaseTrigger(context) {
+class BluetoothReminderTrigger(context: Context): BaseTrigger(context) {
 
     fun connected(web: String){
         val dao = ReminderDAO(context)
-        val reminders = dao.getActive(Reminder.WIFI, web, Reminder.IS)
+        val reminders = dao.getActive(Reminder.BLUETOOTH, web, Reminder.IS)
         dao.close()
         notifyReminders(reminders)
     }
     fun disconnected(web: String){
         val dao = ReminderDAO(context)
-        val reminders = dao.getActive(Reminder.WIFI, web, Reminder.ISNOT)
+        val reminders = dao.getActive(Reminder.BLUETOOTH, web, Reminder.ISNOT)
         dao.close()
         notifyReminders(reminders)
     }

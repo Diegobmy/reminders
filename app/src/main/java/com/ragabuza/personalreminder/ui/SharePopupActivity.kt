@@ -3,25 +3,30 @@ package com.ragabuza.personalreminder.ui
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import com.ragabuza.personalreminder.R
-import kotlinx.android.synthetic.main.popup_share.*
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
+import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_EXTRA
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
 import com.ragabuza.personalreminder.util.Shared
+import kotlinx.android.synthetic.main.popup_share.*
 import java.util.*
 
 
 /**
  * Created by diego.moyses on 1/2/2018.
  */
-class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
+class SharePopupActivity : ActivityBase(), OpDialogInterface {
     override fun finishedLoading() {}
 
     override fun closed(tag: String?) {
@@ -29,42 +34,42 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
     }
 
     override fun wifiCall(text: CharSequence, tag: String?) {
-        shareIntent.putExtra("type", Reminder.WIFI)
-        shareIntent.putExtra("condition", text)
-        shareIntent.putExtra("shareText", reminder)
-        shareIntent.putExtra("shareExtra", extra)
+        shareIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
+        shareIntent.putExtra(FIELD_CONDITION, text)
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
         startActivity(shareIntent)
     }
 
     override fun blueCall(text: CharSequence, tag: String?) {
-        shareIntent.putExtra("type", Reminder.BLUETOOTH)
-        shareIntent.putExtra("condition", text)
-        shareIntent.putExtra("shareText", reminder)
-        shareIntent.putExtra("shareExtra", extra)
+        shareIntent.putExtra(FIELD_TYPE, Reminder.BLUETOOTH)
+        shareIntent.putExtra(FIELD_CONDITION, text)
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
         startActivity(shareIntent)
     }
 
     override fun timeCall(date: Calendar, tag: String?) {
-        shareIntent.putExtra("type", Reminder.TIME)
-        shareIntent.putExtra("condition", date.time.toString())
-        shareIntent.putExtra("shareText", reminder)
-        shareIntent.putExtra("shareExtra", extra)
+        shareIntent.putExtra(FIELD_TYPE, Reminder.TIME)
+        shareIntent.putExtra(FIELD_CONDITION, date.time.toString())
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
         startActivity(intent)
     }
 
     private fun simpleCall() {
-        shareIntent.putExtra("type", Reminder.SIMPLE)
-        shareIntent.putExtra("shareText", reminder)
-        shareIntent.putExtra("shareExtra", extra)
+        shareIntent.putExtra(FIELD_TYPE, Reminder.SIMPLE)
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
         startActivity(shareIntent)
 
     }
 
     private fun locationCall(location: String) {
-        shareIntent.putExtra("type", Reminder.LOCATION)
-        shareIntent.putExtra("condition", location)
-        shareIntent.putExtra("shareText", reminder)
-        shareIntent.putExtra("shareExtra", extra)
+        shareIntent.putExtra(FIELD_TYPE, Reminder.LOCATION)
+        shareIntent.putExtra(FIELD_CONDITION, location)
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
         startActivity(shareIntent)
     }
 
@@ -84,7 +89,7 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
 
         pref = Shared(this)
         shareIntent = Intent(this, NewReminder::class.java)
-        shareIntent.putExtra("killIt", true)
+        shareIntent.putExtra(KILL_IT, true)
 
         val imageSpan = ImageSpan(this, R.drawable.ic_link_white)
 
@@ -92,9 +97,8 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
         extra = intent.getStringExtra(Intent.EXTRA_TEXT)
 
         var urlString: SpannableString
-        val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
 
-        if (intent.getStringExtra(Intent.EXTRA_TEXT).toString().matches(regex)) {
+        if (trans.extraIsLink(intent.getStringExtra(Intent.EXTRA_TEXT).toString())) {
             urlString = SpannableString("${intent.getStringExtra(Intent.EXTRA_SUBJECT)}\n\nL ${intent.getStringExtra(Intent.EXTRA_TEXT)}")
             urlString.setSpan(imageSpan, intent.getStringExtra(Intent.EXTRA_SUBJECT).length + 2, intent.getStringExtra(Intent.EXTRA_SUBJECT).length + 3, 0)
             urlString.setSpan(StyleSpan(Typeface.ITALIC), intent.getStringExtra(Intent.EXTRA_SUBJECT).length + 2, urlString.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -129,19 +133,16 @@ class SharePopupActivity : AppCompatActivity(), OpDialogInterface {
             wifiCall(pref.getHome(), "")
         }
         ibOutHouseShare.setOnClickListener {
-            shareIntent.putExtra("isOut", true)
+            shareIntent.putExtra(IS_OUT, true)
             wifiCall(pref.getHome(), "")
         }
         ibInWorkShare.setOnClickListener {
             wifiCall(pref.getWork(), "")
         }
         ibOutWorkShare.setOnClickListener {
-            shareIntent.putExtra("isOut", true)
+            shareIntent.putExtra(IS_OUT, true)
             wifiCall(pref.getWork(), "")
         }
-
-
-//        safe.setOnClickListener {  }
 
     }
 

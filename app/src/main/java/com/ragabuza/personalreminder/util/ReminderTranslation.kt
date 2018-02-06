@@ -4,6 +4,7 @@ import android.content.Context
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.model.Reminder
 import android.location.Geocoder
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.CONTACT_PREFIX
 import java.io.IOException
 import java.util.*
 
@@ -12,7 +13,7 @@ import java.util.*
  * Created by diego.moyses on 1/24/2018.
  */
 class ReminderTranslation(val context: Context) {
-    fun toSave(string: String): String {
+    fun toCode(string: String): String {
         return when (string) {
             context.getString(R.string.when_is) -> Reminder.IS
             context.getString(R.string.when_isnot) -> Reminder.ISNOT
@@ -24,7 +25,7 @@ class ReminderTranslation(val context: Context) {
         return when (string) {
             Reminder.IS -> context.getString(R.string.when_is)
             Reminder.ISNOT -> context.getString(R.string.when_isnot)
-            else -> context.getString(R.string.when_is)
+            else -> ""
         }
     }
 
@@ -34,6 +35,15 @@ class ReminderTranslation(val context: Context) {
             Reminder.BLUETOOTH -> "${toString(reminder.rWhen)} ${reminder.condition}"
             Reminder.TIME -> TimeString(Calendar.getInstance()).getSimple()
             Reminder.LOCATION -> "${context.getString(R.string.you_are_in)} ${reminder.rWhen}"
+            else -> reminder.condition
+        }
+    }
+    fun getViewer(reminder: Reminder): String{
+        return when(reminder.type){
+            Reminder.WIFI -> "${toString(reminder.rWhen)} ${reminder.condition}"
+            Reminder.BLUETOOTH -> "${toString(reminder.rWhen)} ${reminder.condition}"
+            Reminder.TIME -> TimeString(Calendar.getInstance()).getSimple()
+            Reminder.LOCATION -> reminder.rWhen
             else -> reminder.condition
         }
     }
@@ -80,7 +90,7 @@ class ReminderTranslation(val context: Context) {
         return extra.matches(regex)
     }
     fun extraIsContact(extra: String): Boolean{
-        return extra.contains("CONTACT: ")
+        return extra.contains(CONTACT_PREFIX)
     }
 
     fun parseContact(extra: String): String{

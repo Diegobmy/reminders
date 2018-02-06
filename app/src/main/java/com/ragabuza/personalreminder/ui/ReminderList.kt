@@ -1,7 +1,6 @@
 package com.ragabuza.personalreminder.ui
 
 import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
@@ -9,11 +8,7 @@ import android.os.Handler
 import android.support.v4.view.GravityCompat
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
-import android.text.Editable
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextWatcher
+import android.text.*
 import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
@@ -28,14 +23,17 @@ import com.ragabuza.personalreminder.adapter.ReminderAdapter
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.receivers.LocationReceiver
-import com.ragabuza.personalreminder.util.Shared
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
 
 
-class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
     override fun getType(): Boolean {
         return seeOld
     }
@@ -50,12 +48,11 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
 
     override fun view(reminder: Reminder) {
         val inte = Intent(this, ReminderViewer::class.java)
-        inte.putExtra("Reminder", reminder)
+        inte.putExtra(REMINDER, reminder)
         killIt = true
         startActivity(inte)
     }
 
-    lateinit var pref: Shared
     val PLACE_PICKER_REQUEST = 1
     var seeOld = false
 
@@ -63,24 +60,24 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
         val dao = ReminderDAO(this)
         dao.del(reminder)
         dao.close()
-        pref.setLastDeleted(reminder)
+        shared.setLastDeleted(reminder)
         fabLastDeleted.visibility = View.VISIBLE
     }
 
     override fun closed(tag: String?) {
         llClipOptions.visibility = View.GONE
-        editIntent.removeExtra("shareText")
+        editIntent.removeExtra(FIELD_REMINDER)
     }
 
     override fun edit(reminder: Reminder) {
         val inte = Intent(this, NewReminder::class.java)
-        inte.putExtra("Reminder", reminder)
+        inte.putExtra(REMINDER, reminder)
         startActivity(inte)
     }
 
     override fun timeCall(date: Calendar, tag: String?) {
-        editIntent.putExtra("condition", date.time.toString())
-        editIntent.putExtra("type", Reminder.TIME)
+        editIntent.putExtra(FIELD_CONDITION, date.time.toString())
+        editIntent.putExtra(FIELD_TYPE, Reminder.TIME)
         startActivity(editIntent)
     }
 
@@ -89,26 +86,26 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     override fun other(text: CharSequence, tag: String?) {}
 
     override fun wifiCall(text: CharSequence, tag: String?) {
-        editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", Reminder.WIFI)
+        editIntent.putExtra(FIELD_CONDITION, text)
+        editIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
         startActivity(editIntent)
     }
 
     override fun blueCall(text: CharSequence, tag: String?) {
-        editIntent.putExtra("condition", text)
-        editIntent.putExtra("type", Reminder.BLUETOOTH)
+        editIntent.putExtra(FIELD_CONDITION, text)
+        editIntent.putExtra(FIELD_TYPE, Reminder.BLUETOOTH)
         startActivity(editIntent)
     }
 
     private fun locationCall(location: String) {
-        editIntent.putExtra("condition", location)
-        editIntent.putExtra("type", Reminder.LOCATION)
+        editIntent.putExtra(FIELD_CONDITION, location)
+        editIntent.putExtra(FIELD_TYPE, Reminder.LOCATION)
         startActivity(editIntent)
     }
 
     private fun simpleCall() {
-        editIntent.putExtra("condition", "")
-        editIntent.putExtra("type", Reminder.SIMPLE)
+        editIntent.putExtra(FIELD_CONDITION, "")
+        editIntent.putExtra(FIELD_TYPE, Reminder.SIMPLE)
         startActivity(editIntent)
     }
 
@@ -169,7 +166,6 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
-        pref = Shared(this)
 
         fabMenu.setClosedOnTouchOutside(true)
 
@@ -211,33 +207,33 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
             llClipOptions.visibility = View.VISIBLE
         }
         ibClipBluetooth.setOnClickListener {
-            editIntent.putExtra("shareText", clip)
+            editIntent.putExtra(FIELD_REMINDER, clip)
             DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
         }
         ibClipWifi.setOnClickListener {
-            editIntent.putExtra("shareText", clip)
+            editIntent.putExtra(FIELD_REMINDER, clip)
             DialogAdapter(this, this, DialogAdapter.WIFI).show()
         }
         ibClipTime.setOnClickListener {
-            editIntent.putExtra("shareText", clip)
+            editIntent.putExtra(FIELD_REMINDER, clip)
             DialogAdapter(this, this, DialogAdapter.TIME).show()
         }
         ibClipLocation.setOnClickListener {
-            editIntent.putExtra("shareText", clip)
+            editIntent.putExtra(FIELD_REMINDER, clip)
             val builder = PlacePicker.IntentBuilder()
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
         ibClipSimple.setOnClickListener {
-            editIntent.putExtra("shareText", clip)
+            editIntent.putExtra(FIELD_REMINDER, clip)
             simpleCall()
         }
 
         fabLastDeleted.setOnClickListener {
             val dao = ReminderDAO(this)
             fabLastDeleted.visibility = View.GONE
-            dao.add(pref.getLastDeleted())
-            adapter.originalList.add(pref.getLastDeleted())
-            adapter.reminders.add(pref.getLastDeleted())
+            dao.add(shared.getLastDeleted())
+            adapter.originalList.add(shared.getLastDeleted())
+            adapter.reminders.add(shared.getLastDeleted())
             adapter.notifyDataSetChanged()
             dao.close()
         }
@@ -383,7 +379,7 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     private fun hideUndo() {
         if (fabLastDeleted.visibility == View.VISIBLE) {
             fabLastDeleted.visibility = View.GONE
-            Toast.makeText(this, "Para recuperar sua última notificação deletada, vá para as configurações", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.recover_deleted), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -418,32 +414,20 @@ class ReminderList : AppCompatActivity(), OpDialogInterface, ReminderAdapter.Rem
     }
 
     private fun clipShow() {
-
-        val sharedPref = getPreferences(Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
 
         clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
 
-        if (!clip.isEmpty() && clip.toString() != sharedPref.getString("clip", "")) {
-            editor.putString("clip", clip.toString())
-            editor.apply()
+        if (!clip.isEmpty() && clip.toString() != shared.getClip()) {
+            shared.setClip(clip.toString())
             btClipboard.visibility = View.VISIBLE
             clip = clipboard.primaryClip.getItemAt(0).text
-            if (clip.length > 150) {
-                val spannable = SpannableString("${getString(R.string.clipboard)}\n\"${clip.subSequence(0, 150)}...\"")
-                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btClipboard.text = spannable
-            } else {
                 val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
                 spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 btClipboard.text = spannable
-            }
-
-            val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
-
-            if (clip.toString().matches(regex))
+            btClipboard.ellipsize = TextUtils.TruncateAt.END
+            btClipboard.maxLines = 3
+            if (trans.extraIsLink(clip.toString()))
                 btClipboard.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
             else
                 btClipboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)

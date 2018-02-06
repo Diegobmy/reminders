@@ -18,6 +18,7 @@ import com.daimajia.swipe.adapters.BaseSwipeAdapter
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.ReminderTranslation
 import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.activity_reminder.*
 import java.text.SimpleDateFormat
@@ -50,11 +51,11 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         return inflater.inflate(R.layout.list_item, parent, false)
     }
 
-    val bluetoothFilter = 3
-    val wifiFilter = 4
-    val locationFilter = 5
-    val timeFilter = 6
-    val simpleFilter = 7
+    val bluetoothFilter = 1
+    val wifiFilter = 2
+    val locationFilter = 3
+    val timeFilter = 4
+    val simpleFilter = 5
 
     private val filters = mutableListOf<Int>()
 
@@ -67,11 +68,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
 
         var string = str.trim()
 
-        if (type in 1..2) {
-            filters.remove(1)
-            filters.remove(2)
-        }
-
         if (putting && type != 0)
             filters.add(type)
         else if (!putting)
@@ -81,7 +77,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val toAdd = mutableListOf<Reminder>()
 
         if (clearAll) {
-            filters.removeAll(listOf(3, 4, 5, 6, 7))
+            filters.clear()
             string = ""
         }
 
@@ -100,7 +96,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                     || it.condition.contains(string, true))
         }
         reminders.clear()
-        if (filters.size > 1) {
+        if (filters.isNotEmpty()) {
             reminders.addAll(toAdd)
             reminders.removeAll(toRemove)
         } else {
@@ -184,6 +180,9 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         convertView?.findViewById<RelativeLayout>(R.id.rlEdit)?.setOnClickListener {
             (context as ReminderClickCallback).edit(reminder)
         }
+        convertView?.findViewById<RelativeLayout>(R.id.rlView)?.setOnClickListener {
+            (context as ReminderClickCallback).view(reminder)
+        }
 
         val swipe = convertView?.findViewById<SwipeLayout>(R.id.slReminders)
 
@@ -201,30 +200,27 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val text: String
 
 
-        if (reminder.extra.isNotEmpty() && reminder.reminder.isNotEmpty()) {
+        text = reminder.reminder
+
+        val trans = ReminderTranslation(context)
+
+        if (reminder.extra.isNotEmpty()) {
             linkArea?.visibility = View.VISIBLE
             tvLink?.text = reminder.extra
-            text = reminder.reminder
-        } else if (reminder.reminder.isEmpty()) {
-            convertView?.findViewById<ImageView>(R.id.ivBigLink)?.visibility = View.VISIBLE
-            linkArea?.visibility = View.GONE
-            text = reminder.extra
         } else {
-            text = reminder.reminder
             ivBigLink?.visibility = View.GONE
             linkArea?.visibility = View.GONE
         }
 
-        val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
         when {
-            reminder.extra.contains("CONTACT: ") -> {
+            trans.extraIsContact(reminder.extra) -> {
                 ivLink?.setImageResource(R.drawable.ic_contact)
                 ivLink?.visibility = View.VISIBLE
                 val ss = SpannableString(reminder.extra.substring(9 until reminder.extra.length))
                 ss.setSpan(ForegroundColorSpan(context.resources.getColor(R.color.contactColor)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                 tvLink?.text = ss
             }
-            reminder.extra.matches(regex) -> {
+            trans.extraIsLink(reminder.extra) -> {
                 ivLink?.visibility = View.VISIBLE
                 ivLink?.setImageResource(R.drawable.ic_link)
             }

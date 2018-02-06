@@ -5,10 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface.ITALIC
 import android.os.Bundle
-import android.os.UserManager
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
@@ -25,14 +23,21 @@ import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.util.*
 import android.app.ProgressDialog
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.CONTACT_PREFIX
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_EXTRA
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
 
 
 /**
  * Created by diego.moyses on 1/12/2018.
  */
-class NewReminder : AppCompatActivity(), OpDialogInterface {
+class NewReminder : ActivityBase(), OpDialogInterface {
     override fun finishedLoading() {
-        progress.dismiss()
     }
 
     val PLACE_PICKER_REQUEST = 1
@@ -42,9 +47,6 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
     var ID: Long = 0
     var cond: String = ""
     var contact = false
-    private val regex = Regex("https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)")
-
-    private lateinit var preferences: Shared
 
     override fun contactCall(text: CharSequence, tag: String?) {
         contact = false
@@ -85,43 +87,44 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
     private var edition: Boolean = false
 
-    private lateinit var progress: ProgressDialog
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
 
-        preferences = Shared(this)
         etReminder.requestFocus()
 
         val extras = intent.extras
-        cond = extras.getString("condition", "")
-        var type = extras.getString("type", "")
+        cond = extras.getString(FIELD_CONDITION, "")
+        var type = extras.getString(FIELD_TYPE, "")
 
 
-        etExtra.setText(extras.getString("shareExtra", ""))
-        etReminder.setText(extras.getString("shareText", ""))
-        if (extras.getString("shareExtra", "").matches(regex))
+        etExtra.setText(extras.getString(FIELD_EXTRA, ""))
+        etReminder.setText(extras.getString(FIELD_REMINDER, ""))
+        if (trans.extraIsLink(extras.getString(FIELD_EXTRA, "")))
             etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
 
         etConditionExtra.setText(getString(R.string.when_is))
 
-        if (extras.getBoolean("isOut", false))
+        if (extras.getBoolean(IS_OUT, false))
             etConditionExtra.setText(getString(R.string.when_isnot))
 
-        val reminderEdited = extras.getParcelable<Reminder>("Reminder")
+        val reminderEdited = extras.getParcelable<Reminder>(REMINDER)
         if (reminderEdited != null) {
             edition = true
             ID = reminderEdited.id
             type = reminderEdited.type
             etCondition.setText(reminderEdited.condition)
             cond = reminderEdited.condition
-            etConditionExtra.setText(ReminderTranslation(this).toString(reminderEdited.rWhen))
+            etConditionExtra.setText(trans.toString(reminderEdited.rWhen))
             etReminder.setText(reminderEdited.reminder)
             etExtra.setText(reminderEdited.extra)
+            when {
+                trans.extraIsContact(reminderEdited.extra) -> contactCall(reminderEdited.extra, null)
+                trans.extraIsLink(reminderEdited.extra) -> etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
+            }
         }
 
-        supportActionBar?.title = ReminderTranslation(this).reminderType(type)
+        supportActionBar?.title = trans.reminderType(type)
 
         if (type == Reminder.TIME) {
             val cal = Calendar.getInstance()
@@ -193,15 +196,11 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS), 0)
             } else {
-                progress = ProgressDialog(this)
-                progress.setTitle("Loading")
-                progress.setCancelable(false) // disable dismiss by tapping outside of the dialog
-                progress.show()
                 DialogAdapter(this, this, DialogAdapter.CONTACTS).show()
             }
         }
 
-        val killIt = extras.getBoolean("killIt", false)
+        val killIt = extras.getBoolean(KILL_IT, false)
 
         btn_cancel.setOnClickListener {
             if (killIt)
@@ -210,14 +209,14 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                 finish()
         }
         btn_save.setOnClickListener {
-            if (etReminder.text.toString() == "" && etExtra.text.toString() == "") {
+            if (etReminder.text.isEmpty()) {
                 etReminder.error = getString(R.string.please_fill_reminder)
                 return@setOnClickListener
             }
             val rWhen: String = if (type == Reminder.LOCATION) {
-                ReminderTranslation(this).locationAddress(cond)
+                trans.locationAddress(cond)
             } else
-                ReminderTranslation(this).toSave(etConditionExtra.text.toString())
+                trans.toCode(etConditionExtra.text.toString())
             val reminder = Reminder(
                     ID,
                     "",
@@ -226,7 +225,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
                     type,
                     rWhen,
                     cond,
-                    if (contact) "CONTACT:${etExtra.text}" else etExtra.text.toString()
+                    if (contact) "$CONTACT_PREFIX ${etExtra.text}" else etExtra.text.toString()
             )
             val dao = ReminderDAO(this)
             if (ID == 0L)
@@ -243,7 +242,7 @@ class NewReminder : AppCompatActivity(), OpDialogInterface {
 
         etExtra.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
-                if (p0.toString().matches(regex))
+                if (trans.extraIsLink(p0.toString()))
                     etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
                 else
                     etExtra.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)

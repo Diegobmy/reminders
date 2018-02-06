@@ -14,10 +14,8 @@ import com.ragabuza.personalreminder.util.Shared
 import kotlinx.android.synthetic.main.activity_configuration.*
 import java.util.*
 
-class SettingsActivity : AppCompatActivity(), OpDialogInterface {
+class SettingsActivity : ActivityBase(), OpDialogInterface {
     override fun finishedLoading() {}
-
-    lateinit var pref: Shared
 
     override fun wifiCall(text: CharSequence, tag: String?) {
         when (tag) {
@@ -38,9 +36,8 @@ class SettingsActivity : AppCompatActivity(), OpDialogInterface {
         supportActionBar?.title = getString(R.string.configs)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         FocusGetter.requestFocus()
-        pref = Shared(this)
 
-        etHome.setText(pref.getHome())
+        etHome.setText(shared.getHome())
         etHome.setOnFocusChangeListener { _, b ->
             if (b) DialogAdapter(this, this, DialogAdapter.WIFI, "home").show()
         }
@@ -49,7 +46,7 @@ class SettingsActivity : AppCompatActivity(), OpDialogInterface {
             DialogAdapter(this, this, DialogAdapter.WIFI, "home").show()
         }
 
-        etWork.setText(pref.getWork())
+        etWork.setText(shared.getWork())
         etWork.setOnFocusChangeListener { _, b ->
             if (b) DialogAdapter(this, this, DialogAdapter.WIFI, "work").show()
         }
@@ -58,10 +55,10 @@ class SettingsActivity : AppCompatActivity(), OpDialogInterface {
             DialogAdapter(this, this, DialogAdapter.WIFI, "work").show()
         }
 
-        if (pref.hasDeleted())
+        if (shared.hasDeleted())
             btSettingsUndo.setOnClickListener {
                 val dao = ReminderDAO(this)
-                dao.add(pref.getLastDeleted())
+                dao.add(shared.getLastDeleted())
                 dao.close()
                 finish()
             }
@@ -81,8 +78,8 @@ class SettingsActivity : AppCompatActivity(), OpDialogInterface {
     }
 
     private fun applyConfig() {
-        pref.setHome(etHome.text.toString())
-        pref.setWork(etWork.text.toString())
+        shared.setHome(etHome.text.toString())
+        shared.setWork(etWork.text.toString())
         finish()
     }
 

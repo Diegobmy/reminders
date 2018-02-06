@@ -35,4 +35,5 @@
     <string name="when_dialog">Quando</string>
     <string name="apply">Aplicar</string>
     <string name="you_are_in">Você está em</string>
+    <string name="recover_deleted">Para recuperar sua última notificação deletada, vá para as configurações</string>
 </resources>

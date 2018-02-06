@@ -11,38 +11,60 @@ class Shared(val context: Context) {
     private val preferences = context.getSharedPreferences("reminders", 0)
     private val editor = preferences.edit()
 
-    fun hasDeleted(): Boolean{
-        return preferences.getBoolean("HasDeleted", false)
+    val HAS_DELETED = "HasDeleted"
+    val LAST_DELETED = "LastDeleted"
+    val HOME = "Home"
+    val WORK = "Work"
+    val CLIP = "Clip"
+
+    fun hasDeleted(): Boolean {
+        return preferences.getBoolean(HAS_DELETED, false)
     }
-    private fun setHasDeleted(status: Boolean){
-        editor.putBoolean("HasDeleted", status)
+
+    private fun setHasDeleted(status: Boolean) {
+        editor.putBoolean(HAS_DELETED, status)
         editor.apply()
     }
-    fun setLastDeleted(reminder: Reminder){
+
+    fun setLastDeleted(reminder: Reminder) {
         val Gson = Gson()
         val regStr = Gson.toJson(reminder)
         setHasDeleted(true)
-        editor.putString("LastDeleted", regStr)
+        editor.putString(LAST_DELETED, regStr)
         editor.apply()
     }
-    fun getLastDeleted(): Reminder{
+
+    fun getLastDeleted(): Reminder {
         val Gson = Gson()
-        val json = preferences.getString("LastDeleted", "")
+        val json = preferences.getString(LAST_DELETED, "")
         setHasDeleted(false)
         return Gson.fromJson(json, Reminder::class.java)
     }
-    fun setHome(condition:String){
-        editor.putString("Home", condition)
+
+    fun setHome(condition: String) {
+        editor.putString(HOME, condition)
         editor.apply()
     }
-    fun getHome(): String{
-        return preferences.getString("Home", "")
+
+    fun getHome(): String {
+        return preferences.getString(HOME, "")
     }
-    fun setWork(condition:String){
-        editor.putString("Work", condition)
+
+    fun setClip(clip: String) {
+        editor.putString(CLIP, clip)
         editor.apply()
     }
-    fun getWork(): String{
-        return preferences.getString("Work", "")
+
+    fun getClip(): String {
+        return preferences.getString(CLIP, "")
+    }
+
+    fun setWork(condition: String) {
+        editor.putString(WORK, condition)
+        editor.apply()
+    }
+
+    fun getWork(): String {
+        return preferences.getString(WORK, "")
     }
 }

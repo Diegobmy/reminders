@@ -17,9 +17,9 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:background="@drawable/popup_share"
-        android:paddingBottom="8dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
+        android:paddingBottom="24dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
         android:paddingTop="8dp">
 
         <ImageButton
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:textColor="@android:color/white"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:maxLines="1"
             android:drawablePadding="4dp"
@@ -49,18 +49,21 @@
             android:layout_centerHorizontal="true"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:textStyle="bold"
+            android:gravity="center"
             android:maxLines="1"
             android:layout_marginBottom="8dp"
             android:layout_below="@id/tvType"/>
         <TextView
             android:id="@+id/tvReminder"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:maxLines="5"
+            android:textColor="@android:color/black"
+            android:background="@android:color/white"
+            android:padding="8dp"
+            android:scrollbars = "vertical"
+            android:textSize="14sp"
+            android:maxLines="10"
             android:layout_below="@id/tvRWhen"/>
         <TextView
             android:id="@+id/tvExtraSimple"
@@ -142,7 +145,19 @@
                 android:padding="8dp"
                 android:background="@color/colorPrimaryLight"/>
         </LinearLayout>
-
+        <Button
+            android:id="@+id/btDone"
+            android:visibility="gone"
+            android:layout_below="@id/llPhone"
+            android:layout_margin="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_done"
+            android:text="Finalizar"
+            android:textColor="@android:color/white"
+            android:drawablePadding="4dp"
+            android:padding="8dp"
+            android:background="@color/colorPrimaryLight"/>
     </RelativeLayout>
 
 </RelativeLayout>

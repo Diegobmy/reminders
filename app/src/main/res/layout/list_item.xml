@@ -8,7 +8,7 @@
 
     <LinearLayout
         android:id="@+id/bottom_wrapper"
-        android:layout_width="146dp"
+        android:layout_width="210dp"
         android:layout_height="match_parent">
 
         <RelativeLayout
@@ -37,6 +37,19 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:src="@drawable/ic_edit" />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/rlView"
+            android:layout_width="64dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/holo_blue_dark">
+
+            <ImageView
+                android:id="@+id/ivView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_view" />
         </RelativeLayout>
     </LinearLayout>
 
