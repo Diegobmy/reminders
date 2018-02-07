@@ -13,4 +13,6 @@
     <color name="contactColor">#222266</color>
     <color name="doneColor">#aa2222</color>
     <color name="waiting">#ffccff</color>
+
+    <color name="alphaBlack">#30000000</color>
 </resources>

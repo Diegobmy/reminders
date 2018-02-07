@@ -3,11 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <View
         android:id="@+id/ivOutClick"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:background="@color/alphaBlack" />
 
     <RelativeLayout
         android:id="@+id/safe"
@@ -26,138 +27,159 @@
             android:id="@+id/ibClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_close"
             android:layout_alignParentEnd="true"
             android:background="@null"
-            />
+            android:src="@drawable/ic_close_white" />
+
+        <Spinner
+            android:id="@+id/spViewOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:popupBackground="@null"
+            android:layout_toStartOf="@id/ibClose"
+            android:background="@null"
+            android:padding="0dp" />
 
         <TextView
             android:id="@+id/tvType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:drawablePadding="4dp"
+            android:maxLines="1"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:maxLines="1"
-            android:drawablePadding="4dp"
-            android:layout_marginBottom="8dp"/>
+            android:textStyle="bold" />
+
         <TextView
             android:id="@+id/tvRWhen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/tvType"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:layout_marginBottom="8dp"
             android:gravity="center"
             android:maxLines="1"
-            android:layout_marginBottom="8dp"
-            android:layout_below="@id/tvType"/>
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+
         <TextView
             android:id="@+id/tvReminder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/tvRWhen"
             android:layout_centerHorizontal="true"
-            android:textColor="@android:color/black"
             android:background="@android:color/white"
-            android:padding="8dp"
-            android:scrollbars = "vertical"
-            android:textSize="14sp"
             android:maxLines="10"
-            android:layout_below="@id/tvRWhen"/>
+            android:padding="8dp"
+            android:scrollbars="vertical"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+
         <TextView
             android:id="@+id/tvExtraSimple"
-            android:visibility="gone"
             android:layout_width="match_parent"
-            android:layout_below="@id/tvReminder"
             android:layout_height="wrap_content"
+            android:layout_below="@id/tvReminder"
             android:layout_margin="4dp"
+            android:gravity="center"
             android:textColor="@android:color/white"
-            android:gravity="center"/>
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/llLink"
-            android:visibility="gone"
-            android:layout_below="@id/tvReminder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_below="@id/tvReminder"
+            android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:layout_centerHorizontal="true">
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <TextView
                 android:id="@+id/tvLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:drawableStart="@drawable/ic_link_white_big"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"
                 android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
             <Button
                 android:id="@+id/btOpen"
-                android:layout_margin="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_open_in_browser"
-                android:text="Abrir no navegador"
-                android:textColor="@android:color/white"
+                android:layout_margin="4dp"
+                android:background="@color/colorPrimaryLight"
                 android:drawablePadding="4dp"
+                android:drawableStart="@drawable/ic_open_in_browser"
                 android:padding="8dp"
-                android:background="@color/colorPrimaryLight"/>
+                android:text="Abrir no navegador"
+                android:textColor="@android:color/white" />
+
             <Button
                 android:id="@+id/btShare"
-                android:layout_margin="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                android:drawableStart="@drawable/ic_share"
+                android:layout_margin="4dp"
+                android:background="@color/colorPrimaryLight"
                 android:drawablePadding="4dp"
-                android:text="Compartilhar"
+                android:drawableStart="@drawable/ic_share"
                 android:padding="8dp"
-                android:background="@color/colorPrimaryLight"/>
+                android:text="Compartilhar"
+                android:textColor="@android:color/white" />
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/llPhone"
-            android:visibility="gone"
-            android:layout_below="@id/tvReminder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_below="@id/tvReminder"
+            android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:layout_centerHorizontal="true">
+            android:orientation="vertical"
+            android:visibility="gone">
+
             <TextView
                 android:id="@+id/tvPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:drawableStart="@drawable/ic_contact_white"
-                android:textColor="@android:color/white"
                 android:gravity="center"
-                android:textSize="14sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
             <Button
                 android:id="@+id/btCall"
-                android:layout_margin="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_local_phone"
-                android:text="Chamar"
-                android:textColor="@android:color/white"
+                android:layout_margin="4dp"
+                android:background="@color/colorPrimaryLight"
                 android:drawablePadding="4dp"
+                android:drawableStart="@drawable/ic_local_phone"
                 android:padding="8dp"
-                android:background="@color/colorPrimaryLight"/>
+                android:text="Chamar"
+                android:textColor="@android:color/white" />
         </LinearLayout>
+
         <Button
             android:id="@+id/btDone"
-            android:visibility="gone"
-            android:layout_below="@id/llPhone"
-            android:layout_margin="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/llPhone"
+            android:layout_margin="8dp"
+            android:background="@color/colorPrimaryLight"
+            android:drawablePadding="4dp"
             android:drawableStart="@drawable/ic_done"
+            android:padding="8dp"
             android:text="Finalizar"
             android:textColor="@android:color/white"
-            android:drawablePadding="4dp"
-            android:padding="8dp"
-            android:background="@color/colorPrimaryLight"/>
+            android:visibility="gone" />
     </RelativeLayout>
 
 </RelativeLayout>

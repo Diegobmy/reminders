@@ -99,7 +99,14 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
 
         etExtra.setText(extras.getString(FIELD_EXTRA, ""))
-        etReminder.setText(extras.getString(FIELD_REMINDER, ""))
+
+        if (trans.extraIsLink(extras.getString(FIELD_REMINDER, "")) && extras.getString(FIELD_EXTRA, "").isEmpty()){
+            etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
+            etExtra.setText(extras.getString(FIELD_REMINDER, ""))
+        }
+        else
+            etReminder.setText(extras.getString(FIELD_REMINDER, ""))
+
         if (trans.extraIsLink(extras.getString(FIELD_EXTRA, "")))
             etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
 

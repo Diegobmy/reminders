@@ -36,4 +36,7 @@
     <string name="apply">Aplicar</string>
     <string name="you_are_in">Você está em</string>
     <string name="recover_deleted">Para recuperar sua última notificação deletada, vá para as configurações</string>
+    <string name="copy_note">Copiar Nota</string>
+    <string name="copy_extra">Copiar Extra</string>
+    <string name="reshedule">Reagendar</string>
 </resources>

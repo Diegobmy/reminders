@@ -402,8 +402,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         if (!killIt) {
             refreshList()
-            clipShow()
         }
+        clipShow()
 
         killIt = false
 

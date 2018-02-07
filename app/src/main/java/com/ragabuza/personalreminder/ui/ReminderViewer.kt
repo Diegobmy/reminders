@@ -1,11 +1,16 @@
 package com.ragabuza.personalreminder.ui
 
+import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Toast
 import com.ragabuza.personalreminder.R
+import com.ragabuza.personalreminder.adapter.OptionsSpinnerAdapter
+import com.ragabuza.personalreminder.adapter.SpinnerItem
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
@@ -14,6 +19,9 @@ import com.ragabuza.personalreminder.util.TimeString
 import com.ragabuza.personalreminder.util.finishAndRemoveTaskCompat
 import kotlinx.android.synthetic.main.activity_reminder_viewer.*
 import java.util.*
+import com.ragabuza.personalreminder.R.string.clipboard
+import android.R.attr.label
+import android.content.ClipData
 
 
 class ReminderViewer : ActivityBase() {
@@ -44,8 +52,43 @@ class ReminderViewer : ActivityBase() {
 
         val reminder = intent.extras.get(REMINDER) as Reminder
 
-        tvReminder.movementMethod = ScrollingMovementMethod();
+        tvReminder.movementMethod = ScrollingMovementMethod()
 
+        val options = mutableListOf(
+                SpinnerItem(getString(R.string.copy_note), R.drawable.ic_content_copy)
+        )
+
+        if (reminder.extra.isNotEmpty())
+            options.add(SpinnerItem(getString(R.string.copy_extra), R.drawable.ic_content_copy))
+
+        if (reminder.type != Reminder.SIMPLE)
+            options.add(SpinnerItem(getString(R.string.reshedule), R.drawable.ic_schedule))
+
+        val adapter = OptionsSpinnerAdapter(this, R.layout.spinner_item, options, R.layout.spinner_base)
+
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        adapter.setItemClick(spViewOptions, object : OptionsSpinnerAdapter.SpinnerItemClick {
+            override fun onSpinnerClick(item: Int) {
+                when (options[item].text) {
+                    getString(R.string.copy_note) -> {
+                        val clip = ClipData.newPlainText("reminder", reminder.reminder)
+                        clipboard.primaryClip = clip
+                    }
+                    getString(R.string.copy_extra) -> {
+                        val clip = ClipData.newPlainText("extra", reminder.extra)
+                        clipboard.primaryClip = clip
+                    }
+                    getString(R.string.reshedule) -> {
+                        val inte = Intent(this@ReminderViewer, NewReminder::class.java)
+                        inte.putExtra(REMINDER, reminder)
+                        startActivity(inte)
+                        finish()
+                    }
+                }
+            }
+        })
+
+        spViewOptions.adapter = adapter
 
         tvType.text = trans.reminderType(reminder.type)
         tvType.setCompoundDrawablesWithIntrinsicBounds(trans.reminderIcon(reminder.type), 0, 0, 0)
@@ -113,7 +156,7 @@ class ReminderViewer : ActivityBase() {
             tvLink.visibility = View.GONE
         }
 
-        safe.setOnClickListener {        }
+        safe.setOnClickListener { }
 
     }
 }
