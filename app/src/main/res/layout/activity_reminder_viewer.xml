@@ -90,6 +90,13 @@
             android:visibility="gone" />
 
         <LinearLayout
+            android:id="@+id/llExtraDeal"
+            android:layout_below="@id/tvExtraSimple"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+        <LinearLayout
             android:id="@+id/llLink"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -166,20 +173,20 @@
                 android:text="Chamar"
                 android:textColor="@android:color/white" />
         </LinearLayout>
-
+        </LinearLayout>
         <Button
             android:id="@+id/btDone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/llPhone"
-            android:layout_margin="8dp"
+            android:layout_below="@id/llExtraDeal"
+            android:layout_margin="4dp"
             android:background="@color/colorPrimaryLight"
             android:drawablePadding="4dp"
             android:drawableStart="@drawable/ic_done"
             android:padding="8dp"
             android:text="Finalizar"
             android:textColor="@android:color/white"
-            android:visibility="gone" />
+             android:visibility="gone"/>
     </RelativeLayout>
 
 </RelativeLayout>

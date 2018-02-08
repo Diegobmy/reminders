@@ -40,6 +40,12 @@
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="@string/default_share"/>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -88,43 +94,56 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/tvCustoms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:text="@string/favorites_share"/>
+
         <LinearLayout
+            android:id="@+id/llCustoms"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/ibInHouseShare"
+                android:id="@+id/custom1"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_green_light"
-                android:src="@drawable/ic_home_in" />
-
+                android:visibility="gone"
+                android:background="@color/colorPrimaryLight"/>
             <ImageButton
-                android:id="@+id/ibOutHouseShare"
+                android:id="@+id/custom2"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_red_light"
-                android:src="@drawable/ic_home_out" />
-
+                android:visibility="gone"
+                android:background="@color/colorPrimaryLight"/>
             <ImageButton
-                android:id="@+id/ibInWorkShare"
+                android:id="@+id/custom3"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_green_light"
-                android:src="@drawable/ic_work_in" />
-
+                android:visibility="gone"
+                android:background="@color/colorPrimaryLight"/>
             <ImageButton
-                android:id="@+id/ibOutWorkShare"
+                android:id="@+id/custom4"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
-                android:background="@android:color/holo_red_light"
-                android:src="@drawable/ic_work_out" />
+                android:visibility="gone"
+                android:background="@color/colorPrimaryLight"/>
+            <ImageButton
+                android:id="@+id/custom5"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_margin="8dp"
+                android:visibility="gone"
+                android:background="@color/colorPrimaryLight"/>
+
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

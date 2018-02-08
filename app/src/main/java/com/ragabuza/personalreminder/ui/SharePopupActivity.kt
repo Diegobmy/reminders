@@ -7,10 +7,12 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.ImageSpan
 import android.text.style.StyleSpan
+import android.view.View
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
+import com.ragabuza.personalreminder.model.Favorite
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
@@ -87,7 +89,6 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.popup_share)
 
-        pref = Shared(this)
         shareIntent = Intent(this, NewReminder::class.java)
         shareIntent.putExtra(KILL_IT, true)
 
@@ -129,21 +130,62 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
         ibSimpleShare.setOnClickListener {
             simpleCall()
         }
-        ibInHouseShare.setOnClickListener {
-            wifiCall(pref.getHome(), "")
-        }
-        ibOutHouseShare.setOnClickListener {
-            shareIntent.putExtra(IS_OUT, true)
-            wifiCall(pref.getHome(), "")
-        }
-        ibInWorkShare.setOnClickListener {
-            wifiCall(pref.getWork(), "")
-        }
-        ibOutWorkShare.setOnClickListener {
-            shareIntent.putExtra(IS_OUT, true)
-            wifiCall(pref.getWork(), "")
+
+        val favorites = shared.getFavorites()
+
+        if(favorites.isEmpty()){
+            llCustoms.visibility = View.GONE
+            tvCustoms.visibility = View.GONE
+        } else {
+            //1
+            custom1.visibility = View.VISIBLE
+            custom1.setImageResource(favorites[0].icon)
+            custom1.setOnClickListener {
+                favoriteCall(favorites[0])
+            }
+            //2
+            if (favorites.size > 1){
+                custom2.visibility = View.VISIBLE
+                custom2.setImageResource(favorites[1].icon)
+                custom2.setOnClickListener {
+                    favoriteCall(favorites[1])
+                }
+            }
+            //3
+            if (favorites.size > 2){
+                custom3.visibility = View.VISIBLE
+                custom3.setImageResource(favorites[2].icon)
+                custom3.setOnClickListener {
+                    favoriteCall(favorites[2])
+                }
+            }
+            //4
+            if (favorites.size > 3){
+                custom4.visibility = View.VISIBLE
+                custom4.setImageResource(favorites[3].icon)
+                custom4.setOnClickListener {
+                    favoriteCall(favorites[3])
+                }
+            }
+            //5
+            if (favorites.size > 4){
+                custom5.visibility = View.VISIBLE
+                custom5.setImageResource(favorites[4].icon)
+                custom5.setOnClickListener {
+                    favoriteCall(favorites[4])
+                }
+            }
         }
 
+
+    }
+
+    private fun favoriteCall(favorite: Favorite) {
+        shareIntent.putExtra(FIELD_TYPE, favorite.type)
+        shareIntent.putExtra(FIELD_CONDITION, favorite.condition)
+        shareIntent.putExtra(FIELD_REMINDER, reminder)
+        shareIntent.putExtra(FIELD_EXTRA, extra)
+        startActivity(shareIntent)
     }
 
     override fun onBackPressed() {

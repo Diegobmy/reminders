@@ -14,5 +14,8 @@
     <color name="doneColor">#aa2222</color>
     <color name="waiting">#ffccff</color>
 
+    <color name="importantReminder">#ffff9999</color>
+    <color name="importantReminderText">#FFDD0000</color>
+
     <color name="alphaBlack">#30000000</color>
 </resources>

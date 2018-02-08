@@ -19,6 +19,10 @@ import android.view.View
 import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ImageSpan
+import com.ragabuza.personalreminder.model.Reminder
 import java.util.*
 
 
@@ -35,6 +39,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val TIME = "T"
         val CONTACTS = "CON"
         val CHOICE_WEB = "OWEB"
+        val TYPE = "TYPE"
     }
 
     @SuppressLint("InflateParams")
@@ -76,6 +81,13 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 webList.add(context.getString(R.string.when_isnot))
                 filter.visibility = View.GONE
             }
+            TYPE -> {
+                title.text = context.getString(R.string.type)
+                webList.add(Reminder.WIFI)
+                webList.add(Reminder.BLUETOOTH)
+                webList.add(Reminder.LOCATION)
+                filter.visibility = View.GONE
+            }
         }
 
 
@@ -101,14 +113,12 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
 
         view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
             val item = iView.findViewById<TextView>(android.R.id.text1)
-            if (type == WIFI)
-                listener.wifiCall(item.text, tag)
-            else if (type == BLUETOOTH)
-                listener.blueCall(item.text, tag)
-            else if (type == CHOICE_WEB)
-                listener.other(item.text, tag)
-            else if (type == CONTACTS)
-                listener.contactCall(item.text, tag)
+            when (type) {
+                WIFI -> listener.wifiCall(item.text, tag)
+                BLUETOOTH -> listener.blueCall(item.text, tag)
+                CHOICE_WEB, TYPE -> listener.other(item.text, tag)
+                CONTACTS -> listener.contactCall(item.text, tag)
+            }
 
             dialog.dismiss()
         }

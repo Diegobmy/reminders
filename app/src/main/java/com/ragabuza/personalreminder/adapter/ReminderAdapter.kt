@@ -2,12 +2,14 @@ package com.ragabuza.personalreminder.adapter
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -152,7 +154,12 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             background?.setBackgroundColor(context.resources.getColor(android.R.color.white))
         } else {
             tvDone?.text = ""
-            background?.setBackgroundColor(context.resources.getColor(R.color.waiting))
+            background?.setBackgroundColor(context.resources.getColor(R.color.importantReminder))
+            val ss = SpannableString(context.getString(R.string.reminder_triggered))
+            ss.setSpan(ForegroundColorSpan(context.resources.getColor(R.color.importantReminderText)), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            ss.setSpan(StyleSpan(Typeface.BOLD), 0, ss.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            tvCond?.text = ss
+            iconElement?.setImageResource(R.drawable.ic_important)
         }
 
 
@@ -291,24 +298,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getSimple()
 
             val dao = ReminderDAO(context)
-            if (reminder.type == Reminder.TIME && reminder.active) {
-                val newReminder = Reminder(reminder.id,
-                        "",
-                        true,
-                        reminder.reminder,
-                        Reminder.SIMPLE,
-                        "",
-                        "",
-                        reminder.extra
-                )
-                originalList.remove(reminder)
-                reminders.remove(reminder)
-                originalList.add(newReminder)
-                reminders.add(newReminder)
-                notifyDataSetChanged()
-                dao.alt(newReminder)
-            } else
-                dao.alt(reminder)
+            dao.alt(reminder)
             dao.close()
 
         }

@@ -107,9 +107,10 @@ class ReminderViewer : ActivityBase() {
                     val sendIntent = Intent()
                     sendIntent.action = Intent.ACTION_SEND
                     sendIntent.putExtra(Intent.EXTRA_TEXT, reminder.extra)
+                    sendIntent.putExtra(Intent.EXTRA_SUBJECT, reminder.reminder)
                     sendIntent.type = "text/plain"
                     finishAndRemoveTaskCompat()
-                    startActivity(sendIntent)
+                    startActivity(Intent.createChooser(sendIntent, "Share"))
                 }
             }
             trans.extraIsContact(reminder.extra) -> {

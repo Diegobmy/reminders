@@ -39,4 +39,9 @@
     <string name="copy_note">Copiar Nota</string>
     <string name="copy_extra">Copiar Extra</string>
     <string name="reshedule">Reagendar</string>
+    <string name="reminder_triggered">Lembrete disparado!</string>
+    <string name="type">Tipo</string>
+    <string name="icon">Ícone</string>
+    <string name="default_share">Padrão:</string>
+    <string name="favorites_share">Favoritos:</string>
 </resources>
