@@ -11,7 +11,7 @@ import android.view.View.MeasureSpec
 import android.opengl.ETC1.getWidth
 import android.view.View
 import android.widget.ListView
-
+import com.ragabuza.personalreminder.R
 
 
 /**
@@ -25,6 +25,8 @@ open class ActivityBase : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         shared = Shared(this)
         trans = ReminderTranslation(this)
+        val myTheme = shared.getTheme()
+        theme.applyStyle(myTheme.theme, true)
         super.onCreate(savedInstanceState)
     }
 

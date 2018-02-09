@@ -23,6 +23,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.ReminderTranslation
 import java.util.*
 
 
@@ -82,10 +83,11 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 filter.visibility = View.GONE
             }
             TYPE -> {
+                val trans = ReminderTranslation(context)
                 title.text = context.getString(R.string.type)
-                webList.add(Reminder.WIFI)
-                webList.add(Reminder.BLUETOOTH)
-                webList.add(Reminder.LOCATION)
+                webList.add(trans.reminderType(Reminder.WIFI))
+                webList.add(trans.reminderType(Reminder.BLUETOOTH))
+                webList.add(trans.reminderType(Reminder.LOCATION))
                 filter.visibility = View.GONE
             }
         }

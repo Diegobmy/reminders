@@ -8,10 +8,7 @@ import android.view.View
 import android.widget.Toast
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.adapter.DialogAdapter
-import com.ragabuza.personalreminder.adapter.FavoriteAdapter
-import com.ragabuza.personalreminder.adapter.IconDialogAdapter
-import com.ragabuza.personalreminder.adapter.OpDialogInterface
+import com.ragabuza.personalreminder.adapter.*
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Favorite
 import com.ragabuza.personalreminder.model.Reminder
@@ -34,11 +31,11 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
     override fun other(text: CharSequence, tag: String?) {
         when (text) {
-            Reminder.WIFI ->
+            trans.reminderType(Reminder.WIFI) ->
                 DialogAdapter(this, this, DialogAdapter.WIFI, tag).show()
-            Reminder.BLUETOOTH ->
+            trans.reminderType(Reminder.BLUETOOTH) ->
                 DialogAdapter(this, this, DialogAdapter.BLUETOOTH, tag).show()
-            Reminder.LOCATION -> {
+            trans.reminderType(Reminder.LOCATION) -> {
                 val requestCode = if (tag == "edit") 1 else 2
                 val builder = PlacePicker.IntentBuilder()
                 startActivityForResult(builder.build(this), requestCode)
@@ -49,13 +46,13 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
     override fun wifiCall(text: CharSequence, tag: String?) {
         editableFavorite?.type = Reminder.WIFI
         editableFavorite?.condition = text.toString()
-        IconDialogAdapter(this, this, tag).show()
+        IconDialogAdapter(this, this, tag, favorites).show()
     }
 
     override fun blueCall(text: CharSequence, tag: String?) {
         editableFavorite?.type = Reminder.BLUETOOTH
         editableFavorite?.condition = text.toString()
-        IconDialogAdapter(this, this, tag).show()
+        IconDialogAdapter(this, this, tag, favorites).show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -67,7 +64,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
                     editableFavorite?.condition = "${place.latLng.latitude},${place.latLng.longitude}"
                     editableFavorite?.location = place.address.toString()
                     val tag = if (requestCode == 1) "edit" else "add"
-                    IconDialogAdapter(this, this, tag).show()
+                    IconDialogAdapter(this, this, tag, favorites).show()
                 }
             }
         }
@@ -89,6 +86,14 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         favorites = shared.getFavorites()
         refreshList()
+
+        spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, listOf(
+                ThemeColor(0, R.style.AppTheme, R.color.PurplecolorPrimaryDarker, R.color.PurplecolorPrimaryDark, R.color.PurplecolorPrimary, R.color.PurplecolorPrimaryLight),
+                ThemeColor(1, R.style.AppTheme, R.color.PinkcolorPrimaryDarker, R.color.PinkcolorPrimaryDark, R.color.PinkcolorPrimary, R.color.PinkcolorPrimaryLight),
+                ThemeColor(2,  R.style.AppThemeGreen, R.color.GreencolorPrimaryDarker, R.color.GreencolorPrimaryDark, R.color.GreencolorPrimary, R.color.GreencolorPrimaryLight)
+        ))
+
+        spColorPick.setSelection(shared.getTheme().id)
 
         if (shared.hasDeleted())
             llLastDeleted.setOnClickListener {
@@ -113,6 +118,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
     }
 
     private fun applyConfig() {
+        shared.setTheme(spColorPick.selectedItem as ThemeColor)
         shared.setFavorites(favorites)
         finish()
     }

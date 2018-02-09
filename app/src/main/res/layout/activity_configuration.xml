@@ -111,6 +111,11 @@
 
             </LinearLayout>
 
+            <Spinner
+                android:id="@+id/spColorPick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
         </LinearLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

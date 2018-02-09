@@ -74,4 +74,148 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="6dp"
+        android:padding="6dp">
+        <ImageButton
+            android:id="@+id/ibIconPhone"
+            android:src="@drawable/ic_phone_android_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconMoney"
+            android:src="@drawable/ic_attach_money_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconRestaurant"
+            android:src="@drawable/ic_restaurant_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconFlight"
+            android:src="@drawable/ic_flight_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconStore"
+            android:src="@drawable/ic_store_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="6dp"
+        android:padding="6dp">
+        <ImageButton
+            android:id="@+id/ibIconTrain"
+            android:src="@drawable/ic_train_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconAudio"
+            android:src="@drawable/ic_surround_sound_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconHeadset"
+            android:src="@drawable/ic_headset_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconMusic"
+            android:src="@drawable/ic_music_note_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconCamera"
+            android:src="@drawable/ic_camera_alt_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="6dp"
+        android:padding="6dp">
+        <ImageButton
+            android:id="@+id/ibIconWifi"
+            android:src="@drawable/ic_wifi_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconBluetooth"
+            android:src="@drawable/ic_bluetooth_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconLocation"
+            android:src="@drawable/ic_location_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconComputer"
+            android:src="@drawable/ic_computer_black"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/ibIconApp"
+            android:src="@drawable/ic_simple_selected"
+            android:background="@drawable/favorite_background"
+            android:padding="8dp"
+            android:layout_margin="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 </LinearLayout>
