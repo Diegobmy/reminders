@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimaryDarker">#000234</color>
-    <color name="colorPrimary">#7b1fa2</color>
-    <color name="colorPrimaryLight">#ab4fd2</color>
-    <color name="colorPrimaryDark">#4a0072</color>
-    <color name="colorAccent">#5a1082</color>
+
     <!--<color name="colorAccent">#f44336</color>-->
     <color name="background_md">#000234</color>
     <color name="foreground_md">#ffffff</color>
@@ -20,20 +16,54 @@
 
     <color name="alphaBlack">#30000000</color>
 
+    <color name="colorPrimaryDarker">#000234</color>
+    <color name="colorPrimary">#7b1fa2</color>
+    <color name="colorPrimaryLight">#ab4fd2</color>
+    <color name="colorPrimaryDark">#4a0072</color>
 
+    <color name="PurplePrimaryDarker">#000234</color>
+    <color name="PurplePrimary">#7b1fa2</color>
+    <color name="PurplePrimaryLight">#ab4fd2</color>
+    <color name="PurplePrimaryDark">#4a0072</color>
 
-    <color name="PurplecolorPrimaryDarker">#000234</color>
-    <color name="PurplecolorPrimary">#7b1fa2</color>
-    <color name="PurplecolorPrimaryLight">#ab4fd2</color>
-    <color name="PurplecolorPrimaryDark">#4a0072</color>
+    <color name="GreenPrimaryDarker">#003402</color>
+    <color name="GreenPrimary">#7ba21f</color>
+    <color name="GreenPrimaryLight">#abd24f</color>
+    <color name="GreenPrimaryDark">#4a7200</color>
 
-    <color name="PinkcolorPrimaryDarker">#340200</color>
-    <color name="PinkcolorPrimary">#a21f7b</color>
-    <color name="PinkcolorPrimaryLight">#d24fab</color>
-    <color name="PinkcolorPrimaryDark">#72004a</color>
+    <color name="BluePrimaryDarker">#000334</color>
+    <color name="BluePrimary">#1f2ca2</color>
+    <color name="BluePrimaryLight">#5e4fd2</color>
+    <color name="BluePrimaryDark">#000472</color>
 
-    <color name="GreencolorPrimaryDarker">#003402</color>
-    <color name="GreencolorPrimary">#7ba21f</color>
-    <color name="GreencolorPrimaryLight">#abd24f</color>
-    <color name="GreencolorPrimaryDark">#4a7200</color>
+    <color name="YellowPrimaryDarker">#343400</color>
+    <color name="YellowPrimary">#a28e1f</color>
+    <color name="YellowPrimaryLight">#d2ce4f</color>
+    <color name="YellowPrimaryDark">#727200</color>
+
+    <color name="RedPrimaryDarker">#340200</color>
+    <color name="RedPrimary">#a21f26</color>
+    <color name="RedPrimaryLight">#d24f51</color>
+    <color name="RedPrimaryDark">#720000</color>
+
+    <color name="GrayPrimaryDarker">#393939</color>
+    <color name="GrayPrimary">#737373</color>
+    <color name="GrayPrimaryLight">#d4d4d4</color>
+    <color name="GrayPrimaryDark">#494949</color>
+
+    <color name="AmoledPrimaryDarker">#000000</color>
+    <color name="AmoledPrimary">#222222</color>
+    <color name="AmoledPrimaryLight">#444444</color>
+    <color name="AmoledPrimaryDark">#000000</color>
+
+    <color name="RainbowPrimaryDarker">#f0f40b</color>
+    <color name="RainbowPrimary">#c10d0a</color>
+    <color name="RainbowPrimaryLight">#0d00ff</color>
+    <color name="RainbowPrimaryDark">#20da0b</color>
+
+    <color name="PinkPrimaryDarker">#340200</color>
+    <color name="PinkPrimary">#a21f7b</color>
+    <color name="PinkPrimaryLight">#d24fab</color>
+    <color name="PinkPrimaryDark">#72004a</color>
+
 </resources>

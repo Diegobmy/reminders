@@ -21,6 +21,7 @@ class NotificationHelper(val context: Context) {
     fun showNotification(reminder: Reminder) {
 
         val trans = ReminderTranslation(context)
+        val theme = Shared(context).getTheme().normal
 
         val title = reminder.reminder
         val description = trans.getNotification(reminder)
@@ -34,7 +35,7 @@ class NotificationHelper(val context: Context) {
                 .setSmallIcon(R.drawable.ic_simple)
                 .setContentTitle(title)
 //                .setStyle(NotificationCompat.BigTextStyle().bigText(description))
-                .setColor(context.resources.getColor(R.color.colorPrimary))
+                .setColor(context.resources.getColor(theme))
                 .setContentText(description)
                 .setDefaults(Notification.DEFAULT_ALL)
 

@@ -15,7 +15,7 @@ import android.widget.Spinner
  * Created by diego.moyses on 2/7/2018.
  */
 
-data class ThemeColor(val id: Int, val theme: Int, val darker: Int, val dark: Int, val normal: Int, val light: Int)
+data class ThemeColor(val id: Int, val name: String, val theme: Int, val themeTransparent: Int, val darker: Int, val dark: Int, val normal: Int, val light: Int)
 
 class ColorSpinnerAdapter(context: Context, private val groupId: Int, private val options: List<ThemeColor>) : ArrayAdapter<ThemeColor>(context, groupId, options) {
 
@@ -27,6 +27,10 @@ class ColorSpinnerAdapter(context: Context, private val groupId: Int, private va
         val dark = itemView.findViewById<View>(R.id.vwColorDark)
         val normal = itemView.findViewById<View>(R.id.vwColorNormal)
         val light = itemView.findViewById<View>(R.id.vwColorLight)
+        val name = itemView.findViewById<TextView>(R.id.tvThemeName)
+
+        name.text = options[position].name
+        name.setTextColor(context.resources.getColor(android.R.color.black))
 //
         darker.setBackgroundColor(context.resources.getColor(options[position].darker))
         dark.setBackgroundColor(context.resources.getColor(options[position].dark))
@@ -42,7 +46,9 @@ class ColorSpinnerAdapter(context: Context, private val groupId: Int, private va
         val dark = itemView.findViewById<View>(R.id.vwColorDark)
         val normal = itemView.findViewById<View>(R.id.vwColorNormal)
         val light = itemView.findViewById<View>(R.id.vwColorLight)
+        val name = itemView.findViewById<TextView>(R.id.tvThemeName)
 
+        name.text = options[position].name
         darker.setBackgroundColor(context.resources.getColor(options[position].darker))
         dark.setBackgroundColor(context.resources.getColor(options[position].dark))
         normal.setBackgroundColor(context.resources.getColor(options[position].normal))

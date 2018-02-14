@@ -100,7 +100,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@color/colorPrimaryDark"
+        android:background="?colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
@@ -110,7 +110,7 @@
             android:layout_marginStart="8dp"
             android:background="@null"
             android:text="Cancelar"
-            android:textColor="@color/colorPrimaryLight" />
+            android:textColor="?colorPrimaryLight" />
 
         <Space
             android:layout_width="0dp"
@@ -124,7 +124,7 @@
             android:layout_marginEnd="8dp"
             android:background="@null"
             android:text="Salvar"
-            android:textColor="@color/colorPrimaryLight" />
+            android:textColor="?colorPrimaryLight" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

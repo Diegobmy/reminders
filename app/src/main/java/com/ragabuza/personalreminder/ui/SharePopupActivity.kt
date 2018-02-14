@@ -1,6 +1,7 @@
 package com.ragabuza.personalreminder.ui
 
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
@@ -56,7 +57,7 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
         shareIntent.putExtra(FIELD_CONDITION, date.time.toString())
         shareIntent.putExtra(FIELD_REMINDER, reminder)
         shareIntent.putExtra(FIELD_EXTRA, extra)
-        startActivity(intent)
+        startActivity(shareIntent)
     }
 
     private fun simpleCall() {
@@ -84,6 +85,10 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
     lateinit var shareIntent: Intent
 
     private var goingToMap: Boolean = false
+
+    override fun applyTheme() {
+        theme.applyStyle(shared.getTheme().themeTransparent, true)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -190,6 +195,10 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
 
     override fun onBackPressed() {
         finish()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     override fun onPause() {

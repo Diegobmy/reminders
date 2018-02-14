@@ -146,14 +146,16 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             llClipOptions.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
                 fabMenu.close(true)
-                ivFilterIcon.setImageResource(R.drawable.ic_filter_list)
+                ivFilterIconOn.visibility = View.GONE
+                ivFilterIconOff.visibility = View.VISIBLE
                 llFilters.visibility = View.GONE
                 if ((adapter.hasFilters() || !etFilterString.text.isNullOrBlank()) && tvFilterActive != null) {
                     tvFilterActive.visibility = View.VISIBLE
                 }
             } else {
                 fabMenu.close(true)
-                ivFilterIcon.setImageResource(R.drawable.ic_filter_list_selected)
+                ivFilterIconOff.visibility = View.GONE
+                ivFilterIconOn.visibility = View.VISIBLE
                 llFilters.visibility = View.VISIBLE
                 if (tvFilterActive != null) {
                     tvFilterActive.visibility = View.GONE

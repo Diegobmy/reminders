@@ -6,8 +6,8 @@
 
     <LinearLayout
         android:layout_margin="5dp"
-        android:layout_width="120dp"
-        android:layout_height="44dp">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <View
             android:id="@+id/vwColorDarker"
@@ -36,5 +36,14 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@color/colorPrimaryLight" />
+
+        <TextView
+            android:id="@+id/tvThemeName"
+            android:textColor="@android:color/white"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 </LinearLayout>

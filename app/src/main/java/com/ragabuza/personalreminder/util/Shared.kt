@@ -77,7 +77,7 @@ class Shared(val context: Context) {
         val Gson = Gson()
         val json = preferences.getString(THEME, "")
         return if (json.isEmpty())
-            ThemeColor(0, R.style.AppTheme, R.color.colorPrimaryDarker, R.color.colorPrimaryDark, R.color.colorPrimary, R.color.colorPrimaryLight)
+            ThemeColor(0, "Roxo(Padrão)", R.style.AppTheme, R.style.Theme_Transparent, R.color.colorPrimaryDarker, R.color.colorPrimaryDark, R.color.colorPrimary, R.color.colorPrimaryLight)
         else
             Gson.fromJson(json, ThemeColor::class.java)
     }

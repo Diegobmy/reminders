@@ -34,6 +34,10 @@ class ReminderViewer : ActivityBase() {
         dao.close()
     }
 
+    override fun applyTheme() {
+        theme.applyStyle(shared.getTheme().themeTransparent, true)
+    }
+
     override fun onPause() {
         super.onPause()
         if (willDone)

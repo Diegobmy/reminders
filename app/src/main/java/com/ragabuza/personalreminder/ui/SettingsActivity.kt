@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
@@ -87,12 +88,28 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         favorites = shared.getFavorites()
         refreshList()
 
-        spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, listOf(
-                ThemeColor(0, R.style.AppTheme, R.color.PurplecolorPrimaryDarker, R.color.PurplecolorPrimaryDark, R.color.PurplecolorPrimary, R.color.PurplecolorPrimaryLight),
-                ThemeColor(1, R.style.AppTheme, R.color.PinkcolorPrimaryDarker, R.color.PinkcolorPrimaryDark, R.color.PinkcolorPrimary, R.color.PinkcolorPrimaryLight),
-                ThemeColor(2,  R.style.AppThemeGreen, R.color.GreencolorPrimaryDarker, R.color.GreencolorPrimaryDark, R.color.GreencolorPrimary, R.color.GreencolorPrimaryLight)
-        ))
+        var appThemes = listOf(
+                ThemeColor(0, "Roxo(Padrão)", R.style.AppTheme, R.style.Theme_Transparent, R.color.PurplePrimaryDarker, R.color.PurplePrimaryDark, R.color.PurplePrimary, R.color.PurplePrimaryLight),
+                ThemeColor(1, "Verde", R.style.AppThemeGreen, R.style.AppThemeGreen_Transparent, R.color.GreenPrimaryDarker, R.color.GreenPrimaryDark, R.color.GreenPrimary, R.color.GreenPrimaryLight),
+                ThemeColor(2, "Vermelho", R.style.AppThemeRed, R.style.AppThemeRed_Transparent, R.color.RedPrimaryDarker, R.color.RedPrimaryDark, R.color.RedPrimary, R.color.RedPrimaryLight),
+                ThemeColor(3, "Azul", R.style.AppThemeBlue, R.style.AppThemeBlue_Transparent, R.color.BluePrimaryDarker, R.color.BluePrimaryDark, R.color.BluePrimary, R.color.BluePrimaryLight),
+                ThemeColor(4, "Amarelo", R.style.AppThemeYellow, R.style.AppThemeYellow_Transparent, R.color.YellowPrimaryDarker, R.color.YellowPrimaryDark, R.color.YellowPrimary, R.color.YellowPrimaryLight),
+                ThemeColor(5, "Rosa", R.style.AppThemePink, R.style.AppThemePink_Transparent, R.color.PinkPrimaryDarker, R.color.PinkPrimaryDark, R.color.PinkPrimary, R.color.PinkPrimaryLight),
+                ThemeColor(6, "Cinza", R.style.AppThemeGray, R.style.AppThemeGray_Transparent, R.color.GrayPrimaryDarker, R.color.GrayPrimaryDark, R.color.GrayPrimary, R.color.GrayPrimaryLight),
+                ThemeColor(7, "AMOLED", R.style.AppThemeAmoled, R.style.AppThemeAmoled_Transparent, R.color.AmoledPrimaryDarker, R.color.AmoledPrimaryDark, R.color.AmoledPrimary, R.color.AmoledPrimaryLight),
+                ThemeColor(8, "Especial", R.style.AppThemeRainbow, R.style.AppThemeRainbow_Transparent, R.color.RainbowPrimaryDarker, R.color.RainbowPrimaryDark, R.color.RainbowPrimary, R.color.RainbowPrimaryLight)
+        )
 
+        spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, appThemes)
+
+//        spColorPick.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+//            override fun onNothingSelected(p0: AdapterView<*>?) {}
+//
+//            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+//                theme.applyStyle(appThemes[p2].theme, true)
+//            }
+//
+//        }
         spColorPick.setSelection(shared.getTheme().id)
 
         if (shared.hasDeleted())
@@ -120,6 +137,9 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
     private fun applyConfig() {
         shared.setTheme(spColorPick.selectedItem as ThemeColor)
         shared.setFavorites(favorites)
+        val b = Intent(this, ReminderList::class.java)
+        b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(b)
         finish()
     }
 

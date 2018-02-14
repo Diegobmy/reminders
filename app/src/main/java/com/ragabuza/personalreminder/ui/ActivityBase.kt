@@ -25,9 +25,12 @@ open class ActivityBase : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         shared = Shared(this)
         trans = ReminderTranslation(this)
-        val myTheme = shared.getTheme()
-        theme.applyStyle(myTheme.theme, true)
+        applyTheme()
         super.onCreate(savedInstanceState)
+    }
+
+    open fun applyTheme(){
+        theme.applyStyle(shared.getTheme().theme, true)
     }
 
     fun ListView.reajustListView() {
