@@ -22,7 +22,7 @@ class ColorSpinnerAdapter(context: Context, private val groupId: Int, private va
     private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val itemView = inflater.inflate(groupId, parent, false)
+        val itemView = inflater.inflate(R.layout.color_spinner_base, parent, false)
         val darker = itemView.findViewById<View>(R.id.vwColorDarker)
         val dark = itemView.findViewById<View>(R.id.vwColorDark)
         val normal = itemView.findViewById<View>(R.id.vwColorNormal)
@@ -30,7 +30,6 @@ class ColorSpinnerAdapter(context: Context, private val groupId: Int, private va
         val name = itemView.findViewById<TextView>(R.id.tvThemeName)
 
         name.text = options[position].name
-        name.setTextColor(context.resources.getColor(android.R.color.black))
 //
         darker.setBackgroundColor(context.resources.getColor(options[position].darker))
         dark.setBackgroundColor(context.resources.getColor(options[position].dark))

@@ -66,6 +66,10 @@ class Shared(val context: Context) {
         return favorites
     }
 
+    fun hasFavorites(): Boolean{
+        return getFavorites().isNotEmpty()
+    }
+
     fun setTheme(theme: ThemeColor) {
         val Gson = Gson()
         val regStr = Gson.toJson(theme)

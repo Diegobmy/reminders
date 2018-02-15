@@ -114,35 +114,35 @@
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                android:background="@color/colorPrimaryLight"/>
+                android:background="?colorPrimaryLight"/>
             <ImageButton
                 android:id="@+id/custom2"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                android:background="@color/colorPrimaryLight"/>
+                android:background="?colorPrimaryLight"/>
             <ImageButton
                 android:id="@+id/custom3"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                android:background="@color/colorPrimaryLight"/>
+                android:background="?colorPrimaryLight"/>
             <ImageButton
                 android:id="@+id/custom4"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                android:background="@color/colorPrimaryLight"/>
+                android:background="?colorPrimaryLight"/>
             <ImageButton
                 android:id="@+id/custom5"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                android:background="@color/colorPrimaryLight"/>
+                android:background="?colorPrimaryLight"/>
 
         </LinearLayout>
     </LinearLayout>

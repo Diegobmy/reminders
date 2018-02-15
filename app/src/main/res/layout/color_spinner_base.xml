@@ -1,11 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/dark"
-    android:orientation="horizontal">
+    android:background="@drawable/favorite_background"
+    android:gravity="center"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="5dp"
@@ -36,13 +37,13 @@
             android:layout_height="24dp"
             android:background="@color/colorPrimaryLight" />
 
-        <TextView
-            android:id="@+id/tvThemeName"
-            android:textColor="@android:color/white"
-            android:layout_width="wrap_content"
-            android:layout_marginStart="8dp"
-            android:gravity="center"
-            android:layout_height="match_parent" />
 
     </LinearLayout>
+    <TextView
+        android:id="@+id/tvThemeName"
+        android:textColor="@android:color/black"
+        android:text="aaaaaaaaaaaaaa"
+        android:layout_width="wrap_content"
+        android:gravity="center"
+        android:layout_height="match_parent" />
 </LinearLayout>

@@ -329,8 +329,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
-        val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
 
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
@@ -348,24 +346,10 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         navigation_view.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.RNew -> {
-                    hideUndo()
-                    seeOld = false
-                    refreshList()
-                    lvRemind.startAnimation(inAnimation)
-                    supportActionBar!!.title = getString(R.string.remindersActivityTitle)
-                    fabMenu.startAnimation(inAnimation)
-                    fabMenu.visibility = View.VISIBLE
+                    setViewNew()
                 }
                 R.id.ROld -> {
-                    hideUndo()
-                    seeOld = true
-                    refreshList()
-                    btClipboard.visibility = View.GONE
-                    llClipOptions.visibility = View.GONE
-                    lvRemind.startAnimation(inAnimation)
-                    supportActionBar!!.title = getString(R.string.oldReminders)
-                    fabMenu.startAnimation(outAnimation)
-                    fabMenu.visibility = View.GONE
+                    setViewOld()
                 }
                 R.id.config -> {
                     val i = Intent(this, SettingsActivity::class.java)
@@ -376,6 +360,37 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             drawer_layout.closeDrawers()
             true
         }
+    }
+
+    private var vision: Boolean? = null
+
+    private fun setViewOld() {
+        val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
+        val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
+        hideUndo()
+        seeOld = true
+        if (!navigation_view.menu.getItem(1).isChecked)
+            vision = true
+        refreshList()
+        btClipboard.visibility = View.GONE
+        llClipOptions.visibility = View.GONE
+        lvRemind.startAnimation(inAnimation)
+        supportActionBar!!.title = getString(R.string.oldReminders)
+        fabMenu.startAnimation(outAnimation)
+        fabMenu.visibility = View.GONE
+    }
+
+    private fun setViewNew() {
+        val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
+        hideUndo()
+        seeOld = false
+        if (!navigation_view.menu.getItem(0).isChecked)
+            vision = false
+        refreshList()
+        lvRemind.startAnimation(inAnimation)
+        supportActionBar!!.title = getString(R.string.remindersActivityTitle)
+        fabMenu.startAnimation(inAnimation)
+        fabMenu.visibility = View.VISIBLE
     }
 
     private fun hideUndo() {
@@ -399,8 +414,26 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         lvRemind.adapter = adapter
     }
 
+    override fun onBackPressed() {
+        when (vision) {
+            true -> {
+                navigation_view.menu.getItem(0).isChecked = true
+                setViewNew()
+            }
+            false -> {
+                navigation_view.menu.getItem(1).isChecked = true
+                setViewOld()
+            }
+            null -> super.onBackPressed()
+        }
+        vision = null
+    }
+
     override fun onResume() {
         super.onResume()
+
+        if (!shared.hasFavorites())
+            fabFav.visibility = View.GONE
 
         if (!killIt) {
             refreshList()
@@ -424,9 +457,9 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             shared.setClip(clip.toString())
             btClipboard.visibility = View.VISIBLE
             clip = clipboard.primaryClip.getItemAt(0).text
-                val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
-                spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                btClipboard.text = spannable
+            val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
+            spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            btClipboard.text = spannable
             btClipboard.ellipsize = TextUtils.TruncateAt.END
             btClipboard.maxLines = 3
             if (trans.extraIsLink(clip.toString()))
