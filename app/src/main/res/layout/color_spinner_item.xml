@@ -1,48 +1,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/dark"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/favorite_background"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginBottom="-1dp">
 
-        <View
-            android:id="@+id/vwColorDarker"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@color/colorPrimaryDarker" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp">
 
-        <View
-            android:id="@+id/vwColorDark"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@color/colorPrimaryDark" />
+            <View
+                android:id="@+id/vwColorDarker"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@color/colorPrimaryDarker" />
 
-        <View
-            android:id="@+id/vwColorNormal"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@color/colorPrimary" />
+            <View
+                android:id="@+id/vwColorDark"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@color/colorPrimaryDark" />
 
-        <View
-            android:id="@+id/vwColorLight"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@color/colorPrimaryLight" />
+            <View
+                android:id="@+id/vwColorNormal"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@color/colorPrimary" />
+
+            <View
+                android:id="@+id/vwColorLight"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@color/colorPrimaryLight" />
+
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvThemeName"
-            android:textColor="@android:color/white"
             android:layout_width="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:layout_height="match_parent" />
+            android:text="aaaaaaaaaaaaaa"
+            android:textColor="@android:color/black" />
 
     </LinearLayout>
 </LinearLayout>

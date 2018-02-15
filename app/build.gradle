@@ -40,5 +40,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.github.kittinunf.fuel:fuel-android:1.9.0'
     compile 'com.github.kittinunf.fuel:fuel-gson:1.9.0'
-
+    compile 'com.ebanx:swipe-button:0.8.3'
+    compile 'com.multidots:fingerprint-auth:1.0.1'
 }

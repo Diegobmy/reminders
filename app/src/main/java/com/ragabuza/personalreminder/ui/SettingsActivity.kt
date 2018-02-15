@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
 import android.widget.Toast
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.*
@@ -80,15 +80,20 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
     private var favorites = mutableListOf<Favorite>()
 
+    private lateinit var passwordDialog: PasswordAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        myPassword = shared.getPassword()
+        myBiometric = shared.hasFingerprint()
+
         setContentView(R.layout.activity_configuration)
         supportActionBar?.title = getString(R.string.configs)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         favorites = shared.getFavorites()
         refreshList()
 
-        var appThemes = listOf(
+        val appThemes = listOf(
                 ThemeColor(0, "Roxo(Padrão)", R.style.AppTheme, R.style.Theme_Transparent, R.color.PurplePrimaryDarker, R.color.PurplePrimaryDark, R.color.PurplePrimary, R.color.PurplePrimaryLight),
                 ThemeColor(1, "Verde", R.style.AppThemeGreen, R.style.AppThemeGreen_Transparent, R.color.GreenPrimaryDarker, R.color.GreenPrimaryDark, R.color.GreenPrimary, R.color.GreenPrimaryLight),
                 ThemeColor(2, "Vermelho", R.style.AppThemeRed, R.style.AppThemeRed_Transparent, R.color.RedPrimaryDarker, R.color.RedPrimaryDark, R.color.RedPrimary, R.color.RedPrimaryLight),
@@ -101,16 +106,65 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         )
 
         spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, appThemes)
-
-//        spColorPick.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-//            override fun onNothingSelected(p0: AdapterView<*>?) {}
-//
-//            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-//                theme.applyStyle(appThemes[p2].theme, true)
-//            }
-//
-//        }
         spColorPick.setSelection(shared.getTheme().id)
+
+        swPowerSave.isChecked = shared.isPowerSave()
+        swNotification.isChecked = shared.isShowNotification()
+        if (shared.hasPassword()) {
+            swPassword.isChecked = true
+            llConfigPassword.visibility = View.VISIBLE
+        }
+
+        passwordDialog = PasswordAdapter(this, object : PasswordAdapter.PasswordResult {
+            override fun onCancel(ignore: Boolean) {
+                if (ignore) return
+                swPassword.isChecked = false
+                llConfigPassword.visibility = View.GONE
+            }
+
+            override fun onSetPassword(password: String, fingerprint: Boolean) {
+                myPassword = password
+                myBiometric = fingerprint
+            }
+        })
+
+        swPassword.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                llConfigPassword.visibility = View.VISIBLE
+                passwordDialog.show(myPassword, myBiometric)
+            } else
+                llConfigPassword.visibility = View.GONE
+        }
+
+        llConfigPassword.setOnClickListener {
+            requestPassword()
+        }
+
+        llDeleteAll.setOnClickListener {
+
+            val alert = SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(this.getString(R.string.really_delete_all))
+                    .setContentText(this.getString(R.string.cannot_be_undone))
+                    .setConfirmText(this.getString(R.string.yes_delete))
+                    .setCancelText(this.getString(R.string.no_delete))
+                    .setConfirmClickListener {
+                        it.dismiss()
+                        ConfirmAdapter(this, object : ConfirmAdapter.ConfirmResult {
+                            override fun onConfirm() {
+                                val dao = ReminderDAO(this@SettingsActivity)
+                                Toast.makeText(
+                                        this@SettingsActivity,
+                                        "${dao.removeEverything()}  registros deletados.",
+                                        Toast.LENGTH_LONG
+                                ).show()
+                                shared.setLastDeleted(null)
+                                dao.close()
+                                finish()
+                            }
+                        }).show()
+                    }
+            alert.show()
+        }
 
         if (shared.hasDeleted())
             llLastDeleted.setOnClickListener {
@@ -134,9 +188,25 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         return true
     }
 
+    override fun requestPasswordCallback(success: Boolean) {
+        if (success)
+            passwordDialog.show(myPassword, myBiometric)
+    }
+
+    private lateinit var myPassword: String
+    private var myBiometric: Boolean = false
+
     private fun applyConfig() {
         shared.setTheme(spColorPick.selectedItem as ThemeColor)
         shared.setFavorites(favorites)
+        shared.setPowerSave(swPowerSave.isChecked)
+        shared.setShowNotification(swNotification.isChecked)
+        shared.setPassword(if (swPassword.isChecked)
+            myPassword
+        else
+            ""
+        )
+        shared.setFingerprint(myBiometric)
         val b = Intent(this, ReminderList::class.java)
         b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         startActivity(b)
@@ -194,6 +264,6 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
         lvFavorites.adapter = adapter
 
-        lvFavorites.reajustListView()
+        lvFavorites.readjustListView()
     }
 }

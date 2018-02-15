@@ -264,4 +264,9 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         c.close()
         return reminder
     }
+
+    fun removeEverything(): Int {
+        val db = writableDatabase
+        return db.delete(TABLE_NAME, "1", null)
+    }
 }

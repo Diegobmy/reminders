@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:id="@+id/G1"
+    <group
+        android:id="@+id/G1"
         android:checkableBehavior="single">
-    <item android:id="@+id/RNew"
-        android:title="@string/newReminders"
-        android:checked="true"
-        android:icon="@drawable/ic_unchecked_box_grey"/>
-    <item android:id="@+id/ROld"
-        android:title="@string/oldReminders"
-        android:checked="false"
-        android:icon="@drawable/ic_checked_box_grey"/>
+        <item
+            android:id="@+id/RNew"
+            android:checked="true"
+            android:icon="@drawable/ic_unchecked_box_grey"
+            android:title="@string/newReminders" />
+        <item
+            android:id="@+id/ROld"
+            android:checked="false"
+            android:icon="@drawable/ic_checked_box_grey"
+            android:title="@string/oldReminders" />
+        <item
+            android:id="@+id/RLock"
+            android:checked="false"
+            android:icon="@drawable/ic_lock_grey"
+            android:title="@string/private_reminders" />
     </group>
-    <group android:id="@+id/G2"
+    <group
+        android:id="@+id/G2"
         android:checkableBehavior="none">
-    <item android:id="@+id/config"
-        android:checkable="false"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/configs"
-        android:checked="false"/>
+        <item
+            android:id="@+id/config"
+            android:checkable="false"
+            android:checked="false"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/configs" />
     </group>
 </menu>

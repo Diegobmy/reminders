@@ -330,6 +330,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
 
+
         drawer_layout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View?, slideOffset: Float) {
                 fillInfo()
@@ -343,6 +344,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             override fun onDrawerClosed(drawerView: View?) {}
         })
 
+        navigation_view.menu.findItem(R.id.RLock).isVisible = shared.hasPassword()
+
         navigation_view.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.RNew -> {
@@ -350,6 +353,9 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                 }
                 R.id.ROld -> {
                     setViewOld()
+                }
+                R.id.RLock -> {
+                    requestPassword()
                 }
                 R.id.config -> {
                     val i = Intent(this, SettingsActivity::class.java)

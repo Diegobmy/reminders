@@ -23,6 +23,7 @@
     <string name="when_is">Se conectar em</string>
     <string name="when_isnot">Se desconectar de</string>
     <string name="really_delete">Tem certeza que deseja deletar este lembrete?</string>
+    <string name="really_delete_all">Tem certeza que deseja deletar TODOS os lembretes?</string>
     <string name="cannot_be_undone">Esta ação não pode ser desfeita!</string>
     <string name="yes_delete">Deletar lembrete</string>
     <string name="no_delete">Não deletar</string>
@@ -44,4 +45,11 @@
     <string name="icon">Ícone</string>
     <string name="default_share">Padrão:</string>
     <string name="favorites_share">Favoritos:</string>
+    <string name="swipe_to_confirm">Deslize para confirmar</string>
+    <string name="will_delete_everything">ATENÇÃO: Isso irá deletar todos os seus lembretes!</string>
+    <string name="private_reminders">Lembretes Privados</string>
+    <string name="password_instructions">Configure abaixo um PIN de 4 dígitos para usar como senha para suas notas privadas.</string>
+    <string name="enter_with_PIN">Entrar com PIN</string>
+    <string name="instructions_fingerprint">Entre com sua digital no sensor para ver os lembretes privados, ou clique no botão "Entrar com PIN" para ultilizar sua senha.</string>
+    <string name="instructions_PIN">Entre com sua senha para ver os lembretes privados.</string>
 </resources>

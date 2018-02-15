@@ -32,7 +32,7 @@
                     android:layout_width="match_parent"
                     android:visibility="gone"
                     android:layout_height="94dp"
-                    android:background="@color/colorPrimaryDark"
+                    android:background="?colorPrimaryDark"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:paddingBottom="8dp"
@@ -101,6 +101,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="4dp"
                             android:background="@null"
+                            android:tint="?colorPrimaryLight"
                             android:src="@drawable/ic_filterclear" />
                     </LinearLayout>
 
@@ -112,7 +113,7 @@
                         android:layout_marginStart="8dp"
                         android:hint="@string/hintFilter"
                         android:textColor="@android:color/white"
-                        android:textColorHint="@color/colorPrimary" />
+                        android:textColorHint="?colorPrimary" />
                 </LinearLayout>
 
                 <Button

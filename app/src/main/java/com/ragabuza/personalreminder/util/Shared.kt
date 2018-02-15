@@ -21,6 +21,10 @@ class Shared(val context: Context) {
     val CLIP = "Clip"
     val FAVORITE = "Favorite"
     val THEME = "Theme"
+    val PASSWORD = "Password"
+    val FINGERPRINT = "Fingerprint"
+    val POWER_SAVE = "PowerSave"
+    val SHOW_NOTIFICATION = "ShowNotification"
 
     fun hasDeleted(): Boolean {
         return preferences.getBoolean(HAS_DELETED, false)
@@ -31,12 +35,16 @@ class Shared(val context: Context) {
         editor.apply()
     }
 
-    fun setLastDeleted(reminder: Reminder) {
-        val Gson = Gson()
-        val regStr = Gson.toJson(reminder)
-        setHasDeleted(true)
-        editor.putString(LAST_DELETED, regStr)
-        editor.apply()
+    fun setLastDeleted(reminder: Reminder?) {
+        if (reminder == null)
+            setHasDeleted(false)
+        else {
+            val Gson = Gson()
+            val regStr = Gson.toJson(reminder)
+            setHasDeleted(true)
+            editor.putString(LAST_DELETED, regStr)
+            editor.apply()
+        }
     }
 
     fun getLastDeleted(): Reminder {
@@ -66,7 +74,7 @@ class Shared(val context: Context) {
         return favorites
     }
 
-    fun hasFavorites(): Boolean{
+    fun hasFavorites(): Boolean {
         return getFavorites().isNotEmpty()
     }
 
@@ -95,5 +103,41 @@ class Shared(val context: Context) {
         return preferences.getString(CLIP, "")
     }
 
+    fun setPassword(password: String){
+        editor.putString(PASSWORD, password)
+        editor.apply()
+    }
+    fun passwordIsCorrect(password: String):Boolean{
+        return password == preferences.getString(PASSWORD, "")
+    }
+    fun getPassword():String{
+        return preferences.getString(PASSWORD, "")
+    }
+    fun hasPassword():Boolean{
+        return "" != preferences.getString(PASSWORD, "")
+    }
 
+    fun setFingerprint(status: Boolean){
+        editor.putBoolean(FINGERPRINT, status)
+        editor.apply()
+    }
+    fun hasFingerprint():Boolean{
+        return preferences.getBoolean(FINGERPRINT, false)
+    }
+
+    fun setPowerSave(status: Boolean){
+        editor.putBoolean(POWER_SAVE, status)
+        editor.apply()
+    }
+    fun isPowerSave():Boolean{
+        return preferences.getBoolean(POWER_SAVE, false)
+    }
+
+    fun setShowNotification(status: Boolean){
+        editor.putBoolean(SHOW_NOTIFICATION, status)
+        editor.apply()
+    }
+    fun isShowNotification():Boolean{
+        return preferences.getBoolean(SHOW_NOTIFICATION, false)
+    }
 }
