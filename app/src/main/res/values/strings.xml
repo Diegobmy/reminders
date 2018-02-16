@@ -13,7 +13,7 @@
     <string name="turnOnWiFi">Por favor ligue o WiFi para usar este tipo de lembrete.</string>
     <string name="remindersActivityTitle">Lembretes</string>
     <string name="newReminders">Lembretes Novos</string>
-    <string name="oldReminders">Lembretes Finalizados</string>
+    <string name="oldReminders">Lembretes Feitos</string>
     <string name="configs">Configurações</string>
     <string name="hintFilter">Palavra-chave</string>
     <string name="emptyList">Nenhum item a ser exibido.</string>
@@ -52,4 +52,5 @@
     <string name="enter_with_PIN">Entrar com PIN</string>
     <string name="instructions_fingerprint">Entre com sua digital no sensor para ver os lembretes privados, ou clique no botão "Entrar com PIN" para ultilizar sua senha.</string>
     <string name="instructions_PIN">Entre com sua senha para ver os lembretes privados.</string>
+    <string name="folders">Pastas</string>
 </resources>

@@ -23,19 +23,21 @@ import com.ragabuza.personalreminder.adapter.ReminderAdapter
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.receivers.LocationReceiver
-import com.ragabuza.personalreminder.util.Constants
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE_THEME
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.P_TABLE_NAME
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
-import kotlin.collections.HashSet
 
 
-class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
     override fun getType(): Boolean {
         return seeOld
     }
@@ -49,8 +51,10 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     private var killIt = false
 
     override fun view(reminder: Reminder) {
+        viewing = true
         val inte = Intent(this, ReminderViewer::class.java)
         inte.putExtra(REMINDER, reminder)
+        inte.putExtra(PRIVATE, true)
         killIt = true
         startActivity(inte)
     }
@@ -62,8 +66,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         val dao = ReminderDAO(this)
         dao.del(reminder)
         dao.close()
-        shared.setLastDeleted(reminder)
-        fabLastDeleted.visibility = View.VISIBLE
     }
 
     override fun closed(tag: String?) {
@@ -72,6 +74,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     }
 
     override fun edit(reminder: Reminder) {
+        viewing = true
         val inte = Intent(this, NewReminder::class.java)
         inte.putExtra(REMINDER, reminder)
         startActivity(inte)
@@ -117,7 +120,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
-        menu?.findItem(R.id.folder)?.isVisible = shared.getFolders().isNotEmpty()
+        menu?.findItem(R.id.folder)?.isVisible = false
 
         val menuItem = menu?.findItem(R.id.filter)
         val actionView = MenuItemCompat.getActionView(menuItem)
@@ -130,8 +133,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     fun fillInfo() {
         val dao = ReminderDAO(this)
-        tvNumberOfRemindersNew.text = "${dao.countNew()} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${dao.countOld()} ${getString(R.string.number_reminders_old)}."
+        tvNumberOfRemindersNew.text = "${dao.countNew(true)} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld.text = "${dao.countOld(true)} ${getString(R.string.number_reminders_old)}."
         dao.close()
     }
 
@@ -144,17 +147,11 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             drawer_layout.openDrawer(GravityCompat.START)
             return true
         }
-        if (item?.itemId == R.id.folder) {
-            adapter.closeAllItems()
-            shared.removeFolder("america")
-            return true
-        }
         if (item?.itemId == R.id.filter) {
             drawer_layout.closeDrawer(GravityCompat.START)
             btClipboard.visibility = View.GONE
             llClipOptions.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
-                fabMenu.close(true)
                 ivFilterIconOn.visibility = View.GONE
                 ivFilterIconOff.visibility = View.VISIBLE
                 llFilters.visibility = View.GONE
@@ -162,7 +159,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                     tvFilterActive.visibility = View.VISIBLE
                 }
             } else {
-                fabMenu.close(true)
                 ivFilterIconOff.visibility = View.GONE
                 ivFilterIconOn.visibility = View.VISIBLE
                 llFilters.visibility = View.VISIBLE
@@ -174,43 +170,25 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         return super.onOptionsItemSelected(item)
     }
 
+    override fun applyTheme() {
+        theme.applyStyle(PRIVATE_THEME, true)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
 
-        fabMenu.setClosedOnTouchOutside(true)
+        fabMenu.visibility = View.GONE
+
 
         setupDrawer()
 
         editIntent = Intent(this, NewReminder::class.java)
 
-        supportActionBar!!.title = getString(R.string.remindersActivityTitle)
+        supportActionBar?.title = getString(R.string.newReminders)
 
 
         lvRemind.emptyView = tvEmpty
-
-        fabMenu.setOnClickListener { adapter.closeAllItems() }
-        lvRemind.setOnItemClickListener { _, _, _, _ ->
-            adapter.closeAllItems()
-        }
-
-        fabBluetooth.setOnClickListener {
-            DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
-        }
-        fabWifi.setOnClickListener {
-            DialogAdapter(this, this, DialogAdapter.WIFI).show()
-        }
-        fabTime.setOnClickListener {
-            DialogAdapter(this, this, DialogAdapter.TIME).show()
-        }
-        fabLocation.setOnClickListener {
-            val builder = PlacePicker.IntentBuilder()
-            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
-        }
-
-        fabSimple.setOnClickListener {
-            simpleCall()
-        }
 
 
         btClipboard.setOnClickListener {
@@ -237,16 +215,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         ibClipSimple.setOnClickListener {
             editIntent.putExtra(FIELD_REMINDER, clip)
             simpleCall()
-        }
-
-        fabLastDeleted.setOnClickListener {
-            val dao = ReminderDAO(this)
-            fabLastDeleted.visibility = View.GONE
-            dao.add(shared.getLastDeleted())
-            adapter.originalList.add(shared.getLastDeleted())
-            adapter.reminders.add(shared.getLastDeleted())
-            adapter.notifyDataSetChanged()
-            dao.close()
         }
 
         setupFilter()
@@ -329,13 +297,20 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         })
     }
 
+    var viewing = false
+
     override fun onPause() {
-        hideUndo()
+        if (!viewing){
+            val b = Intent(this, ReminderList::class.java)
+            startActivity(b)
+            finish()
+        }
         super.onPause()
     }
 
+
     private fun setupDrawer() {
-        this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_menu_white)
+        this.supportActionBar!!.setHomeAsUpIndicator(R.drawable.ic_lock_white)
         this.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
 
@@ -346,14 +321,16 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             }
 
             override fun onDrawerOpened(drawerView: View?) {
-                fabMenu.close(true)
             }
 
             override fun onDrawerStateChanged(newState: Int) {}
             override fun onDrawerClosed(drawerView: View?) {}
         })
 
-        navigation_view.menu.findItem(R.id.RLock).isVisible = shared.hasPassword()
+        navigation_view.menu.findItem(R.id.RFolder).isVisible = false
+        navigation_view.menu.findItem(R.id.RLock).title = "Voltar"
+        navigation_view.menu.findItem(R.id.RLock).icon = resources.getDrawable(R.drawable.ic_arrow_back)
+        navigation_view.menu.findItem(R.id.config).isVisible = false
 
         navigation_view.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -364,14 +341,9 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                     setViewOld()
                 }
                 R.id.RLock -> {
-                    requestPassword()
-                }
-                R.id.RFolder -> {
-                    shared.addFolder("america")
-                }
-                R.id.config -> {
-                    val i = Intent(this, SettingsActivity::class.java)
-                    startActivity(i)
+                    val b = Intent(this, ReminderList::class.java)
+                    startActivity(b)
+                    finish()
                 }
             }
             menuItem.isChecked = true
@@ -385,7 +357,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     private fun setViewOld() {
         val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
         val outAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.out_change_listview)
-        hideUndo()
         seeOld = true
         if (!navigation_view.menu.getItem(1).isChecked)
             vision = true
@@ -394,36 +365,16 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         llClipOptions.visibility = View.GONE
         lvRemind.startAnimation(inAnimation)
         supportActionBar!!.title = getString(R.string.oldReminders)
-        fabMenu.startAnimation(outAnimation)
-        fabMenu.visibility = View.GONE
     }
 
     private fun setViewNew() {
         val inAnimation = AnimationUtils.loadAnimation(applicationContext, R.anim.in_change_listview)
-        hideUndo()
         seeOld = false
         if (!navigation_view.menu.getItem(0).isChecked)
             vision = false
         refreshList()
         lvRemind.startAnimation(inAnimation)
-        supportActionBar!!.title = getString(R.string.remindersActivityTitle)
-        fabMenu.startAnimation(inAnimation)
-        fabMenu.visibility = View.VISIBLE
-    }
-
-    private fun hideUndo() {
-        if (fabLastDeleted.visibility == View.VISIBLE) {
-            fabLastDeleted.visibility = View.GONE
-            Toast.makeText(this, getString(R.string.recover_deleted), Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    override fun requestPasswordCallback(success: Boolean) {
-        if (success) {
-            val b = Intent(this, PrivateReminderList::class.java)
-            startActivity(b)
-            finish()
-        }
+        supportActionBar!!.title = getString(R.string.newReminders)
     }
 
     fun refreshList() {
@@ -434,9 +385,9 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             dao.getOld()
 
         dao.close()
-        val mutList = reminders.filter { it.folder != Constants.Other.PRIVATE_FOLDER }.toMutableList()
+        val mutList = reminders.filter { it.folder == PRIVATE_FOLDER }.toMutableList()
         mutList.sortBy { !it.done.contains("WAITING") }
-        adapter = ReminderAdapter(this, mutList, shared.getFolders().isNotEmpty())
+        adapter = ReminderAdapter(this, mutList)
         lvRemind.adapter = adapter
     }
 
@@ -457,9 +408,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     override fun onResume() {
         super.onResume()
-        invalidateOptionsMenu()
-        if (!shared.hasFavorites())
-            fabFav.visibility = View.GONE
+
+        viewing = false
 
         if (!killIt) {
             refreshList()

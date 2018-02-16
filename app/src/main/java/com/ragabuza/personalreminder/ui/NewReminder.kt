@@ -27,10 +27,12 @@ import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
 import com.ragabuza.personalreminder.util.Constants.Other.Companion.CONTACT_PREFIX
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_EXTRA
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.P_TABLE_NAME
 
 
 /**
@@ -87,9 +89,13 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
     private var edition: Boolean = false
 
+    private var fromPrivate: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
+
+        if(shared.hasPassword()) llParticular.visibility = View.VISIBLE
 
         etReminder.requestFocus()
 
@@ -128,6 +134,10 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             when {
                 trans.extraIsContact(reminderEdited.extra) -> contactCall(reminderEdited.extra, null)
                 trans.extraIsLink(reminderEdited.extra) -> etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
+            }
+            if (reminderEdited.folder == PRIVATE_FOLDER) {
+                fromPrivate = true
+                swParticular.isChecked = true
             }
         }
 
@@ -232,7 +242,8 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                     type,
                     rWhen,
                     cond,
-                    if (contact) "$CONTACT_PREFIX ${etExtra.text}" else etExtra.text.toString()
+                    if (contact) "$CONTACT_PREFIX ${etExtra.text}" else etExtra.text.toString(),
+                    if (swParticular.isChecked) PRIVATE_FOLDER else ""
             )
             val dao = ReminderDAO(this)
             if (ID == 0L)
@@ -245,6 +256,12 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 finishAndRemoveTaskCompat()
             else
                 finish()
+        }
+
+        swParticular.setOnCheckedChangeListener{ _, isChecked ->
+            if (isChecked){
+                requestPassword()
+            }
         }
 
         etExtra.addTextChangedListener(object : TextWatcher {
@@ -299,9 +316,23 @@ class NewReminder : ActivityBase(), OpDialogInterface {
         getMap()
     }
 
+    override fun requestPasswordCallback(success: Boolean) {
+        if (!success)
+            swParticular.isChecked = false
+    }
+
     private fun getMap() {
         val request = "https://maps.googleapis.com/maps/api/staticmap?markers=$cond&size=${mapWidth}x$mapHeight&key=${getString(R.string.google_maps_api)}"
         DownloadImage(mapView).execute(request)
+    }
+
+    override fun onPause() {
+        if (fromPrivate){
+            val b = Intent(this, ReminderList::class.java)
+            startActivity(b)
+            finish()
+        }
+        super.onPause()
     }
 
 }

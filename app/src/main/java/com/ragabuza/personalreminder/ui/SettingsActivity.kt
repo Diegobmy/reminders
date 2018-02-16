@@ -201,11 +201,12 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         shared.setFavorites(favorites)
         shared.setPowerSave(swPowerSave.isChecked)
         shared.setShowNotification(swNotification.isChecked)
-        shared.setPassword(if (swPassword.isChecked)
-            myPassword
-        else
-            ""
-        )
+        if (swPassword.isChecked)
+            shared.setPassword(myPassword)
+        else {
+            shared.setPassword("")
+            shared.setFingerprint(false)
+        }
         shared.setFingerprint(myBiometric)
         val b = Intent(this, ReminderList::class.java)
         b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)

@@ -20,6 +20,7 @@ import com.daimajia.swipe.adapters.BaseSwipeAdapter
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLDER
 import com.ragabuza.personalreminder.util.ReminderTranslation
 import com.ragabuza.personalreminder.util.TimeString
 import kotlinx.android.synthetic.main.activity_reminder.*
@@ -30,7 +31,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 12/28/2017.
  */
-class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
+class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>, val folder: Boolean = false) : BaseSwipeAdapter() {
 
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
@@ -127,6 +128,9 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
         val ivLink = convertView?.findViewById<ImageView>(R.id.ivLink)
         val background = convertView?.findViewById<LinearLayout>(R.id.llUpper)
+        val moveBtn = convertView?.findViewById<RelativeLayout>(R.id.rlMove)
+
+        if (folder) moveBtn?.visibility = View.VISIBLE
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE

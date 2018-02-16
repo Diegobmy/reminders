@@ -22,6 +22,8 @@ import java.util.*
 import com.ragabuza.personalreminder.R.string.clipboard
 import android.R.attr.label
 import android.content.ClipData
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE_THEME_TRANSPARENT
 
 
 class ReminderViewer : ActivityBase() {
@@ -35,7 +37,10 @@ class ReminderViewer : ActivityBase() {
     }
 
     override fun applyTheme() {
-        theme.applyStyle(shared.getTheme().themeTransparent, true)
+        if (intent.extras.getBoolean(PRIVATE, false))
+            theme.applyStyle(PRIVATE_THEME_TRANSPARENT, true)
+        else
+            theme.applyStyle(shared.getTheme().themeTransparent, true)
     }
 
     override fun onPause() {
@@ -65,7 +70,7 @@ class ReminderViewer : ActivityBase() {
         if (reminder.extra.isNotEmpty())
             options.add(SpinnerItem(getString(R.string.copy_extra), R.drawable.ic_content_copy))
 
-        if (reminder.type != Reminder.SIMPLE)
+        if (reminder.type != Reminder.SIMPLE && !intent.extras.getBoolean(PRIVATE, false))
             options.add(SpinnerItem(getString(R.string.reshedule), R.drawable.ic_schedule))
 
         val adapter = OptionsSpinnerAdapter(this, R.layout.spinner_item, options, R.layout.spinner_base)

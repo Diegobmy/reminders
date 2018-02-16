@@ -14,12 +14,14 @@ data class Reminder(
         val type: String,
         val rWhen: String,
         val condition: String = "",
-        val extra: String = ""
+        val extra: String = "",
+        val folder: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readLong(),
             parcel.readString(),
             parcel.readByte() != 0.toByte(),
+            parcel.readString(),
             parcel.readString(),
             parcel.readString(),
             parcel.readString(),
@@ -36,6 +38,7 @@ data class Reminder(
         parcel.writeString(rWhen)
         parcel.writeString(condition)
         parcel.writeString(extra)
+        parcel.writeString(folder)
     }
 
     override fun describeContents(): Int {

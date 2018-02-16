@@ -38,6 +38,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.PrivateReminderList"/>
+
         <activity
             android:name=".ui.SharePopupActivity"
             android:excludeFromRecents="true"

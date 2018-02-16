@@ -1,6 +1,7 @@
 package com.ragabuza.personalreminder.util
 
 import android.content.Context
+import android.widget.Toast
 import com.google.gson.Gson
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.ThemeColor
@@ -25,6 +26,7 @@ class Shared(val context: Context) {
     val FINGERPRINT = "Fingerprint"
     val POWER_SAVE = "PowerSave"
     val SHOW_NOTIFICATION = "ShowNotification"
+    val FOLDER = "Folder"
 
     fun hasDeleted(): Boolean {
         return preferences.getBoolean(HAS_DELETED, false)
@@ -139,5 +141,25 @@ class Shared(val context: Context) {
     }
     fun isShowNotification():Boolean{
         return preferences.getBoolean(SHOW_NOTIFICATION, false)
+    }
+
+    fun getFolders(): HashSet<String>{
+        return preferences.getStringSet(FOLDER, HashSet<String>()) as HashSet<String>
+    }
+    fun addFolder(folder: String){
+        val folders = getFolders()
+        folders.add(folder)
+        editor.remove(FOLDER)
+        editor.apply()
+        editor.putStringSet(FOLDER, folders)
+        editor.apply()
+    }
+    fun removeFolder(folder: String){
+        val folders = getFolders()
+        folders.remove(folder)
+        editor.remove(FOLDER)
+        editor.apply()
+        editor.putStringSet(FOLDER, folders)
+        editor.apply()
     }
 }

@@ -6,11 +6,13 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.location.Location
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLDER
 import com.ragabuza.personalreminder.util.Constants.Other.Companion.WAITING
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_ACTIVE
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_DONE
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_EXTRA
+import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_FOLDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_ID
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
@@ -39,7 +41,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                 "$FIELD_TYPE TEXT, " +
                 "$FIELD_WHEN TEXT, " +
                 "$FIELD_CONDITION TEXT, " +
-                "$FIELD_EXTRA TEXT);"
+                "$FIELD_EXTRA TEXT, " +
+                "$FIELD_FOLDER TEXT);"
         db.execSQL(sql)
     }
 
@@ -71,6 +74,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         dados.put(FIELD_WHEN, reminder.rWhen)
         dados.put(FIELD_CONDITION, reminder.condition)
         dados.put(FIELD_EXTRA, reminder.extra)
+        dados.put(FIELD_FOLDER, reminder.folder)
 
         return dados
     }
@@ -91,7 +95,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                     c.getString(c.getColumnIndex(FIELD_TYPE)),
                     c.getString(c.getColumnIndex(FIELD_WHEN)),
                     c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA))
+                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                    c.getString(c.getColumnIndex(FIELD_FOLDER))
             )
 
             reminders.add(reminder)
@@ -101,8 +106,9 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         return reminders
     }
 
-    fun countNew(): Int {
-        val sql = "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=1;"
+    fun countNew(private: Boolean = false): Int {
+        val cond = if (private) "==" else "!="
+        val sql = "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=1 and $FIELD_FOLDER$cond'$PRIVATE_FOLDER';"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
         val count = c.count
@@ -110,8 +116,9 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         return count
     }
 
-    fun countOld(): Int {
-        val sql = "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=0;"
+    fun countOld(private: Boolean = false): Int {
+        val cond = if (private) "==" else "!="
+        val sql = "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=0 and $FIELD_FOLDER$cond'$PRIVATE_FOLDER';"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
         val count = c.count
@@ -135,7 +142,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                     c.getString(c.getColumnIndex(FIELD_TYPE)),
                     c.getString(c.getColumnIndex(FIELD_WHEN)),
                     c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA))
+                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                    c.getString(c.getColumnIndex(FIELD_FOLDER))
             )
 
             reminders.add(reminder)
@@ -161,7 +169,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                     c.getString(c.getColumnIndex(FIELD_TYPE)),
                     c.getString(c.getColumnIndex(FIELD_WHEN)),
                     c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA))
+                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                    c.getString(c.getColumnIndex(FIELD_FOLDER))
             )
 
             reminders.add(reminder)
@@ -189,7 +198,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                     c.getString(c.getColumnIndex(FIELD_TYPE)),
                     c.getString(c.getColumnIndex(FIELD_WHEN)),
                     c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA))
+                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                    c.getString(c.getColumnIndex(FIELD_FOLDER))
             )
 
             reminders.add(reminder)
@@ -258,7 +268,8 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
                     c.getString(c.getColumnIndex(FIELD_TYPE)),
                     c.getString(c.getColumnIndex(FIELD_WHEN)),
                     c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA))
+                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                    c.getString(c.getColumnIndex(FIELD_FOLDER))
             )
         }
         c.close()

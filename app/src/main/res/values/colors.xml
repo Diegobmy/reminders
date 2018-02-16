@@ -66,4 +66,7 @@
     <color name="PinkPrimaryLight">#d24fab</color>
     <color name="PinkPrimaryDark">#72004a</color>
 
+    <color name="PrivatePrimary">#00714f</color>
+    <!--<color name="PrivatePrimary">#008c62</color>-->
+
 </resources>
