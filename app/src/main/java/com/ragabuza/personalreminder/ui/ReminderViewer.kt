@@ -28,7 +28,7 @@ import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE_TH
 
 class ReminderViewer : ActivityBase() {
 
-    private fun setDone(reminder: Reminder) {
+    private fun setDone() {
         val dao = ReminderDAO(this)
         reminder.active = false
         reminder.done = TimeString(Calendar.getInstance()).getSimple()
@@ -45,13 +45,17 @@ class ReminderViewer : ActivityBase() {
 
     override fun onPause() {
         super.onPause()
-        if (willDone)
+        if (willDone) {
+            setDone()
             finishAndRemoveTaskCompat()
+        }
         else
             finish()
     }
 
     private var willDone: Boolean = false
+
+    private lateinit var reminder: Reminder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +63,7 @@ class ReminderViewer : ActivityBase() {
 
         willDone = intent.extras.getBoolean(SET_DONE, false)
 
-        val reminder = intent.extras.get(REMINDER) as Reminder
+        reminder = intent.extras.get(REMINDER) as Reminder
 
         tvReminder.movementMethod = ScrollingMovementMethod()
 
@@ -143,7 +147,6 @@ class ReminderViewer : ActivityBase() {
         if (willDone) {
             btDone.visibility = View.VISIBLE
             btDone.setOnClickListener {
-                setDone(reminder)
                 finishAndRemoveTaskCompat()
             }
         }

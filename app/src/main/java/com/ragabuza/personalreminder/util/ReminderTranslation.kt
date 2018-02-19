@@ -52,7 +52,7 @@ class ReminderTranslation(val context: Context) {
         return when (string) {
             Reminder.WIFI -> "Lembrete WiFi"
             Reminder.BLUETOOTH -> "Lembrete Bluetooth"
-            Reminder.TIME -> "Lembrete agendado"
+            Reminder.TIME -> "Lembrete de Tempo"
             Reminder.LOCATION -> "Lembrete de Localização"
             Reminder.SIMPLE -> "Lembrete"
             else -> ""

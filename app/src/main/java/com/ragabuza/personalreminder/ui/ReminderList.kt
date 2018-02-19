@@ -36,8 +36,7 @@ import android.R.array
 import android.widget.ArrayAdapter
 import android.support.v4.view.MenuItemCompat.getActionView
 import android.widget.Spinner
-
-
+import kotlinx.android.synthetic.main.activity_reminder.*
 
 
 class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback, FavoriteDialogAdapter.FavoriteSelectCallback {
@@ -124,24 +123,41 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     private var adapter = ReminderAdapter(this, mutableListOf())
     private lateinit var clip: CharSequence
-
+    var selectedFolder = ""
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
         menu?.findItem(R.id.folder)?.isVisible = shared.getFolders().isNotEmpty()
 
 
-        val spinnerItem =  menu?.findItem(R.id.folder)
+        val spinnerItem = menu?.findItem(R.id.folder)
         val spinner = spinnerItem?.actionView as Spinner
         spinner.background = null
-        spinner.setPadding(0,0,0,0)
+        spinner.setPopupBackgroundDrawable(null)
+        spinner.setPadding(0, 0, 0, 0)
 
 
-        val folderList = mutableListOf<String>()
+        val folderList = mutableListOf<String>("Todos", "Sem pasta")
         folderList.addAll(shared.getFolders())
-        spinner.adapter = FolderSpinnerAdapter(this, R.layout.folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback{
+        spinner.adapter = FolderSpinnerAdapter(this, R.layout.folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
             override fun onClick(folder: String) {
-                Toast.makeText(this@ReminderList, folder, Toast.LENGTH_LONG).show()
+                when (folder) {
+                    "Todos" -> {
+                        supportActionBar!!.title = if (seeOld) getString(R.string.oldReminders) else getString(R.string.remindersActivityTitle)
+                        adapter.doFilter(folder = "*")
+                        selectedFolder = "*"
+                    }
+                    "Sem pasta" -> {
+                        supportActionBar!!.title = "Sem pasta"
+                        adapter.doFilter(folder = "")
+                        selectedFolder = ""
+                    }
+                    else -> {
+                        supportActionBar!!.title = folder
+                        adapter.doFilter(folder = folder)
+                        selectedFolder = folder
+                    }
+                }
             }
         })
 
@@ -301,12 +317,13 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         handler.post(timedTask)
     }
 
+    private var ctrlBluetooth: Boolean = false
+    private var ctrlWifi: Boolean = false
+    private var ctrlTime: Boolean = false
+    private var ctrlLocation: Boolean = false
+    private var ctrlSimple: Boolean = false
+
     private fun setupFilter() {
-        var ctrlBluetooth = false
-        var ctrlWifi = false
-        var ctrlTime = false
-        var ctrlLocation = false
-        var ctrlSimple = false
 
         ibFilterBluetooth.setOnClickListener {
             ctrlBluetooth = !ctrlBluetooth
@@ -497,7 +514,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     override fun onResume() {
         super.onResume()
-        invalidateOptionsMenu()
         if (!shared.hasFavorites()) {
             fabFav.visibility = View.GONE
             ibClipFav.visibility = View.GONE
@@ -506,7 +522,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             refreshList()
         }
         clipShow()
-
+        resumeFiltersNFolders()
         killIt = false
 
         val intent = Intent(this, LocationReceiver::class.java)
@@ -548,6 +564,17 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                 locationCall("${place.latLng.latitude},${place.latLng.longitude}")
             }
         }
+    }
+
+
+    private fun resumeFiltersNFolders() {
+        if (ctrlBluetooth) adapter.doFilter(adapter.bluetoothFilter)
+        if (ctrlWifi) adapter.doFilter(adapter.wifiFilter)
+        if (ctrlLocation) adapter.doFilter(adapter.locationFilter)
+        if (ctrlTime) adapter.doFilter(adapter.timeFilter)
+        if (ctrlSimple) adapter.doFilter(adapter.simpleFilter)
+        adapter.doFilter(str = etFilterString.text.toString())
+        adapter.doFilter(folder = selectedFolder)
     }
 
 }

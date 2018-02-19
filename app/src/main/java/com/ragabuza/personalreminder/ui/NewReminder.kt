@@ -23,6 +23,7 @@ import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.util.*
 import android.app.ProgressDialog
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
@@ -98,6 +99,17 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
         if (shared.hasPassword()) llParticular.visibility = View.VISIBLE
 
+        val hasFolders = shared.getFolders().isNotEmpty()
+
+        val folders = mutableListOf<String>("Sem pasta")
+        val spAdapter = ArrayAdapter<String>(baseContext, R.layout.simple_spinner, folders)
+
+        if (hasFolders) {
+            llFolder.visibility = View.VISIBLE
+            folders.addAll(shared.getFolders())
+            spFolder.adapter = spAdapter
+        }
+
         etReminder.requestFocus()
 
         val extras = intent.extras
@@ -137,6 +149,9 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             if (reminderEdited.folder == PRIVATE_FOLDER) {
                 fromPrivate = true
                 swParticular.isChecked = true
+                llFolder.visibility = View.GONE
+            } else {
+                spFolder.setSelection(spAdapter.getPosition(reminderEdited.folder))
             }
         }
 
@@ -149,7 +164,13 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             else
                 SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(cond)
-            if (cond.length <= 5) cal.set(Calendar.DAY_OF_YEAR, Calendar.getInstance().get(Calendar.DAY_OF_YEAR))
+            if (cond.length <= 5) {
+                cal.set(Calendar.DAY_OF_YEAR, Calendar.getInstance().get(Calendar.DAY_OF_YEAR))
+                if (cal.get(Calendar.HOUR_OF_DAY) < Calendar.getInstance().get(Calendar.HOUR_OF_DAY) &&
+                        cal.get(Calendar.MINUTE) < Calendar.getInstance().get(Calendar.MINUTE))
+                    cal.add(Calendar.DAY_OF_YEAR, 1)
+                cond = cal.time.toString()
+            }
             etCondition.setText(TimeString(cal).getString(false))
         } else if (type == Reminder.LOCATION) {
 
@@ -237,6 +258,11 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 trans.locationAddress(cond)
             } else
                 trans.toCode(etConditionExtra.text.toString())
+            val folder = when{
+                !hasFolders -> ""
+                spFolder.selectedItem.toString() == "Sem pasta" -> ""
+                else -> spFolder.selectedItem.toString()
+            }
             val reminder = Reminder(
                     ID,
                     "",
@@ -246,7 +272,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                     rWhen,
                     cond,
                     if (contact) "$CONTACT_PREFIX ${etExtra.text}" else etExtra.text.toString(),
-                    if (swParticular.isChecked) PRIVATE_FOLDER else ""
+                    if (swParticular.isChecked) PRIVATE_FOLDER else folder
             )
             val dao = ReminderDAO(this)
             if (ID == 0L)

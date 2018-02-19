@@ -79,8 +79,11 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         return dados
     }
 
-    fun get(): List<Reminder> {
-        val sql = "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=1;"
+    fun get(folder: String = ""): List<Reminder> {
+        val sql = if (folder.isEmpty())
+            "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=1;"
+        else
+            "SELECT * FROM $TABLE_NAME where $FIELD_ACTIVE=1 and $FIELD_FOLDER='$folder';"
         val db = readableDatabase
         val c = db.rawQuery(sql, null)
 
@@ -216,9 +219,7 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
 
     fun alt(reminder: Reminder) {
         val db = writableDatabase
-
         val dados = getInfo(reminder)
-
         val params = arrayOf<String>(reminder.id.toString())
         db.update(TABLE_NAME, dados, "$FIELD_ID = ?", params)
     }
@@ -279,4 +280,5 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
         val db = writableDatabase
         return db.delete(TABLE_NAME, "1", null)
     }
+
 }

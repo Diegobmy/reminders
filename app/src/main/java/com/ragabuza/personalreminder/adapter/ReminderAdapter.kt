@@ -67,7 +67,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                 || filters.contains(timeFilter) || filters.contains(locationFilter) || filters.contains(simpleFilter))
     }
 
-    fun doFilter(type: Int = 0, putting: Boolean = true, str: String = "", clearAll: Boolean = false) {
+    fun doFilter(type: Int = 0, putting: Boolean = true, str: String = "", clearAll: Boolean = false, folder: String = "null") {
 
         var string = str.trim()
 
@@ -97,6 +97,21 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             !(it.reminder.contains(string, true)
                     || it.extra.contains(string, true)
                     || it.condition.contains(string, true))
+        }
+        when (folder) {
+            "*" -> {
+
+            }
+            "" -> {
+                originalList.filterTo(toRemove) {
+                    it.folder.isNotEmpty()
+                }
+            }
+            else -> {
+                originalList.filterTo(toRemove) {
+                    it.folder != folder
+                }
+            }
         }
         reminders.clear()
         if (filters.isNotEmpty()) {

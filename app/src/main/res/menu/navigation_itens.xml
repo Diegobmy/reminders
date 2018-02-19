@@ -25,14 +25,13 @@
         android:checkableBehavior="none">
         <item
             android:id="@+id/RFolder"
-            android:checked="false"
+            android:checked="true"
             android:icon="@drawable/ic_folder"
             android:title="@string/folders" />
 
         <item
             android:id="@+id/config"
-            android:checkable="false"
-            android:checked="false"
+            android:checked="true"
             android:icon="@drawable/ic_settings"
             android:title="@string/configs" />
     </group>

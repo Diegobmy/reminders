@@ -12,6 +12,8 @@ import android.content.Context.INPUT_METHOD_SERVICE
 import android.view.inputmethod.InputMethodManager
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.model.Reminder
 
 
 /**
@@ -123,6 +125,7 @@ class Folders : ActivityBase() {
                         .setCancelText(getString(R.string.yes_delete))
                         .setCancelClickListener {
                             folders.remove(folder)
+                            clearRemindersFolders(folder)
                             reziseMinus()
                             refreshList()
                             it.setTitleText(this@Folders.getString(R.string.deleted))
@@ -142,5 +145,15 @@ class Folders : ActivityBase() {
 
         })
         lvFolders.adapter = adapter
+    }
+
+    private fun clearRemindersFolders(folder: String) {
+        val dao = ReminderDAO(this)
+        val reminders = dao.get(folder = folder)
+        reminders.forEach {
+            it.folder = ""
+            dao.alt(it)
+        }
+        dao.close()
     }
 }

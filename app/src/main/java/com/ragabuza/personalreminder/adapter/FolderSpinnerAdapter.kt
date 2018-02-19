@@ -35,6 +35,8 @@ class FolderSpinnerAdapter(context: Context, val groupId: Int, private val optio
         val itemView = inflater.inflate(groupId, parent, false)
         val text = itemView.findViewById<TextView>(R.id.text_view_folder)
 
+        itemView.findViewById<ImageView>(R.id.image_view_folder_delete).visibility = View.GONE
+
         text.text = options[position]
 
         itemView.setOnClickListener {

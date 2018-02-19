@@ -15,7 +15,7 @@ data class Reminder(
         val rWhen: String,
         val condition: String = "",
         val extra: String = "",
-        val folder: String = ""
+        var folder: String = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readLong(),
