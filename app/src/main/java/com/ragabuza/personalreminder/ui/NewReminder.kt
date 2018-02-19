@@ -23,6 +23,7 @@ import android.text.style.StyleSpan
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.util.*
 import android.app.ProgressDialog
+import android.widget.Toast
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
@@ -95,7 +96,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder)
 
-        if(shared.hasPassword()) llParticular.visibility = View.VISIBLE
+        if (shared.hasPassword()) llParticular.visibility = View.VISIBLE
 
         etReminder.requestFocus()
 
@@ -103,14 +104,12 @@ class NewReminder : ActivityBase(), OpDialogInterface {
         cond = extras.getString(FIELD_CONDITION, "")
         var type = extras.getString(FIELD_TYPE, "")
 
-
         etExtra.setText(extras.getString(FIELD_EXTRA, ""))
 
-        if (trans.extraIsLink(extras.getString(FIELD_REMINDER, "")) && extras.getString(FIELD_EXTRA, "").isEmpty()){
+        if (trans.extraIsLink(extras.getString(FIELD_REMINDER, "")) && extras.getString(FIELD_EXTRA, "").isEmpty()) {
             etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
             etExtra.setText(extras.getString(FIELD_REMINDER, ""))
-        }
-        else
+        } else
             etReminder.setText(extras.getString(FIELD_REMINDER, ""))
 
         if (trans.extraIsLink(extras.getString(FIELD_EXTRA, "")))
@@ -145,8 +144,12 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
         if (type == Reminder.TIME) {
             val cal = Calendar.getInstance()
-            val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
+            val sdf = if (cond.length <= 5)
+                SimpleDateFormat("HH:mm", Locale.getDefault())
+            else
+                SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(cond)
+            if (cond.length <= 5) cal.set(Calendar.DAY_OF_YEAR, Calendar.getInstance().get(Calendar.DAY_OF_YEAR))
             etCondition.setText(TimeString(cal).getString(false))
         } else if (type == Reminder.LOCATION) {
 
@@ -258,8 +261,8 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 finish()
         }
 
-        swParticular.setOnCheckedChangeListener{ _, isChecked ->
-            if (isChecked){
+        swParticular.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
                 requestPassword()
             }
         }
@@ -327,7 +330,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
     }
 
     override fun onPause() {
-        if (fromPrivate){
+        if (fromPrivate) {
             val b = Intent(this, ReminderList::class.java)
             startActivity(b)
             finish()

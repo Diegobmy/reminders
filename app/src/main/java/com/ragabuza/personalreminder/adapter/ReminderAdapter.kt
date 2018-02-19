@@ -171,15 +171,14 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             val alert = SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
                     .setTitleText(context.getString(R.string.really_delete))
                     .setContentText(context.getString(R.string.cannot_be_undone))
-                    .setConfirmText(context.getString(R.string.yes_delete))
-                    .setCancelText(context.getString(R.string.no_delete))
-                    .setConfirmClickListener {
+                    .setConfirmText(context.getString(R.string.no_delete))
+                    .setCancelText(context.getString(R.string.yes_delete))
+                    .setCancelClickListener {
                         (context as ReminderClickCallback).delete(reminder)
                         originalList.remove(reminder)
                         it.setTitleText(context.getString(R.string.deleted))
                                 .setContentText(context.getString(R.string.reminder_deleted))
                                 .setConfirmText("OK")
-                                .setConfirmClickListener(null)
                                 .showCancelButton(false)
                                 .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
                         reminders.remove(reminder)

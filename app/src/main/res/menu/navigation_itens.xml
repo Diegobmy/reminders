@@ -15,12 +15,6 @@
             android:title="@string/oldReminders" />
 
         <item
-            android:id="@+id/RFolder"
-            android:checked="false"
-            android:icon="@drawable/ic_folder"
-            android:title="@string/folders" />
-
-        <item
             android:id="@+id/RLock"
             android:checked="false"
             android:icon="@drawable/ic_lock_grey"
@@ -29,6 +23,12 @@
     <group
         android:id="@+id/G2"
         android:checkableBehavior="none">
+        <item
+            android:id="@+id/RFolder"
+            android:checked="false"
+            android:icon="@drawable/ic_folder"
+            android:title="@string/folders" />
+
         <item
             android:id="@+id/config"
             android:checkable="false"

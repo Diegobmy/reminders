@@ -86,22 +86,21 @@ class ReminderDAO(context: Context?) : SQLiteOpenHelper(context, TABLE_NAME, nul
 
         val reminders = ArrayList<Reminder>()
 
-        while (c.moveToNext()) {
-            val reminder = Reminder(
-                    c.getLong(c.getColumnIndex(FIELD_ID)),
-                    c.getString(c.getColumnIndex(FIELD_DONE)),
-                    c.getInt(c.getColumnIndex(FIELD_ACTIVE)) == 1,
-                    c.getString(c.getColumnIndex(FIELD_REMINDER)),
-                    c.getString(c.getColumnIndex(FIELD_TYPE)),
-                    c.getString(c.getColumnIndex(FIELD_WHEN)),
-                    c.getString(c.getColumnIndex(FIELD_CONDITION)),
-                    c.getString(c.getColumnIndex(FIELD_EXTRA)),
-                    c.getString(c.getColumnIndex(FIELD_FOLDER))
-            )
-
-            reminders.add(reminder)
-        }
-        c.close()
+            while (c.moveToNext()) {
+                val reminder = Reminder(
+                        c.getLong(c.getColumnIndex(FIELD_ID)),
+                        c.getString(c.getColumnIndex(FIELD_DONE)),
+                        c.getInt(c.getColumnIndex(FIELD_ACTIVE)) == 1,
+                        c.getString(c.getColumnIndex(FIELD_REMINDER)),
+                        c.getString(c.getColumnIndex(FIELD_TYPE)),
+                        c.getString(c.getColumnIndex(FIELD_WHEN)),
+                        c.getString(c.getColumnIndex(FIELD_CONDITION)),
+                        c.getString(c.getColumnIndex(FIELD_EXTRA)),
+                        c.getString(c.getColumnIndex(FIELD_FOLDER))
+                )
+                reminders.add(reminder)
+            }
+            c.close()
 
         return reminders
     }

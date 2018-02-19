@@ -1,23 +1,19 @@
 package com.ragabuza.personalreminder.ui
 
-import android.content.ClipboardManager
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.view.GravityCompat
 import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
-import android.text.*
-import android.text.style.StyleSpan
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Toast
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.adapter.DialogAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.adapter.ReminderAdapter
 import com.ragabuza.personalreminder.dao.ReminderDAO
@@ -30,7 +26,6 @@ import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLD
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_CONDITION
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
-import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.P_TABLE_NAME
 import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
@@ -69,7 +64,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
     }
 
     override fun closed(tag: String?) {
-        llClipOptions.visibility = View.GONE
         editIntent.removeExtra(FIELD_REMINDER)
     }
 
@@ -115,8 +109,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
     }
 
     private var adapter = ReminderAdapter(this, mutableListOf())
-    private lateinit var clip: CharSequence
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
@@ -149,8 +141,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         }
         if (item?.itemId == R.id.filter) {
             drawer_layout.closeDrawer(GravityCompat.START)
-            btClipboard.visibility = View.GONE
-            llClipOptions.visibility = View.GONE
             if (llFilters.visibility == View.VISIBLE) {
                 ivFilterIconOn.visibility = View.GONE
                 ivFilterIconOff.visibility = View.VISIBLE
@@ -178,6 +168,8 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
 
+        tvEmpty.setTextColor(resources.getColor(R.color.PrivatePrimaryDark))
+        llFilters.setBackgroundColor(resources.getColor(R.color.PrivatePrimaryDark))
         fabMenu.visibility = View.GONE
 
 
@@ -189,33 +181,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
 
 
         lvRemind.emptyView = tvEmpty
-
-
-        btClipboard.setOnClickListener {
-            btClipboard.visibility = View.GONE
-            llClipOptions.visibility = View.VISIBLE
-        }
-        ibClipBluetooth.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
-            DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
-        }
-        ibClipWifi.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
-            DialogAdapter(this, this, DialogAdapter.WIFI).show()
-        }
-        ibClipTime.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
-            DialogAdapter(this, this, DialogAdapter.TIME).show()
-        }
-        ibClipLocation.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
-            val builder = PlacePicker.IntentBuilder()
-            startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
-        }
-        ibClipSimple.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
-            simpleCall()
-        }
 
         setupFilter()
 
@@ -361,8 +326,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         if (!navigation_view.menu.getItem(1).isChecked)
             vision = true
         refreshList()
-        btClipboard.visibility = View.GONE
-        llClipOptions.visibility = View.GONE
         lvRemind.startAnimation(inAnimation)
         supportActionBar!!.title = getString(R.string.oldReminders)
     }
@@ -414,7 +377,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         if (!killIt) {
             refreshList()
         }
-        clipShow()
 
         killIt = false
 
@@ -422,30 +384,6 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         startService(intent)
 
 
-    }
-
-    private fun clipShow() {
-        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
-
-        clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
-
-        if (!clip.isEmpty() && clip.toString() != shared.getClip()) {
-            shared.setClip(clip.toString())
-            btClipboard.visibility = View.VISIBLE
-            clip = clipboard.primaryClip.getItemAt(0).text
-            val spannable = SpannableString("${getString(R.string.clipboard)}\n\"$clip\"")
-            spannable.setSpan(StyleSpan(Typeface.ITALIC), getString(R.string.clipboard).length, spannable.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            btClipboard.text = spannable
-            btClipboard.ellipsize = TextUtils.TruncateAt.END
-            btClipboard.maxLines = 3
-            if (trans.extraIsLink(clip.toString()))
-                btClipboard.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
-            else
-                btClipboard.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
-        } else {
-            llClipOptions.visibility = View.GONE
-            btClipboard.visibility = View.GONE
-        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

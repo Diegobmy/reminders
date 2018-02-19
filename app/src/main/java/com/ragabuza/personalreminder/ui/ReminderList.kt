@@ -17,10 +17,9 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
-import com.ragabuza.personalreminder.adapter.DialogAdapter
-import com.ragabuza.personalreminder.adapter.OpDialogInterface
-import com.ragabuza.personalreminder.adapter.ReminderAdapter
+import com.ragabuza.personalreminder.adapter.*
 import com.ragabuza.personalreminder.dao.ReminderDAO
+import com.ragabuza.personalreminder.model.Favorite
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.receivers.LocationReceiver
 import com.ragabuza.personalreminder.util.Constants
@@ -33,9 +32,21 @@ import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
 import kotlin.collections.HashSet
+import android.R.array
+import android.widget.ArrayAdapter
+import android.support.v4.view.MenuItemCompat.getActionView
+import android.widget.Spinner
 
 
-class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback {
+
+
+class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback, FavoriteDialogAdapter.FavoriteSelectCallback {
+    override fun favoriteCall(favorite: Favorite) {
+        editIntent.putExtra(FIELD_CONDITION, favorite.condition)
+        editIntent.putExtra(FIELD_TYPE, favorite.type)
+        startActivity(editIntent)
+    }
+
     override fun getType(): Boolean {
         return seeOld
     }
@@ -119,7 +130,23 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         menu?.findItem(R.id.folder)?.isVisible = shared.getFolders().isNotEmpty()
 
-        val menuItem = menu?.findItem(R.id.filter)
+
+        val spinnerItem =  menu?.findItem(R.id.folder)
+        val spinner = spinnerItem?.actionView as Spinner
+        spinner.background = null
+        spinner.setPadding(0,0,0,0)
+
+
+        val folderList = mutableListOf<String>()
+        folderList.addAll(shared.getFolders())
+        spinner.adapter = FolderSpinnerAdapter(this, R.layout.folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback{
+            override fun onClick(folder: String) {
+                Toast.makeText(this@ReminderList, folder, Toast.LENGTH_LONG).show()
+            }
+        })
+
+
+        val menuItem = menu.findItem(R.id.filter)
         val actionView = MenuItemCompat.getActionView(menuItem)
         actionView.setOnClickListener { onOptionsItemSelected(menuItem) }
 
@@ -146,7 +173,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         }
         if (item?.itemId == R.id.folder) {
             adapter.closeAllItems()
-            shared.removeFolder("america")
             return true
         }
         if (item?.itemId == R.id.filter) {
@@ -195,21 +221,30 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         }
 
         fabBluetooth.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
             DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
         }
         fabWifi.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
             DialogAdapter(this, this, DialogAdapter.WIFI).show()
         }
         fabTime.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
             DialogAdapter(this, this, DialogAdapter.TIME).show()
         }
         fabLocation.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
             val builder = PlacePicker.IntentBuilder()
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
 
         fabSimple.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
             simpleCall()
+        }
+        fabFav.setOnClickListener {
+            editIntent.removeExtra(FIELD_REMINDER)
+            FavoriteDialogAdapter(this, shared.getFavorites(), this).show()
         }
 
 
@@ -218,25 +253,29 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             llClipOptions.visibility = View.VISIBLE
         }
         ibClipBluetooth.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
             DialogAdapter(this, this, DialogAdapter.BLUETOOTH).show()
         }
         ibClipWifi.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
             DialogAdapter(this, this, DialogAdapter.WIFI).show()
         }
         ibClipTime.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
             DialogAdapter(this, this, DialogAdapter.TIME).show()
         }
         ibClipLocation.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
             val builder = PlacePicker.IntentBuilder()
             startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST)
         }
         ibClipSimple.setOnClickListener {
-            editIntent.putExtra(FIELD_REMINDER, clip)
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
             simpleCall()
+        }
+        ibClipFav.setOnClickListener {
+            editIntent.putExtra(FIELD_REMINDER, clip.toString())
+            FavoriteDialogAdapter(this, shared.getFavorites(), this).show()
         }
 
         fabLastDeleted.setOnClickListener {
@@ -367,7 +406,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                     requestPassword()
                 }
                 R.id.RFolder -> {
-                    shared.addFolder("america")
+                    val f = Intent(this, Folders::class.java)
+                    startActivity(f)
                 }
                 R.id.config -> {
                     val i = Intent(this, SettingsActivity::class.java)
@@ -458,9 +498,10 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     override fun onResume() {
         super.onResume()
         invalidateOptionsMenu()
-        if (!shared.hasFavorites())
+        if (!shared.hasFavorites()) {
             fabFav.visibility = View.GONE
-
+            ibClipFav.visibility = View.GONE
+        }
         if (!killIt) {
             refreshList()
         }
@@ -476,6 +517,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     private fun clipShow() {
         val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+        llClipOptions.visibility = View.GONE
 
         clip = if (clipboard.primaryClip != null) clipboard.primaryClip.getItemAt(0).text else ""
 

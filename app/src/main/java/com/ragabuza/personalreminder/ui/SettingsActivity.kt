@@ -1,10 +1,13 @@
 package com.ragabuza.personalreminder.ui
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.gms.location.places.ui.PlacePicker
@@ -13,7 +16,8 @@ import com.ragabuza.personalreminder.adapter.*
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Favorite
 import com.ragabuza.personalreminder.model.Reminder
-import kotlinx.android.synthetic.main.activity_configuration.*
+import kotlinx.android.synthetic.main.activity_settings.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.IconResult {
@@ -36,6 +40,18 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
                 DialogAdapter(this, this, DialogAdapter.WIFI, tag).show()
             trans.reminderType(Reminder.BLUETOOTH) ->
                 DialogAdapter(this, this, DialogAdapter.BLUETOOTH, tag).show()
+            trans.reminderType(Reminder.TIME) ->{
+                val mcurrentTime = Calendar.getInstance()
+                val minute = mcurrentTime.get(Calendar.MINUTE)
+                val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
+                val date = Calendar.getInstance()
+                TimePickerDialog(this, TimePickerDialog.OnTimeSetListener { _, pckHour, pckMinute ->
+                    date.set(Calendar.MINUTE, pckMinute)
+                    date.set(Calendar.HOUR_OF_DAY, pckHour)
+                    date.set(Calendar.SECOND, 0)
+                    timeCall(date, tag)
+                }, hour, minute, true).show()
+            }
             trans.reminderType(Reminder.LOCATION) -> {
                 val requestCode = if (tag == "edit") 1 else 2
                 val builder = PlacePicker.IntentBuilder()
@@ -71,7 +87,15 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         }
     }
 
-    override fun timeCall(date: Calendar, tag: String?) {}
+    override fun timeCall(date: Calendar, tag: String?) {
+        editableFavorite?.type = Reminder.TIME
+
+        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+        editableFavorite?.condition = sdf.format(date.time)
+        IconDialogAdapter(this, this, tag, favorites).show()
+    }
+
     override fun contactCall(text: CharSequence, tag: String?) {}
     override fun closed(tag: String?) {}
     override fun finishedLoading() {}
@@ -82,12 +106,14 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
     private lateinit var passwordDialog: PasswordAdapter
 
+    private var hasEdited = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         myPassword = shared.getPassword()
         myBiometric = shared.hasFingerprint()
 
-        setContentView(R.layout.activity_configuration)
+        setContentView(R.layout.activity_settings)
         supportActionBar?.title = getString(R.string.configs)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         favorites = shared.getFavorites()
@@ -107,6 +133,11 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
         spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, appThemes)
         spColorPick.setSelection(shared.getTheme().id)
+
+        spColorPick.setOnTouchListener { _, _ ->
+            hasEdited = true
+            return@setOnTouchListener false
+        }
 
         swPowerSave.isChecked = shared.isPowerSave()
         swNotification.isChecked = shared.isShowNotification()
@@ -128,7 +159,11 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
             }
         })
 
+        swNotification.setOnCheckedChangeListener { _, _ -> hasEdited = true }
+        swPowerSave.setOnCheckedChangeListener { _, _ -> hasEdited = true }
+
         swPassword.setOnCheckedChangeListener { _, isChecked ->
+            hasEdited = true
             if (isChecked) {
                 llConfigPassword.visibility = View.VISIBLE
                 passwordDialog.show(myPassword, myBiometric)
@@ -145,9 +180,9 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
             val alert = SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
                     .setTitleText(this.getString(R.string.really_delete_all))
                     .setContentText(this.getString(R.string.cannot_be_undone))
-                    .setConfirmText(this.getString(R.string.yes_delete))
-                    .setCancelText(this.getString(R.string.no_delete))
-                    .setConfirmClickListener {
+                    .setConfirmText(this.getString(R.string.no_delete))
+                    .setCancelText(this.getString(R.string.yes_delete))
+                    .setCancelClickListener {
                         it.dismiss()
                         ConfirmAdapter(this, object : ConfirmAdapter.ConfirmResult {
                             override fun onConfirm() {
@@ -188,9 +223,25 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         return true
     }
 
+    override fun onBackPressed() {
+        if (hasEdited)
+            SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
+                    .setTitleText(getString(R.string.really_goback))
+                    .setContentText(getString(R.string.alt_will_not_save))
+                    .setConfirmText(getString(R.string.yes_back))
+                    .setCancelText(getString(R.string.no_back))
+                    .setCancelClickListener {
+                        super.onBackPressed()
+                    }.show()
+        else
+            super.onBackPressed()
+    }
+
     override fun requestPasswordCallback(success: Boolean) {
-        if (success)
+        if (success) {
+            hasEdited = true
             passwordDialog.show(myPassword, myBiometric)
+        }
     }
 
     private lateinit var myPassword: String
@@ -221,6 +272,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
 
     private fun replaceFav(favorite: Favorite?) {
+        hasEdited = true
         favorites.forEach {
             if (it.id == favorite?.id) {
                 it.type = favorite.type
@@ -231,6 +283,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
     }
 
     private fun addFav(favorite: Favorite?) {
+        hasEdited = true
         if (favorite != null) {
             favorites.add(favorite)
         }
@@ -248,6 +301,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
             }
 
             override fun delete(favorite: Favorite) {
+                hasEdited = true
                 favorites.remove(favorite)
                 refreshList()
             }

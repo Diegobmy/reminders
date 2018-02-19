@@ -87,6 +87,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 title.text = context.getString(R.string.type)
                 webList.add(trans.reminderType(Reminder.WIFI))
                 webList.add(trans.reminderType(Reminder.BLUETOOTH))
+                webList.add(trans.reminderType(Reminder.TIME))
                 webList.add(trans.reminderType(Reminder.LOCATION))
                 filter.visibility = View.GONE
             }

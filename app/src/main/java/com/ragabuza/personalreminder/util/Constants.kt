@@ -40,6 +40,7 @@ class Constants {
             val WAITING = "WAITING"
             val CONTACT_PREFIX = "CONTACT:"
             val PRIVATE_FOLDER = "PrivateFolder&"
+            val EMPTY_FOLDER = "&empty&folder"
         }
     }
 }

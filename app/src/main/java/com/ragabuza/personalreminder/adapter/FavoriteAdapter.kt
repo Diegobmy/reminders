@@ -15,7 +15,7 @@ import com.ragabuza.personalreminder.util.ReminderTranslation
 /**
  * Created by diego.moyses on 2/8/2018.
  */
-class FavoriteAdapter(val context: Context, private val favorites: List<Favorite>) : BaseAdapter() {
+class FavoriteAdapter(val context: Context, private val favorites: List<Favorite>, private val notAllowDelete: Boolean = false) : BaseAdapter() {
 
     val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
@@ -41,6 +41,8 @@ class FavoriteAdapter(val context: Context, private val favorites: List<Favorite
         val image = itemView.findViewById<ImageView>(R.id.image_view_favorite)
         val text = itemView.findViewById<TextView>(R.id.text_view_favorite)
         val delete = itemView.findViewById<ImageView>(R.id.image_view_favorite_delete)
+
+        if (notAllowDelete) delete.visibility = View.GONE
 
         text.text = "${trans.reminderType(favorite.type)}:\n${
         if (!favorite.location.isNullOrEmpty())

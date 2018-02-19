@@ -146,17 +146,7 @@ class Shared(val context: Context) {
     fun getFolders(): HashSet<String>{
         return preferences.getStringSet(FOLDER, HashSet<String>()) as HashSet<String>
     }
-    fun addFolder(folder: String){
-        val folders = getFolders()
-        folders.add(folder)
-        editor.remove(FOLDER)
-        editor.apply()
-        editor.putStringSet(FOLDER, folders)
-        editor.apply()
-    }
-    fun removeFolder(folder: String){
-        val folders = getFolders()
-        folders.remove(folder)
+    fun setFolders(folders: HashSet<String>){
         editor.remove(FOLDER)
         editor.apply()
         editor.putStringSet(FOLDER, folders)

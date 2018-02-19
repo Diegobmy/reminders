@@ -79,6 +79,7 @@
         <receiver android:name=".receivers.TimeReceiver" />
 
         <activity android:name=".ui.SettingsActivity" />
+        <activity android:name=".ui.Folders" android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ui.ReminderViewer"
             android:launchMode="singleInstance"
             android:theme="@style/Theme.Transparent"/>

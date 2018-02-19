@@ -23,12 +23,16 @@
     <string name="when_is">Se conectar em</string>
     <string name="when_isnot">Se desconectar de</string>
     <string name="really_delete">Tem certeza que deseja deletar este lembrete?</string>
+    <string name="really_delete_folder">Tem certeza que deseja deletar a pasta %1$s?</string>
     <string name="really_delete_all">Tem certeza que deseja deletar TODOS os lembretes?</string>
     <string name="cannot_be_undone">Esta ação não pode ser desfeita!</string>
     <string name="yes_delete">Deletar lembrete</string>
     <string name="no_delete">Não deletar</string>
+    <string name="yes_back">Continuar</string>
+    <string name="no_back">Voltar</string>
     <string name="deleted">Deletado!</string>
     <string name="reminder_deleted">O seu lembrete foi deletado!</string>
+    <string name="folder_deleted">A sua pasta foi deletada!</string>
     <string name="please_fill_reminder">Preencher com algum lembrete</string>
     <string name="contected_to">Conectado em</string>
     <string name="descontected_to">Desconectado de</string>
@@ -53,4 +57,12 @@
     <string name="instructions_fingerprint">Entre com sua digital no sensor para ver os lembretes privados, ou clique no botão "Entrar com PIN" para ultilizar sua senha.</string>
     <string name="instructions_PIN">Entre com sua senha para ver os lembretes privados.</string>
     <string name="folders">Pastas</string>
+    <string name="favorites">Favoritos</string>
+    <string name="folder_hint">Nome da pasta</string>
+    <string name="insert_folder_name">Insira um nome para a pasta!</string>
+    <string name="new_folder">Nova pasta</string>
+    <string name="folder_already">Pasta já existente!</string>
+    <string name="really_goback">Realmente deseja voltar?</string>
+    <string name="alt_will_not_save">Nenhuma alteração será salva!</string>
+    <string name="folder_too_long">Nome de pasta muito longo!</string>
 </resources>
