@@ -116,9 +116,10 @@
 
             <LinearLayout
                 android:id="@+id/llFolder"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
+                android:orientation="horizontal"
                 android:layout_margin="8dp">
 
                 <TextView
@@ -129,11 +130,16 @@
 
                 <Spinner
                     android:id="@+id/spFolder"
-                    android:padding="4dp"
-                    android:background="@null"
-                    android:layout_width="wrap_content"
+                    android:background="?colorPrimary"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"/>
 
             </LinearLayout>
         </LinearLayout>

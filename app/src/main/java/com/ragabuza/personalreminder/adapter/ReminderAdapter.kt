@@ -31,7 +31,7 @@ import java.util.*
 /**
  * Created by diego.moyses on 12/28/2017.
  */
-class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>, val folder: Boolean = false) : BaseSwipeAdapter() {
+class ReminderAdapter(private val context: Context, val reminders: MutableList<Reminder>) : BaseSwipeAdapter() {
 
     override fun getSwipeLayoutResourceId(position: Int): Int {
         return R.id.slReminders
@@ -143,9 +143,6 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         val linkArea = convertView?.findViewById<LinearLayout>(R.id.llLinkArea)
         val ivLink = convertView?.findViewById<ImageView>(R.id.ivLink)
         val background = convertView?.findViewById<LinearLayout>(R.id.llUpper)
-        val moveBtn = convertView?.findViewById<RelativeLayout>(R.id.rlMove)
-
-        if (folder) moveBtn?.visibility = View.VISIBLE
 
         val iconElement = convertView?.findViewById<ImageView>(R.id.ivIcon)
         iconElement?.visibility = View.VISIBLE

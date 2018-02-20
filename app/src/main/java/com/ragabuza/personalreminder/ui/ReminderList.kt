@@ -139,7 +139,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         val folderList = mutableListOf<String>("Todos", "Sem pasta")
         folderList.addAll(shared.getFolders())
-        spinner.adapter = FolderSpinnerAdapter(this, R.layout.folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
+        spinner.adapter = FolderSpinnerAdapter(this, R.layout.spinner_folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
             override fun onClick(folder: String) {
                 when (folder) {
                     "Todos" -> {
@@ -219,6 +219,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
+
+        startPresentation()
 
         fabMenu.setClosedOnTouchOutside(true)
 
@@ -315,6 +317,51 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             }
         }
         handler.post(timedTask)
+    }
+
+    private fun startPresentation() {
+
+        val fabMenuCoordinates = listOf(InformationAdapter.STARTFROMBOT, 34, 38, 226, 230)
+
+        val info10 = InformationAdapter(this, "10")
+        val info9 = InformationAdapter(this, "9")
+                .setNext(info10)
+                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.BOT)
+        val info8 = InformationAdapter(this, "8")
+                .setNext(info9)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BOT)
+                .setSkip(InformationAdapter.LEFT, InformationAdapter.BOT)
+        val info7 = InformationAdapter(this, "7")
+                .setNext(info8)
+                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.BOT)
+        val info6 = InformationAdapter(this, "6")
+                .setNext(info7)
+                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.CENTER)
+        val info5 = InformationAdapter(this, "5")
+                .setNext(info6)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.CENTER)
+        val info4 = InformationAdapter(this, "4")
+                .setNext(info5)
+                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.CENTER)
+        val info3 = InformationAdapter(this, "3")
+                .setNext(info4)
+                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.TOP)
+        val info2 = InformationAdapter(this, "2")
+                .setfocusView(fabWifi)
+                .setNext(info3)
+                .setRequireMark()
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.TOP)
+        val info1 = InformationAdapter(this, "1")
+                .setCoordinates(fabMenuCoordinates)
+                .setNext(info2)
+                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.TOP)
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
+
+        info1.setDismissListener{
+            fabMenu.open(true)
+        }
+
+        info1.show()
     }
 
     private var ctrlBluetooth: Boolean = false
@@ -493,7 +540,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         dao.close()
         val mutList = reminders.filter { it.folder != Constants.Other.PRIVATE_FOLDER }.toMutableList()
         mutList.sortBy { !it.done.contains("WAITING") }
-        adapter = ReminderAdapter(this, mutList, shared.getFolders().isNotEmpty())
+        adapter = ReminderAdapter(this, mutList)
         lvRemind.adapter = adapter
     }
 

@@ -26,6 +26,8 @@ class Shared(val context: Context) {
     val FINGERPRINT = "Fingerprint"
     val POWER_SAVE = "PowerSave"
     val SHOW_NOTIFICATION = "ShowNotification"
+    val DELETE_OLD = "DeleteOld"
+    val FIRST_TIME = "FirstTime"
     val FOLDER = "Folder"
 
     fun hasDeleted(): Boolean {
@@ -135,11 +137,11 @@ class Shared(val context: Context) {
         return preferences.getBoolean(POWER_SAVE, false)
     }
 
-    fun setShowNotification(status: Boolean){
+    fun setShowPrivateNotification(status: Boolean){
         editor.putBoolean(SHOW_NOTIFICATION, status)
         editor.apply()
     }
-    fun isShowNotification():Boolean{
+    fun isShowPrivateNotification():Boolean{
         return preferences.getBoolean(SHOW_NOTIFICATION, false)
     }
 
@@ -152,4 +154,20 @@ class Shared(val context: Context) {
         editor.putStringSet(FOLDER, folders)
         editor.apply()
     }
+
+    fun setDeleteOld(status: Boolean){
+        editor.putBoolean(DELETE_OLD, status)
+        editor.apply()
+    }
+    fun isDeleteOld():Boolean{
+        return preferences.getBoolean(DELETE_OLD, false)
+    }
+    fun setFirstTime(status: Boolean){
+        editor.putBoolean(FIRST_TIME, status)
+        editor.apply()
+    }
+    fun isFirstTime():Boolean{
+        return preferences.getBoolean(FIRST_TIME, false)
+    }
+
 }

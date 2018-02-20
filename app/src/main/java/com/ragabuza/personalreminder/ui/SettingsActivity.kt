@@ -1,13 +1,11 @@
 package com.ragabuza.personalreminder.ui
 
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
 import android.widget.Toast
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.google.android.gms.location.places.ui.PlacePicker
@@ -139,11 +137,17 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
             return@setOnTouchListener false
         }
 
+
+        infoDelete.setOnClickListener { InformationAdapter(this, getString(R.string.deleteOld_explain)).setfocusView((infoDelete.parent as View)).show() }
+        infoPowerSave.setOnClickListener { InformationAdapter(this, getString(R.string.powersave_explain)).setfocusView((infoPowerSave.parent as View)).show() }
+
         swPowerSave.isChecked = shared.isPowerSave()
-        swNotification.isChecked = shared.isShowNotification()
+        swDeleteOld.isChecked = shared.isDeleteOld()
+        swNotification.isChecked = shared.isShowPrivateNotification()
         if (shared.hasPassword()) {
             swPassword.isChecked = true
             llConfigPassword.visibility = View.VISIBLE
+            llPrivateNotify.visibility = View.VISIBLE
         }
 
         passwordDialog = PasswordAdapter(this, object : PasswordAdapter.PasswordResult {
@@ -161,14 +165,18 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
         swNotification.setOnCheckedChangeListener { _, _ -> hasEdited = true }
         swPowerSave.setOnCheckedChangeListener { _, _ -> hasEdited = true }
+        swDeleteOld.setOnCheckedChangeListener { _, _ -> hasEdited = true }
 
         swPassword.setOnCheckedChangeListener { _, isChecked ->
             hasEdited = true
             if (isChecked) {
                 llConfigPassword.visibility = View.VISIBLE
+                llPrivateNotify.visibility = View.VISIBLE
                 passwordDialog.show(myPassword, myBiometric)
-            } else
+            } else {
                 llConfigPassword.visibility = View.GONE
+                llPrivateNotify.visibility = View.GONE
+            }
         }
 
         llConfigPassword.setOnClickListener {
@@ -251,7 +259,8 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         shared.setTheme(spColorPick.selectedItem as ThemeColor)
         shared.setFavorites(favorites)
         shared.setPowerSave(swPowerSave.isChecked)
-        shared.setShowNotification(swNotification.isChecked)
+        shared.setDeleteOld(swDeleteOld.isChecked)
+        shared.setShowPrivateNotification(swNotification.isChecked)
         if (swPassword.isChecked)
             shared.setPassword(myPassword)
         else {

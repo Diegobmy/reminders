@@ -9,6 +9,7 @@ import android.support.v4.app.NotificationCompat
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.model.Reminder
 import com.ragabuza.personalreminder.ui.ReminderViewer
+import com.ragabuza.personalreminder.util.Constants.Other.Companion.PRIVATE_FOLDER
 
 /**
  * Created by diego.moyses on 1/15/2018.
@@ -16,8 +17,12 @@ import com.ragabuza.personalreminder.ui.ReminderViewer
 class NotificationHelper(val context: Context) {
     fun showNotification(reminder: Reminder) {
 
+        val shared = Shared(context)
+
+        if (reminder.folder == PRIVATE_FOLDER && !shared.isShowPrivateNotification()) return
+
         val trans = ReminderTranslation(context)
-        val theme = Shared(context).getTheme().normal
+        val theme = shared.getTheme().normal
 
         val title = reminder.reminder
         val description = trans.getNotification(reminder)

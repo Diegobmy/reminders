@@ -258,7 +258,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 trans.locationAddress(cond)
             } else
                 trans.toCode(etConditionExtra.text.toString())
-            val folder = when{
+            val folder = when {
                 !hasFolders -> ""
                 spFolder.selectedItem.toString() == "Sem pasta" -> ""
                 else -> spFolder.selectedItem.toString()
@@ -290,6 +290,8 @@ class NewReminder : ActivityBase(), OpDialogInterface {
         swParticular.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 requestPassword()
+            } else if (hasFolders) {
+                llFolder.visibility = View.VISIBLE
             }
         }
 
@@ -348,6 +350,9 @@ class NewReminder : ActivityBase(), OpDialogInterface {
     override fun requestPasswordCallback(success: Boolean) {
         if (!success)
             swParticular.isChecked = false
+        else
+            llFolder.visibility = View.GONE
+
     }
 
     private fun getMap() {

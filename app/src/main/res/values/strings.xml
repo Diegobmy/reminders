@@ -65,4 +65,7 @@
     <string name="really_goback">Realmente deseja voltar?</string>
     <string name="alt_will_not_save">Nenhuma alteração será salva!</string>
     <string name="folder_too_long">Nome de pasta muito longo!</string>
+    <string name="deleteOld_explain">Irá deletar todos os lembretes finalizados depois de um mês.</string>
+    <string name="powersave_explain">O modo de economizar bateria irá diminuir a frequencia com que checamos sua localização ou redes WiFi, estes tipos de lembretes talvez não apareçam sempre no momento certo.</string>
+    <string name="skip">PULAR</string>
 </resources>
