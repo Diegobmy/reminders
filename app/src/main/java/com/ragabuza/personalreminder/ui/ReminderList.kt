@@ -1,7 +1,9 @@
 package com.ragabuza.personalreminder.ui
 
+import android.app.Dialog
 import android.content.ClipboardManager
 import android.content.Intent
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
@@ -10,11 +12,13 @@ import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.DrawerLayout
 import android.text.*
 import android.text.style.StyleSpan
+import android.util.DisplayMetrics
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.Toast
+import android.widget.*
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.*
@@ -31,12 +35,9 @@ import kotlinx.android.synthetic.main.action_item_filter.*
 import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
-import kotlin.collections.HashSet
-import android.R.array
-import android.widget.ArrayAdapter
-import android.support.v4.view.MenuItemCompat.getActionView
-import android.widget.Spinner
-import kotlinx.android.synthetic.main.activity_reminder.*
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_TUTORIAL
+import com.ragabuza.personalreminder.util.General.Companion.statusBarHeight
 
 
 class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback, FavoriteDialogAdapter.FavoriteSelectCallback {
@@ -124,11 +125,12 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     private var adapter = ReminderAdapter(this, mutableListOf())
     private lateinit var clip: CharSequence
     var selectedFolder = ""
+    private var folderAdapter: FolderSpinnerAdapter? = null
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
         menu?.findItem(R.id.folder)?.isVisible = shared.getFolders().isNotEmpty()
-
 
         val spinnerItem = menu?.findItem(R.id.folder)
         val spinner = spinnerItem?.actionView as Spinner
@@ -139,7 +141,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         val folderList = mutableListOf<String>("Todos", "Sem pasta")
         folderList.addAll(shared.getFolders())
-        spinner.adapter = FolderSpinnerAdapter(this, R.layout.spinner_folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
+        folderAdapter = FolderSpinnerAdapter(this, R.layout.spinner_folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
             override fun onClick(folder: String) {
                 when (folder) {
                     "Todos" -> {
@@ -161,6 +163,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             }
         })
 
+        spinner.adapter = folderAdapter
 
         val menuItem = menu.findItem(R.id.filter)
         val actionView = MenuItemCompat.getActionView(menuItem)
@@ -321,44 +324,127 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     private fun startPresentation() {
 
-        val fabMenuCoordinates = listOf(InformationAdapter.STARTFROMBOT, 34, 38, 226, 230)
+        val displayMetrics = DisplayMetrics()
+        this.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val Parentheight = displayMetrics.heightPixels
+        val ParentWidth = displayMetrics.widthPixels
 
-        val info10 = InformationAdapter(this, "10")
-        val info9 = InformationAdapter(this, "9")
-                .setNext(info10)
-                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.BOT)
-        val info8 = InformationAdapter(this, "8")
-                .setNext(info9)
-                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BOT)
-                .setSkip(InformationAdapter.LEFT, InformationAdapter.BOT)
-        val info7 = InformationAdapter(this, "7")
-                .setNext(info8)
-                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.BOT)
-        val info6 = InformationAdapter(this, "6")
-                .setNext(info7)
-                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.CENTER)
-        val info5 = InformationAdapter(this, "5")
-                .setNext(info6)
-                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.CENTER)
-        val info4 = InformationAdapter(this, "4")
-                .setNext(info5)
-                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.CENTER)
-        val info3 = InformationAdapter(this, "3")
-                .setNext(info4)
-                .setTextPosition(InformationAdapter.RIGHT, InformationAdapter.TOP)
-        val info2 = InformationAdapter(this, "2")
+        val fabIconCoordinates = listOf(InformationAdapter.STARTFROMBOT, 34, 38, 226, 230)
+
+        val tutorialDialog = DialogAdapter(this, this, DialogAdapter.TUTORIAL)
+
+        val info13 = InformationAdapter(this, "Ao clicar na rede você será levado a uma nova tela para configurar o resto do seu lembrete.")
+        val info12 = InformationAdapter(this, "Escolha esta rede de exemplo para prosseguir com o tutorial.")
+                .setTextAboveMark()
+                .setRequireMark()
+                .setNext(info13)
+        val info11 = InformationAdapter(this, "Ao selecionar o lembrete de WiFi, uma janela sera mostrada para se escolher a Rede desejada, outros tipos de lembrete iram mostrar diferentes janelas para selecionar sua condição.")
+                .setTextAboveMark()
+        val info10 = InformationAdapter(this, "Vamos começar aprendendo a criar um lembrete de Wifi, clique no icone para continuar.")
                 .setfocusView(fabWifi)
+                .setTextAboveMark()
+                .setRequireMark()
+        val info9 = InformationAdapter(this, "Favoritos\nCria lembretes com condições pré definidas de Bluetooth, WiFi, Localização ou Tempo.")
+                .setfocusView(fabFav)
+                .setTextAboveMark()
+                .setNext(info10)
+        val info8 = InformationAdapter(this, "Simples\nNão gera notificações.")
+                .setfocusView(fabSimple)
+                .setTextAboveMark()
+                .setNext(info9)
+        val info7 = InformationAdapter(this, "Tempo\nNotifica em um horário pré definido.")
+                .setfocusView(fabTime)
+                .setTextAboveMark()
+                .setNext(info8)
+        val info6 = InformationAdapter(this, "Localização\nNotifica quando seu celular estiver em uma localização escolhida.")
+                .setfocusView(fabLocation)
+                .setTextAboveMark()
+                .setNext(info7)
+        val info5 = InformationAdapter(this, "WiFi\nNotifica quando uma rede WiFi escolhida estiver visível para o seu ceular.")
+                .setfocusView(fabWifi)
+                .setTextAboveMark()
+                .setNext(info6)
+        val info4 = InformationAdapter(this, "Bluetooth\nNotifica quando um dispositivo bluetooth escolhido for pareado com seu ceular.")
+                .setfocusView(fabBluetooth)
+                .setTextAboveMark()
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
+                .setNext(info5)
+        val info3 = InformationAdapter(this, "Este menu irá apresentar diversas opções de lembretes, por exemplo...")
+                .setNext(info4)
+                .setSkip(InformationAdapter.LEFT, InformationAdapter.BOT)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.TOP)
+        val info2 = InformationAdapter(this, "Para criar um novo lembrete clique no icone abaixo.")
+                .setCoordinates(fabIconCoordinates)
                 .setNext(info3)
                 .setRequireMark()
-                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.TOP)
-        val info1 = InformationAdapter(this, "1")
-                .setCoordinates(fabMenuCoordinates)
+        val info1 = InformationAdapter(this, "Bem vindo ao NOMEDOAPP, com NOMEDOAPP você poderá criar lembretes para as mais diversas situações!\n\n Este tutorial irá lhe ensinar os básicos do aplicativo, caso não deseje ver o tutorial clique no alto da tela para pular o mesmo, clique em qualquer outro lugar para continuar.")
                 .setNext(info2)
-                .setTextPosition(InformationAdapter.LEFT, InformationAdapter.TOP)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
 
-        info1.setDismissListener{
+        info2.setDismissListener {
             fabMenu.open(true)
+            val rect = Rect()
+            fabBluetooth.getGlobalVisibleRect(rect)
+            info3.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, ParentWidth - 226, rect.top, ParentWidth - 34, Parentheight - 38))
+        }
+
+        info13.setDismissListener {
+            tutorialDialog.mainDialog?.dismiss()
+            val tutorialIntent = Intent(this, NewReminder::class.java)
+            tutorialIntent.putExtra(FIELD_CONDITION, "Rede de Exemplo 1")
+            tutorialIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
+            tutorialIntent.putExtra(IS_TUTORIAL, true)
+            startActivity(tutorialIntent)
+        }
+
+        info10.setDismissListener {
+            tutorialDialog.show()
+            val view = tutorialDialog.mainView
+
+            if (view != null)
+                view.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        view.viewTreeObserver.removeGlobalOnLayoutListener(this)
+                        val rect = Rect()
+
+                        val locations = IntArray(2)
+                        view.getLocationOnScreen(locations)
+                        val x = locations[0]
+                        val y = locations[1]
+
+                        view.getGlobalVisibleRect(rect)
+                        info11.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
+                    }
+                })
+        }
+
+        info1.setSkipListener {
+            tutorialDialog.mainDialog?.dismiss()
+            fabMenu.close(true)
+            if (shared.getFavorites().isEmpty()) fabFav.visibility = View.GONE
+            InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+        }
+
+        info11.setDismissListener {
+
+            val view = tutorialDialog.mainView
+
+            if (view != null)
+                view.findViewById<ListView>(R.id.lv).viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        view.findViewById<ListView>(R.id.lv).viewTreeObserver.removeGlobalOnLayoutListener(this)
+                        val rect = Rect()
+
+                        val locations = IntArray(2)
+                        view.findViewById<ListView>(R.id.lv).getChildAt(0).getLocationOnScreen(locations)
+                        val x = locations[0]
+                        val y = locations[1]
+
+
+                        view.findViewById<ListView>(R.id.lv).getChildAt(0).getGlobalVisibleRect(rect)
+                        info12.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
+                    }
+                })
         }
 
         info1.show()
@@ -575,7 +661,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         val intent = Intent(this, LocationReceiver::class.java)
         startService(intent)
 
-
     }
 
     private fun clipShow() {
@@ -621,7 +706,22 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         if (ctrlTime) adapter.doFilter(adapter.timeFilter)
         if (ctrlSimple) adapter.doFilter(adapter.simpleFilter)
         adapter.doFilter(str = etFilterString.text.toString())
-        adapter.doFilter(folder = selectedFolder)
+
+
+        if (shared.getFolders().contains(selectedFolder))
+            adapter.doFilter(folder = selectedFolder)
+        else {
+            supportActionBar!!.title = if (seeOld) getString(R.string.oldReminders) else getString(R.string.remindersActivityTitle)
+            adapter.doFilter(folder = "*")
+            selectedFolder = "*"
+        }
+
+        if (folderAdapter != null) {
+            val folderList = mutableListOf<String>("Todos", "Sem pasta")
+            folderList.addAll(shared.getFolders())
+            folderAdapter?.options?.clear()
+            folderAdapter?.options?.addAll(folderList)
+        }
     }
 
 }

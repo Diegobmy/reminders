@@ -69,4 +69,8 @@
     <color name="PrivatePrimary">#00714f</color>
     <color name="PrivatePrimaryDark">#004933</color>
 
+    <color name="morningColor">#ffc904</color>
+    <color name="afternoonColor">#ff5e00</color>
+    <color name="nightColor">#060049</color>
+
 </resources>

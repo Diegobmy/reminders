@@ -29,13 +29,14 @@ class FavoriteDialogAdapter(val context: Context, private val favorites: List<Fa
         val lvFavorites = view.findViewById<ListView>(R.id.lv)
 
         view.findViewById<TextView>(R.id.tvTitle).text = context.getString(R.string.favorites)
+        view.findViewById<EditText>(R.id.etFilter).visibility = View.GONE
 
         val adapter = FavoriteAdapter(context, favorites, true)
         adapter.setOnFavoriteClickListener(object : FavoriteAdapter.favoriteClickListener{
             override fun delete(favorite: Favorite) {}
             override fun edit(favorite: Favorite) {
                 listener.favoriteCall(favorite)
-                dialog.dismiss()
+
             }
 
         })

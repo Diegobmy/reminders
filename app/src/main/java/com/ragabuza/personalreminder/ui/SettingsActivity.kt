@@ -138,8 +138,8 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         }
 
 
-        infoDelete.setOnClickListener { InformationAdapter(this, getString(R.string.deleteOld_explain)).setfocusView((infoDelete.parent as View)).show() }
-        infoPowerSave.setOnClickListener { InformationAdapter(this, getString(R.string.powersave_explain)).setfocusView((infoPowerSave.parent as View)).show() }
+        infoDelete.setOnClickListener { InformationAdapter(this, getString(R.string.deleteOld_explain)).setfocusView((infoDelete.parent as View)).setTextAboveMark().show() }
+        infoPowerSave.setOnClickListener { InformationAdapter(this, getString(R.string.powersave_explain)).setfocusView((infoPowerSave.parent as View)).setTextAboveMark().show() }
 
         swPowerSave.isChecked = shared.isPowerSave()
         swDeleteOld.isChecked = shared.isDeleteOld()

@@ -25,7 +25,9 @@ import com.ragabuza.personalreminder.util.*
 import android.app.ProgressDialog
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import com.ragabuza.personalreminder.adapter.InformationAdapter
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_TUTORIAL
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
 import com.ragabuza.personalreminder.util.Constants.Other.Companion.CONTACT_PREFIX
@@ -110,11 +112,16 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             spFolder.adapter = spAdapter
         }
 
-        etReminder.requestFocus()
 
         val extras = intent.extras
         cond = extras.getString(FIELD_CONDITION, "")
         var type = extras.getString(FIELD_TYPE, "")
+
+        if (extras.getBoolean(IS_TUTORIAL, false)) {
+            llContainer.requestFocus()
+            startPresentation()
+        } else
+            etReminder.requestFocus()
 
         etExtra.setText(extras.getString(FIELD_EXTRA, ""))
 
@@ -367,6 +374,12 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             finish()
         }
         super.onPause()
+    }
+
+    private fun startPresentation() {
+        val info1 = InformationAdapter(this, "Esta é a tela de edição de lembrete, nela você pode configurar um lembrete novo ou editar um já existente.")
+
+        info1.show()
     }
 
 }

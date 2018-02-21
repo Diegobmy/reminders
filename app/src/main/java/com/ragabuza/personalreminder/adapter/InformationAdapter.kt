@@ -2,21 +2,15 @@ package com.ragabuza.personalreminder.adapter
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
-import android.support.design.internal.BottomNavigationItemView
+import android.os.Handler
 import android.view.LayoutInflater
 import android.widget.*
 import com.ragabuza.personalreminder.R
 import android.view.View
-import com.ragabuza.personalreminder.model.Favorite
-import android.widget.Toast
-import com.ebanx.swipebtn.OnStateChangeListener
-import com.ebanx.swipebtn.SwipeButton
 import android.util.DisplayMetrics
-import android.util.TypedValue
 
 
 /**
@@ -38,14 +32,21 @@ class InformationAdapter(
         val CENTER = 5
     }
 
-    private var listener: (() -> Unit)? = null
+    private var dismissListener: (() -> Unit)? = null
     fun setDismissListener(body: () -> Unit): InformationAdapter {
-        listener = body
+        dismissListener = body
         return this
     }
 
+    private var skipListener: (() -> Unit)? = null
+    fun setSkipListener(body: () -> Unit): InformationAdapter {
+        skipListener = body
+        return this
+    }
+
+
     private var focusView: View? = null
-    fun setfocusView(body: View): InformationAdapter {
+    fun setfocusView(body: View?): InformationAdapter {
         focusView = body
         return this
     }
@@ -84,12 +85,23 @@ class InformationAdapter(
         return this
     }
 
+    private var textAboveMark: Boolean = false
+    fun setTextAboveMark(): InformationAdapter {
+        textAboveMark = true
+        return this
+    }
+
     private var disableBack: Boolean = true
     fun setDisableBack(status: Boolean): InformationAdapter {
         disableBack = status
         return this
     }
 
+    private var delayTime: Long = 1000
+    fun setdelayTime(time: Long): InformationAdapter {
+        delayTime = time
+        return this
+    }
 
     fun show() {
 
@@ -100,29 +112,10 @@ class InformationAdapter(
         if (disableBack)
             dialog.setOnKeyListener { _, _, _ -> true }
 
-        val information = view.findViewById<TextView>(R.id.tvInfo)
 
-        val infoParams = information.layoutParams as RelativeLayout.LayoutParams
-
-        when (textVertical) {
-            TOP -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
-            CENTER -> infoParams.addRule(RelativeLayout.CENTER_VERTICAL)
-            BOT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-        }
-        when (textHorizontal) {
-            LEFT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_START)
-            CENTER -> infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
-            RIGHT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_END)
-        }
-
-        information.text = text
-
-        dialog.setContentView(view)
-        dialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        var markPosition = 0
 
         if (focusView != null || coordinates != null) {
-
-
             val displayMetrics = DisplayMetrics()
             context.windowManager.defaultDisplay.getMetrics(displayMetrics)
             val Parentheight = displayMetrics.heightPixels
@@ -167,7 +160,12 @@ class InformationAdapter(
             val layoutParamsMark = RelativeLayout.LayoutParams(rect.width(), rect.height())
             layoutParamsMark.setMargins(rect.left, rect.top, 0, 0)
             mark.layoutParams = layoutParamsMark
-            mark.setOnClickListener { dialog.dismiss() }
+
+            markPosition = Parentheight - rect.top + 16
+
+            delay(Runnable {
+                mark.setOnClickListener { dialog.dismiss() }
+            })
 
         } else {
 
@@ -182,8 +180,29 @@ class InformationAdapter(
             start.layoutParams = layoutParamsStart
         }
 
-        var willSkip = false
 
+        val information = view.findViewById<TextView>(R.id.tvInfo)
+        val infoParams = information.layoutParams as RelativeLayout.LayoutParams
+        if (!textAboveMark) {
+            when (textVertical) {
+                TOP -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                CENTER -> infoParams.addRule(RelativeLayout.CENTER_VERTICAL)
+                BOT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+            }
+            when (textHorizontal) {
+                LEFT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_START)
+                CENTER -> infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
+                RIGHT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_END)
+            }
+        } else {
+            infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
+            infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+            infoParams.bottomMargin = markPosition
+        }
+        information.text = text
+
+
+        var willSkip = false
 
         if (skipHorizontal != 0) {
             val skipButton = view.findViewById<TextView>(R.id.btSkip)
@@ -201,28 +220,41 @@ class InformationAdapter(
                 CENTER -> skipParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
                 RIGHT -> skipParams.addRule(RelativeLayout.ALIGN_PARENT_END)
             }
-
-            skipButton.setOnClickListener {
-                willSkip = true
-                dialog.dismiss()
-            }
+            delay(Runnable {
+                skipButton.setOnClickListener {
+                    willSkip = true
+                    dialog.dismiss()
+                }
+            })
         }
 
         if (!requireMark)
-            view.setOnClickListener { dialog.dismiss() }
+            delay(Runnable {
+                view.setOnClickListener { dialog.dismiss() }
+            })
 
         dialog.setOnDismissListener {
             if (!willSkip) {
-                listener?.invoke()
-                if (next?.skipHorizontal == 0)
+                dismissListener?.invoke()
+                if (next?.skipHorizontal == 0) {
                     next?.setSkip(skipHorizontal, skipVertical)
+                }
+                next?.skipListener = skipListener
                 next?.show()
+            } else {
+                skipListener?.invoke()
             }
         }
 
+        dialog.setContentView(view)
+        dialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.show()
 
 
+    }
+
+    fun delay(r: Runnable) {
+        Handler().postDelayed(r, delayTime)
     }
 
 }

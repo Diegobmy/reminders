@@ -2,6 +2,7 @@ package com.ragabuza.personalreminder.util
 
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.ThemeColor
+import java.util.*
 
 /**
  * Created by diego.moyses on 2/6/2018.
@@ -9,6 +10,8 @@ import com.ragabuza.personalreminder.adapter.ThemeColor
 class Constants {
     class Intents {
         companion object {
+            val IS_TUTORIAL = "tutorial"
+
             val IS_OUT = "isOlt"
             val REMINDER = "Reminder"
             val KILL_IT = "KillIt"
@@ -41,6 +44,22 @@ class Constants {
             val CONTACT_PREFIX = "CONTACT:"
             val PRIVATE_FOLDER = "PrivateFolder&"
             val EMPTY_FOLDER = "&empty&folder"
+        }
+    }
+
+
+    class TimeConstants {
+        companion object {
+            fun getMinimalDateToday(): Long {
+                val cal = Calendar.getInstance()
+                return cal.timeInMillis
+            }
+
+            fun getMinimalDateTomorrow(): Long {
+                val cal = Calendar.getInstance()
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+                return cal.timeInMillis
+            }
         }
     }
 }

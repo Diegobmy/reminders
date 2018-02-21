@@ -15,6 +15,7 @@ import android.widget.*
 import com.ragabuza.personalreminder.R
 import android.bluetooth.BluetoothAdapter
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.view.View
 import android.provider.ContactsContract
 import android.support.v4.app.ActivityCompat
@@ -23,6 +24,9 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ImageSpan
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Constants
+import com.ragabuza.personalreminder.util.Constants.TimeConstants.Companion.getMinimalDateToday
+import com.ragabuza.personalreminder.util.Constants.TimeConstants.Companion.getMinimalDateTomorrow
 import com.ragabuza.personalreminder.util.ReminderTranslation
 import java.util.*
 
@@ -38,9 +42,11 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val WIFI = "W"
         val BLUETOOTH = "B"
         val TIME = "T"
+        val TIME_DIRECT = "TD"
         val CONTACTS = "CON"
         val CHOICE_WEB = "OWEB"
         val TYPE = "TYPE"
+        val TUTORIAL = "TUTO"
     }
 
     @SuppressLint("InflateParams")
@@ -68,13 +74,24 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
                 if (bluetoothDialog(title, webList)) return@show
             }
             TIME -> {
-                showTimeDialog()
+                showTimeDialog(false)
+                return@show
+            }
+            TIME_DIRECT -> {
+                showTimeDialog(true)
                 return@show
             }
             CONTACTS -> {
                 title.text = context.getString(R.string.select_contact)
-                webList.addAll(getContactList())
                 if (getContactList().isEmpty()) return@show
+                webList.addAll(getContactList())
+            }
+            TUTORIAL -> {
+                title.text = context.getString(R.string.selectWifi)
+                webList.add("Rede Exemplo 1")
+                webList.add("Rede Exemplo 2")
+                webList.add("Rede Exemplo 3")
+                webList.add("Rede Exemplo 4")
             }
             CHOICE_WEB -> {
                 title.text = context.getString(R.string.when_dialog)
@@ -112,7 +129,6 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
 
         })
 
-        dialog.setContentView(view)
 
         view.findViewById<ListView>(R.id.lv).setOnItemClickListener { _, iView, _, _ ->
             val item = iView.findViewById<TextView>(android.R.id.text1)
@@ -126,11 +142,17 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
             dialog.dismiss()
         }
 
+        dialog.setContentView(view)
         listener.finishedLoading()
         dialog.show()
 
+        mainView = view
+        mainDialog = dialog
 
     }
+
+    var mainView: View? = null
+    var mainDialog: Dialog? = null
 
     private fun bluetoothDialog(title: TextView, webList: MutableList<String>): Boolean {
         title.text = context.getString(R.string.selectBluetooth)
@@ -171,7 +193,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         return false
     }
 
-    private fun showTimeDialog() {
+    private fun showTimeDialog(skip: Boolean) {
         val mcurrentTime = Calendar.getInstance()
         val minute = mcurrentTime.get(Calendar.MINUTE)
         val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
@@ -181,6 +203,7 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val year = mcurrentTime.get(Calendar.YEAR)
 
         val date = Calendar.getInstance()
+        date.set(Calendar.SECOND, 0)
 
         val datePicker = DatePickerDialog(context, DatePickerDialog.OnDateSetListener { _, pckYear, pckMonth, pckDay ->
             date.set(Calendar.DAY_OF_MONTH, pckDay)
@@ -192,11 +215,25 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
         val timePicker = TimePickerDialog(context, TimePickerDialog.OnTimeSetListener { _, pckHour, pckMinute ->
             date.set(Calendar.MINUTE, pckMinute)
             date.set(Calendar.HOUR_OF_DAY, pckHour)
-            date.set(Calendar.SECOND, 0)
+            if (date.time < Calendar.getInstance().time)
+                datePicker.datePicker.minDate = getMinimalDateTomorrow()
+            else
+                datePicker.datePicker.minDate = getMinimalDateToday()
             datePicker.show()
         }, hour, minute, true)
 
-        timePicker.show()
+        if (skip)
+            timePicker.show()
+        else
+            TimeShortDialogAdapter(context, object : TimeShortDialogAdapter.TimeShortCallback {
+                override fun onTimePick(cal: Calendar?) {
+                    if (cal != null) {
+                        if (cal.time < Calendar.getInstance().time) cal.add(Calendar.DAY_OF_YEAR, 1)
+                        listener.timeCall(cal, tag)
+                    } else
+                        timePicker.show()
+                }
+            }).show()
     }
 
     private fun getContactList(): List<String> {

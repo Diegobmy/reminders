@@ -15,7 +15,7 @@ import android.widget.Spinner
  * Created by diego.moyses on 2/7/2018.
  */
 
-class FolderSpinnerAdapter(context: Context, val groupId: Int, private val options: MutableList<String>, val spinner: Spinner, val listener: FolderSpinnerCallback) : ArrayAdapter<String>(context, groupId, options) {
+class FolderSpinnerAdapter(context: Context, val groupId: Int, val options: MutableList<String>, val spinner: Spinner, val listener: FolderSpinnerCallback) : ArrayAdapter<String>(context, groupId, options) {
 
     private val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
