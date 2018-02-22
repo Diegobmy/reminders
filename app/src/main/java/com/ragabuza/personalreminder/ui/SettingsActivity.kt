@@ -184,6 +184,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         }
 
         tvTutorial.setOnClickListener {
+            shared.setTutorial(true)
             val tutorialintent = Intent(this, ReminderList::class.java)
             shared.setFirstTime(true)
             startActivity(tutorialintent)

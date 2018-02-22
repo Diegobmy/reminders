@@ -175,7 +175,7 @@ class Shared(val context: Context) {
         editor.apply()
     }
     fun isInTutorial():Boolean{
-        return preferences.getBoolean(MID_TUTORIAL, true)
+        return preferences.getBoolean(MID_TUTORIAL, false)
     }
 
 }

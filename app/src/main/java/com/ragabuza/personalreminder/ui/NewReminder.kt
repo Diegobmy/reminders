@@ -376,10 +376,12 @@ class NewReminder : ActivityBase(), OpDialogInterface {
     }
 
     private fun startPresentation() {
+        shared.setTutorial(false)
         val info11 = InformationAdapter(this, "Caso contrário você pode salvar seu lembrete, clique em salvar para continuar.")
                 .setfocusView(btn_save)
                 .setRequireMark()
                 .setDismissListener {
+                    shared.setTutorial(true)
                     setResult(777)
                     finish()
                 }

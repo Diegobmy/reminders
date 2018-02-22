@@ -147,7 +147,7 @@ open class ActivityBase : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        if (shared.isFirstTime() && s){
+        if (shared.isFirstTime() && !shared.isInTutorial()){
             shared.setFirstTime(false)
             NotificationHelper(this).showNotificationRaw(0, "ola", "teste")
         }

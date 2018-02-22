@@ -343,17 +343,20 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     }
 
     fun startPresentation3() {
+        shared.setTutorial(false)
         (lvRemind.adapter as ReminderAdapter).closeAllItems()
         InformationAdapter(this, "WOW").show()
     }
 
     fun startPresentation2(tutorialReminder: Reminder) {
+        shared.setTutorial(false)
         val info9 = InformationAdapter(this, "Ao clicar em visualizar será apresentado uma nova janela para se verificar detalhes sobre o lembrete, assim como opções relacionadas a ele.\nClique em visualizar para verificar essas opções.")
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
                 .setRequireMark()
                 .setDismissListener {
                     val tutorialIntent = Intent(this, ReminderViewer::class.java)
                     tutorialIntent.putExtra(REMINDER, tutorialReminder)
+                    shared.setTutorial(true)
                     startActivityForResult(tutorialIntent, 666)
                 }
         val info8 = InformationAdapter(this, "Visualizar")
@@ -392,6 +395,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
 
     private fun startPresentation() {
+
+        shared.setTutorial(false)
 
         lvRemind.adapter = ReminderAdapter(this, mutableListOf())
 
@@ -466,6 +471,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             val tutorialIntent = Intent(this, NewReminder::class.java)
             tutorialIntent.putExtra(FIELD_CONDITION, "Rede de Exemplo 1")
             tutorialIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
+            shared.setTutorial(true)
             startActivityForResult(tutorialIntent, 777)
         }
 
