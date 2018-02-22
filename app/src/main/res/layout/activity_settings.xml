@@ -287,6 +287,17 @@
 
             </LinearLayout>
 
+            <TextView
+                android:id="@+id/tvTutorial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:padding="8dp"
+                android:gravity="center"
+                android:background="@drawable/favorite_background"
+                android:text="Tutorial"
+                android:textColor="@android:color/black" />
+
         </LinearLayout>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

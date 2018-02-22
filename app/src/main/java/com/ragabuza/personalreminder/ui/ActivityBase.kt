@@ -23,6 +23,7 @@ import android.widget.*
 import com.multidots.fingerprintauth.FingerPrintAuthCallback
 import com.multidots.fingerprintauth.FingerPrintAuthHelper
 import com.ragabuza.personalreminder.R
+import com.ragabuza.personalreminder.util.NotificationHelper
 
 
 /**
@@ -144,5 +145,12 @@ open class ActivityBase : AppCompatActivity() {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (shared.isFirstTime() && s){
+            shared.setFirstTime(false)
+            NotificationHelper(this).showNotificationRaw(0, "ola", "teste")
+        }
+    }
 
 }

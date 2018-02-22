@@ -38,7 +38,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
                 DialogAdapter(this, this, DialogAdapter.WIFI, tag).show()
             trans.reminderType(Reminder.BLUETOOTH) ->
                 DialogAdapter(this, this, DialogAdapter.BLUETOOTH, tag).show()
-            trans.reminderType(Reminder.TIME) ->{
+            trans.reminderType(Reminder.TIME) -> {
                 val mcurrentTime = Calendar.getInstance()
                 val minute = mcurrentTime.get(Calendar.MINUTE)
                 val hour = mcurrentTime.get(Calendar.HOUR_OF_DAY)
@@ -138,8 +138,8 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         }
 
 
-        infoDelete.setOnClickListener { InformationAdapter(this, getString(R.string.deleteOld_explain)).setfocusView((infoDelete.parent as View)).setTextAboveMark().show() }
-        infoPowerSave.setOnClickListener { InformationAdapter(this, getString(R.string.powersave_explain)).setfocusView((infoPowerSave.parent as View)).setTextAboveMark().show() }
+        infoDelete.setOnClickListener { InformationAdapter(this, getString(R.string.deleteOld_explain)).setfocusView((infoDelete.parent as View)).setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE).show() }
+        infoPowerSave.setOnClickListener { InformationAdapter(this, getString(R.string.powersave_explain)).setfocusView((infoPowerSave.parent as View)).setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE).show() }
 
         swPowerSave.isChecked = shared.isPowerSave()
         swDeleteOld.isChecked = shared.isDeleteOld()
@@ -181,6 +181,13 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
 
         llConfigPassword.setOnClickListener {
             requestPassword()
+        }
+
+        tvTutorial.setOnClickListener {
+            val tutorialintent = Intent(this, ReminderList::class.java)
+            shared.setFirstTime(true)
+            startActivity(tutorialintent)
+            finish()
         }
 
         llDeleteAll.setOnClickListener {

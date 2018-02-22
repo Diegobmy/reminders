@@ -30,6 +30,8 @@ class InformationAdapter(
         val LEFT = 3
         val RIGHT = 4
         val CENTER = 5
+        val BEFORE = 6
+        val AFTER = 7
     }
 
     private var dismissListener: (() -> Unit)? = null
@@ -77,17 +79,11 @@ class InformationAdapter(
         return this
     }
 
-    private var textHorizontal: Int = CENTER
-    private var textVertical: Int = CENTER
+    private var textHorizontal: Int = 0
+    private var textVertical: Int = 0
     fun setTextPosition(horizontal: Int, vertical: Int): InformationAdapter {
         textHorizontal = horizontal
         textVertical = vertical
-        return this
-    }
-
-    private var textAboveMark: Boolean = false
-    fun setTextAboveMark(): InformationAdapter {
-        textAboveMark = true
         return this
     }
 
@@ -97,14 +93,14 @@ class InformationAdapter(
         return this
     }
 
-    private var delayTime: Long = 1000
+    private var delayTime: Long = 1
     fun setdelayTime(time: Long): InformationAdapter {
         delayTime = time
         return this
     }
 
     fun show() {
-
+        var willSkip = false
         val dialog = Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.information_dialog, null)
@@ -113,7 +109,8 @@ class InformationAdapter(
             dialog.setOnKeyListener { _, _, _ -> true }
 
 
-        var markPosition = 0
+        var markPositionAfter = 0
+        var markPositionBefore = 0
 
         if (focusView != null || coordinates != null) {
             val displayMetrics = DisplayMetrics()
@@ -125,7 +122,10 @@ class InformationAdapter(
             if (focusView != null) {
                 focusView?.getGlobalVisibleRect(rect)
             } else if (coordinates != null) {
-                rect = if (coordinates!![0] == STARTFROMTOP) Rect(coordinates!![1], coordinates!![2], coordinates!![3], coordinates!![4]) else Rect(ParentWidth - coordinates!![3], Parentheight - coordinates!![4], ParentWidth - coordinates!![1], Parentheight - coordinates!![2])
+                rect = if (coordinates!![0] == STARTFROMTOP)
+                    Rect(coordinates!![1], coordinates!![2], coordinates!![3], coordinates!![4])
+                else
+                    Rect(ParentWidth - coordinates!![3], Parentheight - coordinates!![4], ParentWidth - coordinates!![1], Parentheight - coordinates!![2])
             }
 
             val start = view.findViewById<ImageView>(R.id.ivImportantStart)
@@ -156,15 +156,24 @@ class InformationAdapter(
 
             val mark = view.findViewById<View>(R.id.ivImportantBox)
             mark.visibility = View.VISIBLE
+            mark.background = context.resources.getDrawable(if (requireMark)
+                R.drawable.information_mark_required
+            else
+                R.drawable.information_mark
+            )
 
             val layoutParamsMark = RelativeLayout.LayoutParams(rect.width(), rect.height())
             layoutParamsMark.setMargins(rect.left, rect.top, 0, 0)
             mark.layoutParams = layoutParamsMark
 
-            markPosition = Parentheight - rect.top + 16
+            markPositionBefore = Parentheight - rect.top + 16
+            markPositionAfter = rect.bottom + 16
 
             delay(Runnable {
-                mark.setOnClickListener { dialog.dismiss() }
+                mark.setOnClickListener {
+                    beforeDismiss(willSkip)
+                    delayedDismiss(Runnable {dialog.dismiss()})
+                }
             })
 
         } else {
@@ -183,26 +192,26 @@ class InformationAdapter(
 
         val information = view.findViewById<TextView>(R.id.tvInfo)
         val infoParams = information.layoutParams as RelativeLayout.LayoutParams
-        if (!textAboveMark) {
-            when (textVertical) {
-                TOP -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
-                CENTER -> infoParams.addRule(RelativeLayout.CENTER_VERTICAL)
-                BOT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+        when (textVertical) {
+            TOP -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+            CENTER, 0 -> infoParams.addRule(RelativeLayout.CENTER_VERTICAL)
+            BOT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+            BEFORE -> {
+                infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                infoParams.bottomMargin = markPositionBefore
             }
-            when (textHorizontal) {
-                LEFT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_START)
-                CENTER -> infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
-                RIGHT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_END)
+            AFTER -> {
+                infoParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
+                infoParams.topMargin = markPositionAfter
             }
-        } else {
-            infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
-            infoParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-            infoParams.bottomMargin = markPosition
+        }
+        when (textHorizontal) {
+            LEFT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_START)
+            CENTER, 0 -> infoParams.addRule(RelativeLayout.CENTER_HORIZONTAL)
+            RIGHT -> infoParams.addRule(RelativeLayout.ALIGN_PARENT_END)
         }
         information.text = text
 
-
-        var willSkip = false
 
         if (skipHorizontal != 0) {
             val skipButton = view.findViewById<TextView>(R.id.btSkip)
@@ -223,28 +232,19 @@ class InformationAdapter(
             delay(Runnable {
                 skipButton.setOnClickListener {
                     willSkip = true
-                    dialog.dismiss()
+                    beforeDismiss(willSkip)
+                    delayedDismiss(Runnable {dialog.dismiss()})
                 }
             })
         }
 
         if (!requireMark)
             delay(Runnable {
-                view.setOnClickListener { dialog.dismiss() }
-            })
-
-        dialog.setOnDismissListener {
-            if (!willSkip) {
-                dismissListener?.invoke()
-                if (next?.skipHorizontal == 0) {
-                    next?.setSkip(skipHorizontal, skipVertical)
+                view.setOnClickListener {
+                    beforeDismiss(willSkip)
+                    delayedDismiss(Runnable {dialog.dismiss()})
                 }
-                next?.skipListener = skipListener
-                next?.show()
-            } else {
-                skipListener?.invoke()
-            }
-        }
+            })
 
         dialog.setContentView(view)
         dialog.window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -253,8 +253,27 @@ class InformationAdapter(
 
     }
 
-    fun delay(r: Runnable) {
+    private fun beforeDismiss(willSkip: Boolean) {
+        if (!willSkip) {
+            dismissListener?.invoke()
+            if (next?.skipHorizontal == 0) {
+                next?.setSkip(skipHorizontal, skipVertical)
+            }
+            if (next?.textHorizontal == 0) {
+                next?.setTextPosition(textHorizontal, textVertical)
+            }
+            next?.skipListener = skipListener
+            next?.show()
+        } else {
+            skipListener?.invoke()
+        }
+    }
+
+    private fun delay(r: Runnable) {
         Handler().postDelayed(r, delayTime)
+    }
+    private fun delayedDismiss(r: Runnable) {
+        Handler().postDelayed(r, 100)
     }
 
 }

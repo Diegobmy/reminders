@@ -1,6 +1,5 @@
 package com.ragabuza.personalreminder.ui
 
-import android.app.Dialog
 import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.Rect
@@ -13,7 +12,6 @@ import android.support.v4.widget.DrawerLayout
 import android.text.*
 import android.text.style.StyleSpan
 import android.util.DisplayMetrics
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -36,8 +34,7 @@ import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_TUTORIAL
-import com.ragabuza.personalreminder.util.General.Companion.statusBarHeight
+import com.ragabuza.personalreminder.util.waitForUpdate
 
 
 class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.ReminderClickCallback, FavoriteDialogAdapter.FavoriteSelectCallback {
@@ -223,7 +220,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reminder_list)
 
-        startPresentation()
 
         fabMenu.setClosedOnTouchOutside(true)
 
@@ -235,6 +231,10 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
 
         lvRemind.emptyView = tvEmpty
+
+
+        if (shared.isFirstTime())
+            startPresentation()
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
         lvRemind.setOnItemClickListener { _, _, _, _ ->
@@ -322,7 +322,78 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         handler.post(timedTask)
     }
 
+    private fun preparePresentation2() {
+
+        val tutorialReminder = Reminder(0L, "", true, "Seu primeiro lembrete!", Reminder.WIFI, Reminder.IS, "Rede de Exemplo 1", "https://www.exemplo.com.br", "")
+
+        val tutorialReminders = mutableListOf(
+                tutorialReminder
+        )
+        val tutorialAdapter = ReminderAdapter(this, tutorialReminders)
+        lvRemind.adapter = tutorialAdapter
+
+        lvRemind.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                if (lvRemind.getChildAt(0) != null) {
+                    lvRemind.getChildAt(0).viewTreeObserver.removeGlobalOnLayoutListener(this)
+                    startPresentation2(tutorialReminder)
+                }
+            }
+        })
+    }
+
+    fun startPresentation3() {
+        (lvRemind.adapter as ReminderAdapter).closeAllItems()
+        InformationAdapter(this, "WOW").show()
+    }
+
+    fun startPresentation2(tutorialReminder: Reminder) {
+        val info9 = InformationAdapter(this, "Ao clicar em visualizar será apresentado uma nova janela para se verificar detalhes sobre o lembrete, assim como opções relacionadas a ele.\nClique em visualizar para verificar essas opções.")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
+                .setRequireMark()
+                .setDismissListener {
+                    val tutorialIntent = Intent(this, ReminderViewer::class.java)
+                    tutorialIntent.putExtra(REMINDER, tutorialReminder)
+                    startActivityForResult(tutorialIntent, 666)
+                }
+        val info8 = InformationAdapter(this, "Visualizar")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
+                .setNext(info9)
+        val info7 = InformationAdapter(this, "Editar")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlEdit))
+                .setNext(info8)
+        val info6 = InformationAdapter(this, "Deletar")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlDelete))
+                .setNext(info7)
+        val info5 = InformationAdapter(this, "No menu lateral temos as seguintes opções...")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.bottom_wrapper))
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
+                .setNext(info6)
+        val info4 = InformationAdapter(this, "Clicando no lembrete são reveladas mais opções.")
+                .setRequireMark()
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.llUpper))
+                .setDismissListener {
+                    (lvRemind.adapter as ReminderAdapter).openItem(0)
+                    Handler().postDelayed({ info5.show() }, 100)
+                }
+        val info3 = InformationAdapter(this, "Usando este botão podemos definir o lembrete como terminado.")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.ivCheckbox))
+                .setNext(info4)
+        val info2 = InformationAdapter(this, "Nesta tela podemos verificar as informações básicas dele.")
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.slReminders))
+                .setNext(info3)
+        val info1 = InformationAdapter(this, "Parabens você criou seu primeiro lembrete!")
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
+                .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.slReminders))
+                .setNext(info2)
+
+        info1.show()
+    }
+
+
     private fun startPresentation() {
+
+        lvRemind.adapter = ReminderAdapter(this, mutableListOf())
 
         val displayMetrics = DisplayMetrics()
         this.windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -334,45 +405,46 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         val tutorialDialog = DialogAdapter(this, this, DialogAdapter.TUTORIAL)
 
         val info13 = InformationAdapter(this, "Ao clicar na rede você será levado a uma nova tela para configurar o resto do seu lembrete.")
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.CENTER)
         val info12 = InformationAdapter(this, "Escolha esta rede de exemplo para prosseguir com o tutorial.")
-                .setTextAboveMark()
-                .setRequireMark()
                 .setNext(info13)
+                .setRequireMark()
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
+                .setSkipListener {
+                    skipTutorial(tutorialDialog)
+                }
         val info11 = InformationAdapter(this, "Ao selecionar o lembrete de WiFi, uma janela sera mostrada para se escolher a Rede desejada, outros tipos de lembrete iram mostrar diferentes janelas para selecionar sua condição.")
-                .setTextAboveMark()
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
+                .setSkipListener {
+                    skipTutorial(tutorialDialog)
+                }
         val info10 = InformationAdapter(this, "Vamos começar aprendendo a criar um lembrete de Wifi, clique no icone para continuar.")
                 .setfocusView(fabWifi)
-                .setTextAboveMark()
                 .setRequireMark()
+                .setSkipListener {
+                    skipTutorial(tutorialDialog)
+                }
         val info9 = InformationAdapter(this, "Favoritos\nCria lembretes com condições pré definidas de Bluetooth, WiFi, Localização ou Tempo.")
                 .setfocusView(fabFav)
-                .setTextAboveMark()
                 .setNext(info10)
         val info8 = InformationAdapter(this, "Simples\nNão gera notificações.")
                 .setfocusView(fabSimple)
-                .setTextAboveMark()
                 .setNext(info9)
         val info7 = InformationAdapter(this, "Tempo\nNotifica em um horário pré definido.")
                 .setfocusView(fabTime)
-                .setTextAboveMark()
                 .setNext(info8)
         val info6 = InformationAdapter(this, "Localização\nNotifica quando seu celular estiver em uma localização escolhida.")
                 .setfocusView(fabLocation)
-                .setTextAboveMark()
                 .setNext(info7)
         val info5 = InformationAdapter(this, "WiFi\nNotifica quando uma rede WiFi escolhida estiver visível para o seu ceular.")
                 .setfocusView(fabWifi)
-                .setTextAboveMark()
                 .setNext(info6)
         val info4 = InformationAdapter(this, "Bluetooth\nNotifica quando um dispositivo bluetooth escolhido for pareado com seu ceular.")
                 .setfocusView(fabBluetooth)
-                .setTextAboveMark()
-                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setNext(info5)
         val info3 = InformationAdapter(this, "Este menu irá apresentar diversas opções de lembretes, por exemplo...")
                 .setNext(info4)
-                .setSkip(InformationAdapter.LEFT, InformationAdapter.BOT)
-                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.TOP)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
         val info2 = InformationAdapter(this, "Para criar um novo lembrete clique no icone abaixo.")
                 .setCoordinates(fabIconCoordinates)
                 .setNext(info3)
@@ -390,64 +462,62 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         info13.setDismissListener {
             tutorialDialog.mainDialog?.dismiss()
+            fabMenu.close(true)
             val tutorialIntent = Intent(this, NewReminder::class.java)
             tutorialIntent.putExtra(FIELD_CONDITION, "Rede de Exemplo 1")
             tutorialIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
-            tutorialIntent.putExtra(IS_TUTORIAL, true)
-            startActivity(tutorialIntent)
+            startActivityForResult(tutorialIntent, 777)
         }
 
         info10.setDismissListener {
             tutorialDialog.show()
             val view = tutorialDialog.mainView
 
-            if (view != null)
-                view.viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        view.viewTreeObserver.removeGlobalOnLayoutListener(this)
-                        val rect = Rect()
-
-                        val locations = IntArray(2)
-                        view.getLocationOnScreen(locations)
-                        val x = locations[0]
-                        val y = locations[1]
-
-                        view.getGlobalVisibleRect(rect)
-                        info11.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
-                    }
-                })
+            view?.waitForUpdate {
+                val rect = Rect()
+                val locations = IntArray(2)
+                view.getLocationOnScreen(locations)
+                val x = locations[0]
+                val y = locations[1]
+                view.getGlobalVisibleRect(rect)
+                info11.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
+            }
         }
 
         info1.setSkipListener {
-            tutorialDialog.mainDialog?.dismiss()
-            fabMenu.close(true)
-            if (shared.getFavorites().isEmpty()) fabFav.visibility = View.GONE
-            InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+            skipTutorial(tutorialDialog)
         }
 
         info11.setDismissListener {
 
             val view = tutorialDialog.mainView
 
-            if (view != null)
-                view.findViewById<ListView>(R.id.lv).viewTreeObserver?.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-                    override fun onGlobalLayout() {
-                        view.findViewById<ListView>(R.id.lv).viewTreeObserver.removeGlobalOnLayoutListener(this)
-                        val rect = Rect()
+            view?.findViewById<ListView>(R.id.lv)?.waitForUpdate {
+                val rect = Rect()
 
-                        val locations = IntArray(2)
-                        view.findViewById<ListView>(R.id.lv).getChildAt(0).getLocationOnScreen(locations)
-                        val x = locations[0]
-                        val y = locations[1]
+                val locations = IntArray(2)
+                view.findViewById<ListView>(R.id.lv).getChildAt(0).getLocationOnScreen(locations)
+                val x = locations[0]
+                val y = locations[1]
 
 
-                        view.findViewById<ListView>(R.id.lv).getChildAt(0).getGlobalVisibleRect(rect)
-                        info12.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
-                    }
-                })
+                view.findViewById<ListView>(R.id.lv).getChildAt(0).getGlobalVisibleRect(rect)
+                info12.setCoordinates(listOf(InformationAdapter.STARTFROMTOP, x, y - 25, rect.width() + x, rect.height() + y - 25)).show()
+            }
         }
 
         info1.show()
+    }
+
+    private fun skipTutorial(tutorialDialog: DialogAdapter? = null) {
+        tutorialDialog?.mainDialog?.dismiss()
+        fabMenu.close(true)
+        if (shared.getFavorites().isEmpty()) fabFav.visibility = View.GONE
+        InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+        shared.setFirstTime(false)
+        refreshList()
+        clipShow()
+        if (!shared.hasFavorites()) fabFav.visibility = View.GONE
     }
 
     private var ctrlBluetooth: Boolean = false
@@ -647,6 +717,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     override fun onResume() {
         super.onResume()
+        if (shared.isFirstTime()) return
         if (!shared.hasFavorites()) {
             fabFav.visibility = View.GONE
             ibClipFav.visibility = View.GONE
@@ -690,10 +761,16 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == RESULT_OK) {
+        when (requestCode) {
+            PLACE_PICKER_REQUEST -> if (resultCode == RESULT_OK) {
                 val place = PlacePicker.getPlace(data, this)
                 locationCall("${place.latLng.latitude},${place.latLng.longitude}")
+            }
+            666 -> {
+                startPresentation3()
+            }
+            777 -> {
+                preparePresentation2()
             }
         }
     }

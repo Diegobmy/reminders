@@ -10,8 +10,6 @@ import java.util.*
 class Constants {
     class Intents {
         companion object {
-            val IS_TUTORIAL = "tutorial"
-
             val IS_OUT = "isOlt"
             val REMINDER = "Reminder"
             val KILL_IT = "KillIt"

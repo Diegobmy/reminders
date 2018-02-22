@@ -1,29 +1,27 @@
 package com.ragabuza.personalreminder.ui
 
+import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Toast
 import com.ragabuza.personalreminder.R
+import com.ragabuza.personalreminder.adapter.InformationAdapter
 import com.ragabuza.personalreminder.adapter.OptionsSpinnerAdapter
 import com.ragabuza.personalreminder.adapter.SpinnerItem
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE
+import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE_THEME_TRANSPARENT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.SET_DONE
 import com.ragabuza.personalreminder.util.TimeString
 import com.ragabuza.personalreminder.util.finishAndRemoveTaskCompat
+import com.ragabuza.personalreminder.util.waitForUpdate
 import kotlinx.android.synthetic.main.activity_reminder_viewer.*
 import java.util.*
-import com.ragabuza.personalreminder.R.string.clipboard
-import android.R.attr.label
-import android.content.ClipData
-import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE
-import com.ragabuza.personalreminder.util.Constants.Intents.Companion.PRIVATE_THEME_TRANSPARENT
 
 
 class ReminderViewer : ActivityBase() {
@@ -48,8 +46,7 @@ class ReminderViewer : ActivityBase() {
         if (willDone) {
             setDone()
             finishAndRemoveTaskCompat()
-        }
-        else
+        } else
             finish()
     }
 
@@ -171,5 +168,67 @@ class ReminderViewer : ActivityBase() {
 
         safe.setOnClickListener { }
 
+
+        if (shared.isFirstTime()) {
+            safe.waitForUpdate { startPresentation() }
+        }
+
+    }
+
+    private fun startPresentation() {
+
+        val info6 = InformationAdapter(this, "Clique no botão de fechar para continuar.")
+                .setfocusView(ibClose)
+                .setRequireMark()
+                .setDismissListener {
+                    setResult(666)
+                    finish()
+                }
+        val info5 = InformationAdapter(this, "Neste menu temos mais opções relacionadas ao lembrete, como copiar seu conteúdo ou reagenda-lo.")
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
+                .setNext(info6)
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
+                .setSkipListener {
+                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    shared.setFirstTime(false)
+                    setResult(0)
+                    finish()
+                }
+        val info4 = InformationAdapter(this, "Caso nosso extra fosse um contato, teriamos a opção de realizar uma ligação para seu número.")
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
+                .setDismissListener {
+                    llLink.visibility = View.VISIBLE
+                    llPhone.visibility = View.GONE
+                    spViewOptions.waitForUpdate{info5.setfocusView(spViewOptions).show()}
+                }.setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
+                .setSkipListener {
+                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    shared.setFirstTime(false)
+                    setResult(0)
+                    finish()
+                }
+        val info3 = InformationAdapter(this, "Também temos a opção de compartilhar o link.")
+                .setfocusView(btShare)
+                .setDismissListener {
+                    llLink.visibility = View.GONE
+                    llPhone.visibility = View.VISIBLE
+                    btCall.waitForUpdate{info4.setfocusView(btCall).show()}
+                }
+        val info2 = InformationAdapter(this, "Como o extra do nosso lembrete é um link, temos a opção de abrir o mesmo no navegador.")
+                .setNext(info3)
+                .setfocusView(btOpen)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
+        val info1 = InformationAdapter(this, "Esta dela lhe permite visualizar seu lembrete, além de oferecer algumas formas de interagir com o mesmo.")
+                .setNext(info2)
+                .setfocusView(safe)
+                .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
+                .setSkipListener {
+                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    shared.setFirstTime(false)
+                    setResult(0)
+                    finish()
+                }
+        info1.show()
     }
 }
