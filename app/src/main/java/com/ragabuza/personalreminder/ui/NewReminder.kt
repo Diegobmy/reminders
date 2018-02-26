@@ -376,12 +376,10 @@ class NewReminder : ActivityBase(), OpDialogInterface {
     }
 
     private fun startPresentation() {
-        shared.setTutorial(false)
         val info11 = InformationAdapter(this, "Caso contrário você pode salvar seu lembrete, clique em salvar para continuar.")
                 .setfocusView(btn_save)
                 .setRequireMark()
                 .setDismissListener {
-                    shared.setTutorial(true)
                     setResult(777)
                     finish()
                 }
@@ -433,6 +431,9 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
         llFolder.visibility = View.VISIBLE
         llParticular.visibility = View.VISIBLE
+        val folders = mutableListOf<String>("Sem pasta")
+        val spAdapter = ArrayAdapter<String>(baseContext, R.layout.simple_spinner, folders)
+        spFolder.adapter = spAdapter
 
         info1.show()
     }

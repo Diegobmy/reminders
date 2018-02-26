@@ -72,6 +72,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         dao.close()
         shared.setLastDeleted(reminder)
         fabLastDeleted.visibility = View.VISIBLE
+        refreshList()
     }
 
     override fun closed(tag: String?) {
@@ -124,10 +125,19 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     var selectedFolder = ""
     private var folderAdapter: FolderSpinnerAdapter? = null
 
+    var myMenu: Menu? = null
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
+
+
         menu?.findItem(R.id.folder)?.isVisible = shared.getFolders().isNotEmpty()
+
+        if (shared.isFirstTime()) {
+            myMenu = menu
+            menu?.findItem(R.id.folder)?.isVisible = true
+        }
 
         val spinnerItem = menu?.findItem(R.id.folder)
         val spinner = spinnerItem?.actionView as Spinner
@@ -173,8 +183,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     fun fillInfo() {
         val dao = ReminderDAO(this)
-        tvNumberOfRemindersNew.text = "${dao.countNew()} ${getString(R.string.number_reminders_new)}."
-        tvNumberOfRemindersOld.text = "${dao.countOld()} ${getString(R.string.number_reminders_old)}."
+        tvNumberOfRemindersNew?.text = "${dao.countNew()} ${getString(R.string.number_reminders_new)}."
+        tvNumberOfRemindersOld?.text = "${dao.countOld()} ${getString(R.string.number_reminders_old)}."
         dao.close()
     }
 
@@ -303,10 +313,8 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             val dao = ReminderDAO(this)
             fabLastDeleted.visibility = View.GONE
             dao.add(shared.getLastDeleted())
-            adapter.originalList.add(shared.getLastDeleted())
-            adapter.reminders.add(shared.getLastDeleted())
-            adapter.notifyDataSetChanged()
             dao.close()
+            refreshList()
         }
 
         setupFilter()
@@ -343,20 +351,91 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     }
 
     fun startPresentation3() {
-        shared.setTutorial(false)
+
+        navigation_view.menu.findItem(R.id.RLock).isVisible = true
         (lvRemind.adapter as ReminderAdapter).closeAllItems()
-        InformationAdapter(this, "WOW").show()
+
+        val displayMetrics = DisplayMetrics()
+        this.windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val ParentWidth = displayMetrics.widthPixels
+
+        val rect = Rect()
+        myMenu?.findItem(R.id.filter)?.actionView?.getGlobalVisibleRect(rect)
+        val homePosition = listOf(0, ParentWidth - rect.right + 8, rect.top, ParentWidth - rect.left + 8, rect.bottom)
+
+        val info13 = InformationAdapter(this, "Meus parabéns você concluiu o tutorial do aplicativo e está pronto para usá-lo!")
+                .setDismissListener {
+                    shared.setFirstTime(false)
+                }
+        val info12 = InformationAdapter(this, "No menu de configurações também encontramos um atalho para revizitar este tutorial!")
+                .setNext(info13)
+                .setfocusView(drawer_layout)
+        val info11 = InformationAdapter(this, "Configurações\nPermite gerenciar as configurações do aplicativo, algumas configurações que você vai encontrar são:\nFavoritos\nAparencia do App\nConfigurações de lembretes privados e senha")
+                .setNext(info12)
+                .setfocusView(drawer_layout)
+        val info10 = InformationAdapter(this, "Pastas\nPermite gerenciar suas pastas.")
+                .setNext(info11)
+                .setfocusView(drawer_layout)
+        val info9 = InformationAdapter(this, "Lembretes Privados\nPermite visualizar seus lembretes privados.")
+                .setNext(info10)
+                .setfocusView(drawer_layout)
+        val info8 = InformationAdapter(this, "Lembretes Antigos\nPermite visualizar seus lembretes que foram marcados como feitos.")
+                .setNext(info9)
+                .setfocusView(drawer_layout)
+        val info7 = InformationAdapter(this, "Lembretes Novos\nPermite visualizar seus lembretes que não foram marcados como feitos.")
+                .setNext(info8)
+                .setfocusView(drawer_layout)
+        val info6 = InformationAdapter(this, "Neste menu temos as seguintes opções...")
+                .setfocusView(drawer_layout)
+                .setNext(info7)
+        val info5 = InformationAdapter(this, "Também exite um menu lateral que permite a navegação para diversas partes do app, clique aqui para abri-lo.")
+                .setNext(info6)
+                .setCoordinates(homePosition)
+                .setRequireMark()
+                .setDismissListener {
+                    drawer_layout.openDrawer(GravityCompat.START)
+                }
+        val info4 = InformationAdapter(this, "Neste menu de filtro você poderá selecionar lembretes com base no seu tipo, ou procurar por uma palavra chave!")
+                .setNext(info5)
+                .setDismissListener {
+                    llFilters.visibility = View.GONE
+                }
+                .setSkip(InformationAdapter.RIGHT,InformationAdapter.TOP)
+                .setSkipListener {
+                    skipTutorial()
+                }
+        val info3 = InformationAdapter(this, "Filtro\nClicando neste icone irá abrir abrir um menu de filtro, tente você mesmo!")
+                .setRequireMark()
+                .setfocusView(myMenu?.findItem(R.id.filter)?.actionView)
+                .setDismissListener {
+                    llFilters.visibility = View.VISIBLE
+                    llFilters.waitForUpdate {
+                        info4.setfocusView(llFilters).show()
+                    }
+                }
+        val info2 = InformationAdapter(this, "Pastas\nClicando neste icone você poderá abrir uma pasta de lembretes, assim poderá ver apenas o que é importante no momento!")
+                .setNext(info3)
+                .setfocusView(myMenu?.findItem(R.id.folder)?.actionView)
+                .setSkip(InformationAdapter.LEFT,InformationAdapter.TOP)
+                .expandView(40)
+        val info1 = InformationAdapter(this, "Outra opção importante é a capacidade de achar os lembretes certos na hora certa!\nPara isso temos duas opções...")
+                .setNext(info2)
+                .setSkip(InformationAdapter.RIGHT,InformationAdapter.TOP)
+                .setSkipListener {
+                    skipTutorial()
+                }
+
+        info1.show()
+
     }
 
     fun startPresentation2(tutorialReminder: Reminder) {
-        shared.setTutorial(false)
         val info9 = InformationAdapter(this, "Ao clicar em visualizar será apresentado uma nova janela para se verificar detalhes sobre o lembrete, assim como opções relacionadas a ele.\nClique em visualizar para verificar essas opções.")
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
                 .setRequireMark()
                 .setDismissListener {
                     val tutorialIntent = Intent(this, ReminderViewer::class.java)
                     tutorialIntent.putExtra(REMINDER, tutorialReminder)
-                    shared.setTutorial(true)
                     startActivityForResult(tutorialIntent, 666)
                 }
         val info8 = InformationAdapter(this, "Visualizar")
@@ -395,8 +474,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
 
     private fun startPresentation() {
-
-        shared.setTutorial(false)
 
         lvRemind.adapter = ReminderAdapter(this, mutableListOf())
 
@@ -471,7 +548,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             val tutorialIntent = Intent(this, NewReminder::class.java)
             tutorialIntent.putExtra(FIELD_CONDITION, "Rede de Exemplo 1")
             tutorialIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
-            shared.setTutorial(true)
             startActivityForResult(tutorialIntent, 777)
         }
 

@@ -45,7 +45,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
         fun getType(): Boolean
     }
 
-    val originalList: MutableList<Reminder> = reminders.toMutableList()
+    val originalList: List<Reminder> = reminders.toList()
     private val viewList = mutableListOf<View>()
 
     override fun generateView(position: Int, parent: ViewGroup?): View {
@@ -67,7 +67,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                 || filters.contains(timeFilter) || filters.contains(locationFilter) || filters.contains(simpleFilter))
     }
 
-    fun doFilter(type: Int = 0, putting: Boolean = true, str: String = "", clearAll: Boolean = false, folder: String = "null") {
+    fun doFilter(type: Int = 0, putting: Boolean = true, str: String = "", clearAll: Boolean = false, folder: String = "*") {
 
         var string = str.trim()
 
@@ -187,13 +187,11 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
                     .setCancelText(context.getString(R.string.yes_delete))
                     .setCancelClickListener {
                         (context as ReminderClickCallback).delete(reminder)
-                        originalList.remove(reminder)
                         it.setTitleText(context.getString(R.string.deleted))
                                 .setContentText(context.getString(R.string.reminder_deleted))
                                 .setConfirmText("OK")
                                 .showCancelButton(false)
                                 .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
-                        reminders.remove(reminder)
                         closeAllItems()
                         notifyDataSetChanged()
                     }

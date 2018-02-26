@@ -3,6 +3,7 @@ package com.ragabuza.personalreminder.ui
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.app.KeyguardManager
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.hardware.fingerprint.FingerprintManager
@@ -143,14 +144,6 @@ open class ActivityBase : AppCompatActivity() {
 
     open fun requestPasswordCallback(success: Boolean){
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (shared.isFirstTime() && !shared.isInTutorial()){
-            shared.setFirstTime(false)
-            NotificationHelper(this).showNotificationRaw(0, "ola", "teste")
-        }
     }
 
 }

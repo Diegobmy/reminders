@@ -53,6 +53,12 @@ class InformationAdapter(
         return this
     }
 
+    private var expanded: Int? = null
+    fun expandView(expand: Int?): InformationAdapter {
+        expanded = expand
+        return this
+    }
+
     private var coordinates: List<Int>? = null
     fun setCoordinates(body: List<Int>): InformationAdapter {
         coordinates = body
@@ -126,6 +132,10 @@ class InformationAdapter(
                     Rect(coordinates!![1], coordinates!![2], coordinates!![3], coordinates!![4])
                 else
                     Rect(ParentWidth - coordinates!![3], Parentheight - coordinates!![4], ParentWidth - coordinates!![1], Parentheight - coordinates!![2])
+            }
+
+            if (expanded != null){
+                rect = Rect(rect.left - expanded!!, rect.top - expanded!!, rect.right + expanded!!, rect.bottom + expanded!!)
             }
 
             val start = view.findViewById<ImageView>(R.id.ivImportantStart)

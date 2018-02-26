@@ -28,7 +28,6 @@ class Shared(val context: Context) {
     val SHOW_NOTIFICATION = "ShowNotification"
     val DELETE_OLD = "DeleteOld"
     val FIRST_TIME = "FirstTime"
-    val MID_TUTORIAL = "tutorial"
     val FOLDER = "Folder"
 
     fun hasDeleted(): Boolean {
@@ -169,13 +168,6 @@ class Shared(val context: Context) {
     }
     fun isFirstTime():Boolean{
         return preferences.getBoolean(FIRST_TIME, true)
-    }
-    fun setTutorial(status: Boolean){
-        editor.putBoolean(MID_TUTORIAL, status)
-        editor.apply()
-    }
-    fun isInTutorial():Boolean{
-        return preferences.getBoolean(MID_TUTORIAL, false)
     }
 
 }

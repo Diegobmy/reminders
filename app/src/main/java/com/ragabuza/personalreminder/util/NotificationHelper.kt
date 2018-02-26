@@ -48,11 +48,12 @@ class NotificationHelper(val context: Context) {
         mNotificationManager.notify(id, mNotification)
 
     }
-    fun showNotificationRaw(id: Int = 0, title: String, description: String) {
+    fun <T> showNotificationRaw(id: Int = 0, title: String, description: String, intentDestination: Intent? = null, action: (() -> T)? = null) {
 
         if (id > 50) return
 
-        val intentDestination = Intent(context, ReminderViewer::class.java)
+        action?.invoke()
+
         val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val mBuilder = NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_simple)
@@ -62,8 +63,10 @@ class NotificationHelper(val context: Context) {
                 .setContentText(description)
                 .setDefaults(Notification.DEFAULT_ALL)
 
-        val pi = PendingIntent.getActivity(context, id, intentDestination, 0)
-        mBuilder.setContentIntent(pi)
+        if (intentDestination != null) {
+            val pi = PendingIntent.getActivity(context, id, intentDestination, 0)
+            mBuilder.setContentIntent(pi)
+        }
         val mNotification = mBuilder.build()
         mNotification.flags = mNotification.flags or (Notification.FLAG_AUTO_CANCEL or Notification.DEFAULT_SOUND)
         mNotificationManager.notify(id, mNotification)
