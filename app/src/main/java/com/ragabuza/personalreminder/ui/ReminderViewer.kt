@@ -29,7 +29,7 @@ class ReminderViewer : ActivityBase() {
     private fun setDone() {
         val dao = ReminderDAO(this)
         reminder.active = false
-        reminder.done = TimeString(Calendar.getInstance()).getSimple()
+        reminder.done = TimeString(Calendar.getInstance()).getDone()
         dao.alt(reminder)
         dao.close()
     }

@@ -1,6 +1,9 @@
 package com.ragabuza.personalreminder.ui
 
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -34,6 +37,7 @@ import kotlinx.android.synthetic.main.activity_reminder_list.*
 import kotlinx.android.synthetic.main.drawer_header.*
 import java.util.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import com.ragabuza.personalreminder.receivers.DailyTasks
 import com.ragabuza.personalreminder.util.waitForUpdate
 
 
@@ -150,6 +154,9 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         folderList.addAll(shared.getFolders())
         folderAdapter = FolderSpinnerAdapter(this, R.layout.spinner_folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
             override fun onClick(folder: String) {
+                adapter.closeAllItems()
+                drawer_layout.closeDrawer(GravityCompat.START)
+                fabMenu.close(true)
                 when (folder) {
                     "Todos" -> {
                         supportActionBar!!.title = if (seeOld) getString(R.string.oldReminders) else getString(R.string.remindersActivityTitle)
@@ -197,10 +204,6 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             drawer_layout.openDrawer(GravityCompat.START)
             return true
         }
-        if (item?.itemId == R.id.folder) {
-            adapter.closeAllItems()
-            return true
-        }
         if (item?.itemId == R.id.filter) {
             drawer_layout.closeDrawer(GravityCompat.START)
             btClipboard.visibility = View.GONE
@@ -243,8 +246,17 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         lvRemind.emptyView = tvEmpty
 
 
-        if (shared.isFirstTime())
+        if (shared.isFirstTime()) {
+            (getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(PendingIntent.getBroadcast(this, 12, Intent(this, DailyTasks::class.java), 0))
+            (getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+                    .setInexactRepeating(
+                            AlarmManager.RTC_WAKEUP,
+                            System.currentTimeMillis() + 5000,
+                            1000 * 60 * 60 * 24,
+                            PendingIntent.getBroadcast(this, 12, Intent(this, DailyTasks::class.java), 0)
+                    )
             startPresentation()
+        }
 
         fabMenu.setOnClickListener { adapter.closeAllItems() }
         lvRemind.setOnItemClickListener { _, _, _, _ ->
@@ -400,7 +412,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                 .setDismissListener {
                     llFilters.visibility = View.GONE
                 }
-                .setSkip(InformationAdapter.RIGHT,InformationAdapter.TOP)
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
                     skipTutorial()
                 }
@@ -416,11 +428,11 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         val info2 = InformationAdapter(this, "Pastas\nClicando neste icone você poderá abrir uma pasta de lembretes, assim poderá ver apenas o que é importante no momento!")
                 .setNext(info3)
                 .setfocusView(myMenu?.findItem(R.id.folder)?.actionView)
-                .setSkip(InformationAdapter.LEFT,InformationAdapter.TOP)
+                .setSkip(InformationAdapter.LEFT, InformationAdapter.TOP)
                 .expandView(40)
         val info1 = InformationAdapter(this, "Outra opção importante é a capacidade de achar os lembretes certos na hora certa!\nPara isso temos duas opções...")
                 .setNext(info2)
-                .setSkip(InformationAdapter.RIGHT,InformationAdapter.TOP)
+                .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
                     skipTutorial()
                 }

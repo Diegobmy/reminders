@@ -78,6 +78,8 @@
         </receiver>
         <receiver android:name=".receivers.TimeReceiver" />
 
+        <receiver android:name=".receivers.DailyTasks" />
+
         <activity android:name=".ui.SettingsActivity" />
         <activity android:name=".ui.Folders" android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".ui.ReminderViewer"

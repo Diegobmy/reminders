@@ -308,7 +308,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             }, 300)
 
             reminder.active = !reminder.active
-            reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getSimple()
+            reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getDone()
 
             val dao = ReminderDAO(context)
             dao.alt(reminder)
