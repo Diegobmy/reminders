@@ -118,15 +118,15 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         refreshList()
 
         val appThemes = listOf(
-                ThemeColor(0, "Roxo(Padrão)", R.style.AppTheme, R.style.Theme_Transparent, R.color.PurplePrimaryDarker, R.color.PurplePrimaryDark, R.color.PurplePrimary, R.color.PurplePrimaryLight),
-                ThemeColor(1, "Verde", R.style.AppThemeGreen, R.style.AppThemeGreen_Transparent, R.color.GreenPrimaryDarker, R.color.GreenPrimaryDark, R.color.GreenPrimary, R.color.GreenPrimaryLight),
-                ThemeColor(2, "Vermelho", R.style.AppThemeRed, R.style.AppThemeRed_Transparent, R.color.RedPrimaryDarker, R.color.RedPrimaryDark, R.color.RedPrimary, R.color.RedPrimaryLight),
-                ThemeColor(3, "Azul", R.style.AppThemeBlue, R.style.AppThemeBlue_Transparent, R.color.BluePrimaryDarker, R.color.BluePrimaryDark, R.color.BluePrimary, R.color.BluePrimaryLight),
-                ThemeColor(4, "Amarelo", R.style.AppThemeYellow, R.style.AppThemeYellow_Transparent, R.color.YellowPrimaryDarker, R.color.YellowPrimaryDark, R.color.YellowPrimary, R.color.YellowPrimaryLight),
-                ThemeColor(5, "Rosa", R.style.AppThemePink, R.style.AppThemePink_Transparent, R.color.PinkPrimaryDarker, R.color.PinkPrimaryDark, R.color.PinkPrimary, R.color.PinkPrimaryLight),
-                ThemeColor(6, "Cinza", R.style.AppThemeGray, R.style.AppThemeGray_Transparent, R.color.GrayPrimaryDarker, R.color.GrayPrimaryDark, R.color.GrayPrimary, R.color.GrayPrimaryLight),
-                ThemeColor(7, "AMOLED", R.style.AppThemeAmoled, R.style.AppThemeAmoled_Transparent, R.color.AmoledPrimaryDarker, R.color.AmoledPrimaryDark, R.color.AmoledPrimary, R.color.AmoledPrimaryLight),
-                ThemeColor(8, "Especial", R.style.AppThemeRainbow, R.style.AppThemeRainbow_Transparent, R.color.RainbowPrimaryDarker, R.color.RainbowPrimaryDark, R.color.RainbowPrimary, R.color.RainbowPrimaryLight)
+                ThemeColor(0, getString(R.string.theme_purple), R.style.AppTheme, R.style.Theme_Transparent, R.color.PurplePrimaryDarker, R.color.PurplePrimaryDark, R.color.PurplePrimary, R.color.PurplePrimaryLight),
+                ThemeColor(1, getString(R.string.theme_green), R.style.AppThemeGreen, R.style.AppThemeGreen_Transparent, R.color.GreenPrimaryDarker, R.color.GreenPrimaryDark, R.color.GreenPrimary, R.color.GreenPrimaryLight),
+                ThemeColor(2, getString(R.string.theme_red), R.style.AppThemeRed, R.style.AppThemeRed_Transparent, R.color.RedPrimaryDarker, R.color.RedPrimaryDark, R.color.RedPrimary, R.color.RedPrimaryLight),
+                ThemeColor(3, getString(R.string.theme_blue), R.style.AppThemeBlue, R.style.AppThemeBlue_Transparent, R.color.BluePrimaryDarker, R.color.BluePrimaryDark, R.color.BluePrimary, R.color.BluePrimaryLight),
+                ThemeColor(4, getString(R.string.theme_yellow), R.style.AppThemeYellow, R.style.AppThemeYellow_Transparent, R.color.YellowPrimaryDarker, R.color.YellowPrimaryDark, R.color.YellowPrimary, R.color.YellowPrimaryLight),
+                ThemeColor(5, getString(R.string.theme_pink), R.style.AppThemePink, R.style.AppThemePink_Transparent, R.color.PinkPrimaryDarker, R.color.PinkPrimaryDark, R.color.PinkPrimary, R.color.PinkPrimaryLight),
+                ThemeColor(6, getString(R.string.theme_grey), R.style.AppThemeGray, R.style.AppThemeGray_Transparent, R.color.GrayPrimaryDarker, R.color.GrayPrimaryDark, R.color.GrayPrimary, R.color.GrayPrimaryLight),
+                ThemeColor(7, getString(R.string.theme_AMOLED), R.style.AppThemeAmoled, R.style.AppThemeAmoled_Transparent, R.color.AmoledPrimaryDarker, R.color.AmoledPrimaryDark, R.color.AmoledPrimary, R.color.AmoledPrimaryLight),
+                ThemeColor(8, getString(R.string.theme_special), R.style.AppThemeRainbow, R.style.AppThemeRainbow_Transparent, R.color.RainbowPrimaryDarker, R.color.RainbowPrimaryDark, R.color.RainbowPrimary, R.color.RainbowPrimaryLight)
         )
 
         spColorPick.adapter = ColorSpinnerAdapter(this, R.layout.color_spinner_item, appThemes)
@@ -186,6 +186,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
         tvTutorial.setOnClickListener {
             val tutorialintent = Intent(this, ReminderList::class.java)
             shared.setFirstTime(true)
+
             startActivity(tutorialintent)
             finish()
         }
@@ -204,7 +205,7 @@ class SettingsActivity : ActivityBase(), OpDialogInterface, IconDialogAdapter.Ic
                                 val dao = ReminderDAO(this@SettingsActivity)
                                 Toast.makeText(
                                         this@SettingsActivity,
-                                        "${dao.removeEverything()}  registros deletados.",
+                                        getString(R.string.deleted_entries, dao.removeEverything().toString()),
                                         Toast.LENGTH_LONG
                                 ).show()
                                 shared.setLastDeleted(null)

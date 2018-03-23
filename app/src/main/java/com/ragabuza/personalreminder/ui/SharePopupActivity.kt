@@ -197,10 +197,6 @@ class SharePopupActivity : ActivityBase(), OpDialogInterface {
         finish()
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     override fun onPause() {
         super.onPause()
         if (!goingToMap)

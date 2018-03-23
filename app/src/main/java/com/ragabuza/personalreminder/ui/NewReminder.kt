@@ -7,25 +7,20 @@ import android.graphics.Typeface.ITALIC
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.text.*
+import android.text.style.ForegroundColorSpan
+import android.text.style.ImageSpan
+import android.text.style.StyleSpan
 import android.view.View
+import android.widget.ArrayAdapter
+import com.google.android.gms.location.places.ui.PlacePicker
 import com.ragabuza.personalreminder.R
 import com.ragabuza.personalreminder.adapter.DialogAdapter
+import com.ragabuza.personalreminder.adapter.InformationAdapter
 import com.ragabuza.personalreminder.adapter.OpDialogInterface
 import com.ragabuza.personalreminder.dao.ReminderDAO
 import com.ragabuza.personalreminder.model.Reminder
-import kotlinx.android.synthetic.main.activity_reminder.*
-import java.text.SimpleDateFormat
-import java.util.*
-import android.text.style.ImageSpan
-import android.text.*
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
-import com.google.android.gms.location.places.ui.PlacePicker
-import com.ragabuza.personalreminder.util.*
-import android.app.ProgressDialog
-import android.widget.ArrayAdapter
-import android.widget.Toast
-import com.ragabuza.personalreminder.adapter.InformationAdapter
+import com.ragabuza.personalreminder.util.AlarmHelper
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.IS_OUT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.KILL_IT
 import com.ragabuza.personalreminder.util.Constants.Intents.Companion.REMINDER
@@ -35,7 +30,12 @@ import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIE
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_EXTRA
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_REMINDER
 import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.FIELD_TYPE
-import com.ragabuza.personalreminder.util.Constants.ReminderFields.Companion.P_TABLE_NAME
+import com.ragabuza.personalreminder.util.DownloadImage
+import com.ragabuza.personalreminder.util.TimeString
+import com.ragabuza.personalreminder.util.finishAndRemoveTaskCompat
+import kotlinx.android.synthetic.main.activity_reminder.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 /**
@@ -74,7 +74,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
     override fun timeCall(date: Calendar, tag: String?) {
         cond = date.time.toString()
-        etCondition.setText(TimeString(date).getString(false))
+        etCondition.setText(TimeString(this, date).getString(false))
     }
 
     override fun wifiCall(text: CharSequence, tag: String?) {
@@ -102,7 +102,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
         val hasFolders = shared.getFolders().isNotEmpty()
 
-        val folders = mutableListOf<String>("Sem pasta")
+        val folders = mutableListOf<String>(getString(R.string.no_folder))
         val spAdapter = ArrayAdapter<String>(baseContext, R.layout.simple_spinner, folders)
 
         if (hasFolders) {
@@ -171,13 +171,14 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(cond)
             if (cond.length <= 5) {
+                cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR))
                 cal.set(Calendar.DAY_OF_YEAR, Calendar.getInstance().get(Calendar.DAY_OF_YEAR))
                 if (cal.get(Calendar.HOUR_OF_DAY) < Calendar.getInstance().get(Calendar.HOUR_OF_DAY) &&
                         cal.get(Calendar.MINUTE) < Calendar.getInstance().get(Calendar.MINUTE))
                     cal.add(Calendar.DAY_OF_YEAR, 1)
                 cond = cal.time.toString()
             }
-            etCondition.setText(TimeString(cal).getString(false))
+            etCondition.setText(TimeString(this, cal).getString(false))
         } else if (type == Reminder.LOCATION) {
 
         } else
@@ -185,11 +186,11 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
 
         hintCondition.hint = when (type) {
-            Reminder.WIFI -> "Rede WiFi"
-            Reminder.BLUETOOTH -> "Dispositivo Bluetooth"
-            Reminder.LOCATION -> "Local"
-            Reminder.TIME -> "Horário"
-            else -> "Condição"
+            Reminder.WIFI -> getString(R.string.type_Wifi)
+            Reminder.BLUETOOTH -> getString(R.string.type_Blue)
+            Reminder.LOCATION -> getString(R.string.type_Loc)
+            Reminder.TIME -> getString(R.string.type_Time)
+            else -> getString(R.string.contition)
         }
 
         when (type) {
@@ -266,7 +267,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
                 trans.toCode(etConditionExtra.text.toString())
             val folder = when {
                 !hasFolders -> ""
-                spFolder.selectedItem.toString() == "Sem pasta" -> ""
+                spFolder.selectedItem.toString() == getString(R.string.no_folder) -> ""
                 else -> spFolder.selectedItem.toString()
             }
             val reminder = Reminder(
@@ -376,54 +377,54 @@ class NewReminder : ActivityBase(), OpDialogInterface {
     }
 
     private fun startPresentation() {
-        val info11 = InformationAdapter(this, "Caso contrário você pode salvar seu lembrete, clique em salvar para continuar.")
+        val info11 = InformationAdapter(this, getString(R.string.editTut_11))
                 .setfocusView(btn_save)
                 .setRequireMark()
                 .setDismissListener {
                     setResult(777)
                     finish()
                 }
-        val info10 = InformationAdapter(this, "Depois de terminar seu lembrete, caso não esteja satisfeito, você pode cancelar sua criação.")
+        val info10 = InformationAdapter(this, getString(R.string.editTut_10))
                 .setNext(info11)
                 .setfocusView(btn_cancel)
-        val info9 = InformationAdapter(this, "Aqui podemos selecionar se o lembrete fará parte de alguma pasta, pastas ajudam a separar os lembretes de diferentes assuntos e manter sua organização!")
+        val info9 = InformationAdapter(this, getString(R.string.editTut_9))
                 .setNext(info10)
                 .setfocusView(llFolder)
-        val info8 = InformationAdapter(this, "Aqui podemos definir o lembrete como privado, lembretes privados só podem ser visualizados caso você tenha a senha.\n\nOBS:Para ativar lembretes privados vá até as configurações.")
+        val info8 = InformationAdapter(this, getString(R.string.editTut_8))
                 .setfocusView(llParticular)
                 .setNext(info9)
-        val info7 = InformationAdapter(this, "Também podemos definir o lembrete como um link, para isso apenas digite o link no campo extra, definindo o extra como um link irá oferecer a opção de abrir no navegador ou compartilhar o link quando o lembrete for ativado ou visualidado.")
+        val info7 = InformationAdapter(this, getString(R.string.editTut_7))
                 .setNext(info8)
                 .setfocusView(etExtra)
-        val info6 = InformationAdapter(this, "Clicando neste botão podemos definir que o extra será um contato do seu celular, definindo o extra como um contato irá oferecer a opção de realizar uma ligação telefonica quando o lembrete for ativado ou visualidado.")
+        val info6 = InformationAdapter(this, getString(R.string.editTut_6))
                 .setNext(info7)
                 .setfocusView(ibContacts)
                 .setDismissListener {
-                    etExtra.setText("https//:www.exemplo.com.br")
+                    etExtra.setText(getString(R.string.tut_link))
                     etExtra.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_link, 0, 0, 0)
                 }
-        val info5 = InformationAdapter(this, "Este campo será uma informação extra ligada ao lembrete, por exemplo...")
+        val info5 = InformationAdapter(this, getString(R.string.editTut_5))
                 .setNext(info6)
                 .setfocusView(etExtra)
-        val info4 = InformationAdapter(this, "Este campo será o lembrete em si.")
+        val info4 = InformationAdapter(this, getString(R.string.editTut_4))
                 .setNext(info5)
                 .setfocusView(etReminder)
-                .setDismissListener { etReminder.setText("Seu primeiro lembrete!") }
+                .setDismissListener { etReminder.setText(getString(R.string.first_reminder)) }
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
-        val info3 = InformationAdapter(this, "Neste campo definimos a rede WiFi que irá ativar o lembrete.")
+        val info3 = InformationAdapter(this, getString(R.string.editTut_3))
                 .setNext(info4)
                 .setfocusView(etCondition)
-        val info2 = InformationAdapter(this, "Neste campo definimos se o lembrete vai ser disparado quando conectarmos ou desconectarmos da rede.")
+        val info2 = InformationAdapter(this, getString(R.string.editTut_2))
                 .setNext(info3)
                 .setfocusView(etConditionExtra)
                 .setSkip(InformationAdapter.LEFT, InformationAdapter.BOT)
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
-        val info1 = InformationAdapter(this, "Esta é a tela de edição de lembrete, nela você pode configurar um lembrete novo ou editar um já existente.")
+        val info1 = InformationAdapter(this, getString(R.string.editTut_1))
                 .setNext(info2)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
-                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    InformationAdapter(this, getString(R.string.tut_skip)).show()
                     shared.setFirstTime(false)
                     setResult(0)
                     finish()
@@ -431,7 +432,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
 
         llFolder.visibility = View.VISIBLE
         llParticular.visibility = View.VISIBLE
-        val folders = mutableListOf<String>("Sem pasta")
+        val folders = mutableListOf<String>(getString(R.string.no_folder))
         val spAdapter = ArrayAdapter<String>(baseContext, R.layout.simple_spinner, folders)
         spFolder.adapter = spAdapter
 

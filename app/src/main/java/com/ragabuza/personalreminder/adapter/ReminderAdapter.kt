@@ -151,7 +151,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             val cal = Calendar.getInstance()
             val sdf = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.getDefault())
             cal.time = sdf.parse(reminder.condition)
-            tvCond?.text = TimeString(cal).getString(true)
+            tvCond?.text = TimeString(context, cal).getString(true)
         } else if (reminder.type == Reminder.LOCATION)
             tvCond?.text = reminder.rWhen
         else
@@ -308,7 +308,7 @@ class ReminderAdapter(private val context: Context, val reminders: MutableList<R
             }, 300)
 
             reminder.active = !reminder.active
-            reminder.done = if (reminder.active) "" else TimeString(Calendar.getInstance()).getDone()
+            reminder.done = if (reminder.active) "" else TimeString(context, Calendar.getInstance()).getDone()
 
             val dao = ReminderDAO(context)
             dao.alt(reminder)

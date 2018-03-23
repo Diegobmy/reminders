@@ -33,7 +33,7 @@ class ReminderTranslation(val context: Context) {
         return when(reminder.type){
             Reminder.WIFI -> "${toString(reminder.rWhen)} ${reminder.condition}"
             Reminder.BLUETOOTH -> "${toString(reminder.rWhen)} ${reminder.condition}"
-            Reminder.TIME -> TimeString(Calendar.getInstance()).getSimple()
+            Reminder.TIME -> TimeString(context, Calendar.getInstance()).getSimple()
             Reminder.LOCATION -> "${context.getString(R.string.you_are_in)} ${reminder.rWhen}"
             else -> reminder.condition
         }
@@ -42,7 +42,7 @@ class ReminderTranslation(val context: Context) {
         return when(reminder.type){
             Reminder.WIFI -> "${toString(reminder.rWhen)} ${reminder.condition}"
             Reminder.BLUETOOTH -> "${toString(reminder.rWhen)} ${reminder.condition}"
-            Reminder.TIME -> TimeString(Calendar.getInstance()).getSimple()
+            Reminder.TIME -> TimeString(context, Calendar.getInstance()).getSimple()
             Reminder.LOCATION -> reminder.rWhen
             else -> reminder.condition
         }
@@ -50,11 +50,11 @@ class ReminderTranslation(val context: Context) {
 
     fun reminderType(string: String): String {
         return when (string) {
-            Reminder.WIFI -> "Lembrete WiFi"
-            Reminder.BLUETOOTH -> "Lembrete Bluetooth"
-            Reminder.TIME -> "Lembrete de Tempo"
-            Reminder.LOCATION -> "Lembrete de Localização"
-            Reminder.SIMPLE -> "Lembrete"
+            Reminder.WIFI -> context.getString(R.string.trans_wifi)
+            Reminder.BLUETOOTH -> context.getString(R.string.trans_blue)
+            Reminder.TIME -> context.getString(R.string.trans_time)
+            Reminder.LOCATION -> context.getString(R.string.trans_loc)
+            Reminder.SIMPLE -> context.getString(R.string.trans_reminder)
             else -> ""
         }
     }

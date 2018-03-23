@@ -36,7 +36,7 @@ class FavoriteDialogAdapter(val context: Context, private val favorites: List<Fa
             override fun delete(favorite: Favorite) {}
             override fun edit(favorite: Favorite) {
                 listener.favoriteCall(favorite)
-
+                dialog.dismiss()
             }
 
         })

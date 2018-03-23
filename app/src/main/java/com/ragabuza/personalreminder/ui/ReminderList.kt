@@ -150,7 +150,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         spinner.setPadding(0, 0, 0, 0)
 
 
-        val folderList = mutableListOf<String>("Todos", "Sem pasta")
+        val folderList = mutableListOf<String>(getString(R.string.all),getString(R.string.no_folder))
         folderList.addAll(shared.getFolders())
         folderAdapter = FolderSpinnerAdapter(this, R.layout.spinner_folder_item, folderList, spinner, object : FolderSpinnerAdapter.FolderSpinnerCallback {
             override fun onClick(folder: String) {
@@ -158,13 +158,13 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                 drawer_layout.closeDrawer(GravityCompat.START)
                 fabMenu.close(true)
                 when (folder) {
-                    "Todos" -> {
+                    getString(R.string.all) -> {
                         supportActionBar!!.title = if (seeOld) getString(R.string.oldReminders) else getString(R.string.remindersActivityTitle)
                         adapter.doFilter(folder = "*")
                         selectedFolder = "*"
                     }
-                    "Sem pasta" -> {
-                        supportActionBar!!.title = "Sem pasta"
+                    getString(R.string.no_folder) -> {
+                        supportActionBar!!.title = getString(R.string.no_folder)
                         adapter.doFilter(folder = "")
                         selectedFolder = ""
                     }
@@ -344,7 +344,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
     private fun preparePresentation2() {
 
-        val tutorialReminder = Reminder(0L, "", true, "Seu primeiro lembrete!", Reminder.WIFI, Reminder.IS, "Rede de Exemplo 1", "https://www.exemplo.com.br", "")
+        val tutorialReminder = Reminder(0L, "", true, getString(R.string.first_reminder), Reminder.WIFI, Reminder.IS, getString(R.string.tut_condition), getString(R.string.tut_link), "")
 
         val tutorialReminders = mutableListOf(
                 tutorialReminder
@@ -375,39 +375,43 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         myMenu?.findItem(R.id.filter)?.actionView?.getGlobalVisibleRect(rect)
         val homePosition = listOf(0, ParentWidth - rect.right + 8, rect.top, ParentWidth - rect.left + 8, rect.bottom)
 
-        val info13 = InformationAdapter(this, "Meus parabéns você concluiu o tutorial do aplicativo e está pronto para usá-lo!")
+        val info13 = InformationAdapter(this, getString(R.string.tut3_13))
                 .setDismissListener {
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                    if (shared.getFavorites().isEmpty()) fabFav.visibility = View.GONE
                     shared.setFirstTime(false)
+                    refreshList()
+                    clipShow()
                 }
-        val info12 = InformationAdapter(this, "No menu de configurações também encontramos um atalho para revizitar este tutorial!")
+        val info12 = InformationAdapter(this, getString(R.string.tut3_12))
                 .setNext(info13)
                 .setfocusView(drawer_layout)
-        val info11 = InformationAdapter(this, "Configurações\nPermite gerenciar as configurações do aplicativo, algumas configurações que você vai encontrar são:\nFavoritos\nAparencia do App\nConfigurações de lembretes privados e senha")
+        val info11 = InformationAdapter(this, getString(R.string.tut3_11))
                 .setNext(info12)
                 .setfocusView(drawer_layout)
-        val info10 = InformationAdapter(this, "Pastas\nPermite gerenciar suas pastas.")
+        val info10 = InformationAdapter(this, getString(R.string.tut3_10))
                 .setNext(info11)
                 .setfocusView(drawer_layout)
-        val info9 = InformationAdapter(this, "Lembretes Privados\nPermite visualizar seus lembretes privados.")
+        val info9 = InformationAdapter(this, getString(R.string.tut3_9))
                 .setNext(info10)
                 .setfocusView(drawer_layout)
-        val info8 = InformationAdapter(this, "Lembretes Antigos\nPermite visualizar seus lembretes que foram marcados como feitos.")
+        val info8 = InformationAdapter(this, getString(R.string.tut3_8))
                 .setNext(info9)
                 .setfocusView(drawer_layout)
-        val info7 = InformationAdapter(this, "Lembretes Novos\nPermite visualizar seus lembretes que não foram marcados como feitos.")
+        val info7 = InformationAdapter(this, getString(R.string.tut3_7))
                 .setNext(info8)
                 .setfocusView(drawer_layout)
-        val info6 = InformationAdapter(this, "Neste menu temos as seguintes opções...")
+        val info6 = InformationAdapter(this, getString(R.string.tut3_6))
                 .setfocusView(drawer_layout)
                 .setNext(info7)
-        val info5 = InformationAdapter(this, "Também exite um menu lateral que permite a navegação para diversas partes do app, clique aqui para abri-lo.")
+        val info5 = InformationAdapter(this, getString(R.string.tut3_5))
                 .setNext(info6)
                 .setCoordinates(homePosition)
                 .setRequireMark()
                 .setDismissListener {
                     drawer_layout.openDrawer(GravityCompat.START)
                 }
-        val info4 = InformationAdapter(this, "Neste menu de filtro você poderá selecionar lembretes com base no seu tipo, ou procurar por uma palavra chave!")
+        val info4 = InformationAdapter(this, getString(R.string.tut3_4))
                 .setNext(info5)
                 .setDismissListener {
                     llFilters.visibility = View.GONE
@@ -416,7 +420,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                 .setSkipListener {
                     skipTutorial()
                 }
-        val info3 = InformationAdapter(this, "Filtro\nClicando neste icone irá abrir abrir um menu de filtro, tente você mesmo!")
+        val info3 = InformationAdapter(this, getString(R.string.tut3_3))
                 .setRequireMark()
                 .setfocusView(myMenu?.findItem(R.id.filter)?.actionView)
                 .setDismissListener {
@@ -425,12 +429,12 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                         info4.setfocusView(llFilters).show()
                     }
                 }
-        val info2 = InformationAdapter(this, "Pastas\nClicando neste icone você poderá abrir uma pasta de lembretes, assim poderá ver apenas o que é importante no momento!")
+        val info2 = InformationAdapter(this, getString(R.string.tut3_2))
                 .setNext(info3)
                 .setfocusView(myMenu?.findItem(R.id.folder)?.actionView)
                 .setSkip(InformationAdapter.LEFT, InformationAdapter.TOP)
                 .expandView(40)
-        val info1 = InformationAdapter(this, "Outra opção importante é a capacidade de achar os lembretes certos na hora certa!\nPara isso temos duas opções...")
+        val info1 = InformationAdapter(this, getString(R.string.tut3_1))
                 .setNext(info2)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
@@ -442,7 +446,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
     }
 
     fun startPresentation2(tutorialReminder: Reminder) {
-        val info9 = InformationAdapter(this, "Ao clicar em visualizar será apresentado uma nova janela para se verificar detalhes sobre o lembrete, assim como opções relacionadas a ele.\nClique em visualizar para verificar essas opções.")
+        val info9 = InformationAdapter(this, getString(R.string.tut2_9))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
                 .setRequireMark()
                 .setDismissListener {
@@ -450,33 +454,33 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
                     tutorialIntent.putExtra(REMINDER, tutorialReminder)
                     startActivityForResult(tutorialIntent, 666)
                 }
-        val info8 = InformationAdapter(this, "Visualizar")
+        val info8 = InformationAdapter(this, getString(R.string.tut2_8))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlView))
                 .setNext(info9)
-        val info7 = InformationAdapter(this, "Editar")
+        val info7 = InformationAdapter(this, getString(R.string.tut2_7))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlEdit))
                 .setNext(info8)
-        val info6 = InformationAdapter(this, "Deletar")
+        val info6 = InformationAdapter(this, getString(R.string.tut2_6))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.rlDelete))
                 .setNext(info7)
-        val info5 = InformationAdapter(this, "No menu lateral temos as seguintes opções...")
+        val info5 = InformationAdapter(this, getString(R.string.tut2_5))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.bottom_wrapper))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
                 .setNext(info6)
-        val info4 = InformationAdapter(this, "Clicando no lembrete são reveladas mais opções.")
+        val info4 = InformationAdapter(this, getString(R.string.tut2_4))
                 .setRequireMark()
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.llUpper))
                 .setDismissListener {
                     (lvRemind.adapter as ReminderAdapter).openItem(0)
                     Handler().postDelayed({ info5.show() }, 100)
                 }
-        val info3 = InformationAdapter(this, "Usando este botão podemos definir o lembrete como terminado.")
+        val info3 = InformationAdapter(this, getString(R.string.tut2_3))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.ivCheckbox))
                 .setNext(info4)
-        val info2 = InformationAdapter(this, "Nesta tela podemos verificar as informações básicas dele.")
+        val info2 = InformationAdapter(this, getString(R.string.tut2_2))
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.slReminders))
                 .setNext(info3)
-        val info1 = InformationAdapter(this, "Parabens você criou seu primeiro lembrete!")
+        val info1 = InformationAdapter(this, getString(R.string.tut2_1))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
                 .setfocusView(lvRemind.getChildAt(0).findViewById(R.id.slReminders))
                 .setNext(info2)
@@ -498,52 +502,52 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
 
         val tutorialDialog = DialogAdapter(this, this, DialogAdapter.TUTORIAL)
 
-        val info13 = InformationAdapter(this, "Ao clicar na rede você será levado a uma nova tela para configurar o resto do seu lembrete.")
+        val info13 = InformationAdapter(this, getString(R.string.tut1_13))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.CENTER)
-        val info12 = InformationAdapter(this, "Escolha esta rede de exemplo para prosseguir com o tutorial.")
+        val info12 = InformationAdapter(this, getString(R.string.tut1_12))
                 .setNext(info13)
                 .setRequireMark()
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
                 .setSkipListener {
                     skipTutorial(tutorialDialog)
                 }
-        val info11 = InformationAdapter(this, "Ao selecionar o lembrete de WiFi, uma janela sera mostrada para se escolher a Rede desejada, outros tipos de lembrete iram mostrar diferentes janelas para selecionar sua condição.")
+        val info11 = InformationAdapter(this, getString(R.string.tut1_11))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
                 .setSkipListener {
                     skipTutorial(tutorialDialog)
                 }
-        val info10 = InformationAdapter(this, "Vamos começar aprendendo a criar um lembrete de Wifi, clique no icone para continuar.")
+        val info10 = InformationAdapter(this, getString(R.string.tut1_10))
                 .setfocusView(fabWifi)
                 .setRequireMark()
                 .setSkipListener {
                     skipTutorial(tutorialDialog)
                 }
-        val info9 = InformationAdapter(this, "Favoritos\nCria lembretes com condições pré definidas de Bluetooth, WiFi, Localização ou Tempo.")
+        val info9 = InformationAdapter(this, getString(R.string.tut1_9))
                 .setfocusView(fabFav)
                 .setNext(info10)
-        val info8 = InformationAdapter(this, "Simples\nNão gera notificações.")
+        val info8 = InformationAdapter(this, getString(R.string.tut1_8))
                 .setfocusView(fabSimple)
                 .setNext(info9)
-        val info7 = InformationAdapter(this, "Tempo\nNotifica em um horário pré definido.")
+        val info7 = InformationAdapter(this, getString(R.string.tut1_7))
                 .setfocusView(fabTime)
                 .setNext(info8)
-        val info6 = InformationAdapter(this, "Localização\nNotifica quando seu celular estiver em uma localização escolhida.")
+        val info6 = InformationAdapter(this, getString(R.string.tut1_6))
                 .setfocusView(fabLocation)
                 .setNext(info7)
-        val info5 = InformationAdapter(this, "WiFi\nNotifica quando uma rede WiFi escolhida estiver visível para o seu ceular.")
+        val info5 = InformationAdapter(this, getString(R.string.tut1_5))
                 .setfocusView(fabWifi)
                 .setNext(info6)
-        val info4 = InformationAdapter(this, "Bluetooth\nNotifica quando um dispositivo bluetooth escolhido for pareado com seu ceular.")
+        val info4 = InformationAdapter(this, getString(R.string.tut1_4))
                 .setfocusView(fabBluetooth)
                 .setNext(info5)
-        val info3 = InformationAdapter(this, "Este menu irá apresentar diversas opções de lembretes, por exemplo...")
+        val info3 = InformationAdapter(this, getString(R.string.tut1_3))
                 .setNext(info4)
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
-        val info2 = InformationAdapter(this, "Para criar um novo lembrete clique no icone abaixo.")
+        val info2 = InformationAdapter(this, getString(R.string.tut1_2))
                 .setCoordinates(fabIconCoordinates)
                 .setNext(info3)
                 .setRequireMark()
-        val info1 = InformationAdapter(this, "Bem vindo ao NOMEDOAPP, com NOMEDOAPP você poderá criar lembretes para as mais diversas situações!\n\n Este tutorial irá lhe ensinar os básicos do aplicativo, caso não deseje ver o tutorial clique no alto da tela para pular o mesmo, clique em qualquer outro lugar para continuar.")
+        val info1 = InformationAdapter(this, getString(R.string.tut1_1))
                 .setNext(info2)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
 
@@ -558,7 +562,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
             tutorialDialog.mainDialog?.dismiss()
             fabMenu.close(true)
             val tutorialIntent = Intent(this, NewReminder::class.java)
-            tutorialIntent.putExtra(FIELD_CONDITION, "Rede de Exemplo 1")
+            tutorialIntent.putExtra(FIELD_CONDITION, getString(R.string.tut_condition))
             tutorialIntent.putExtra(FIELD_TYPE, Reminder.WIFI)
             startActivityForResult(tutorialIntent, 777)
         }
@@ -607,7 +611,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         tutorialDialog?.mainDialog?.dismiss()
         fabMenu.close(true)
         if (shared.getFavorites().isEmpty()) fabFav.visibility = View.GONE
-        InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+        InformationAdapter(this, getString(R.string.tut_skip)).show()
         shared.setFirstTime(false)
         refreshList()
         clipShow()
@@ -888,7 +892,7 @@ class ReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.Reminder
         }
 
         if (folderAdapter != null) {
-            val folderList = mutableListOf<String>("Todos", "Sem pasta")
+            val folderList = mutableListOf<String>(getString(R.string.all), getString(R.string.no_folder))
             folderList.addAll(shared.getFolders())
             folderAdapter?.options?.clear()
             folderAdapter?.options?.addAll(folderList)

@@ -1,12 +1,14 @@
 package com.ragabuza.personalreminder.util
 
+import android.content.Context
+import com.ragabuza.personalreminder.R
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * Created by diego.moyses on 1/23/2018.
  */
-class TimeString(private val date: Calendar) {
+class TimeString(val context: Context, private val date: Calendar) {
     fun getSimple(): String {
         return SimpleDateFormat("dd/MM, hh:mm", Locale.getDefault()).format(date.time)
     }
@@ -25,8 +27,8 @@ class TimeString(private val date: Calendar) {
 
         val now = Calendar.getInstance()
         completeDay = when (date.get(Calendar.DAY_OF_YEAR) - now.get(Calendar.DAY_OF_YEAR)) {
-            0 -> "Hoje"
-            1 -> "Amanhã"
+            0 -> context.getString(R.string.today)
+            1 -> context.getString(R.string.tomorrow)
             else -> "${if (day < 10) "0" else ""}$day/${if (month < 10) "0" else ""}$month"
         }
 
@@ -35,8 +37,8 @@ class TimeString(private val date: Calendar) {
         val intervalHour = intervalHalfHour / 2
 
         return when {
-            hourSensitive && intervalMin < 60 && intervalMin > 0 -> "Em $intervalMin minuto${if (intervalMin > 1) "s" else ""}"
-            hourSensitive && intervalHalfHour < 10 && intervalHalfHour > 0 -> if (intervalHalfHour.isOdd()) "Em $intervalHour hora${if (intervalHour > 1) "s" else ""} e meia" else "Em $intervalHour horas"
+            hourSensitive && intervalMin < 60 && intervalMin > 0 -> "${context.getString(R.string.inj)} $intervalMin ${context.getString(R.string.minute)}${if (intervalMin > 1) "s" else ""}"
+            hourSensitive && intervalHalfHour < 10 && intervalHalfHour > 0 -> if (intervalHalfHour.isOdd()) "${context.getString(R.string.inj)} $intervalHour ${context.getString(R.string.hour)}${if (intervalHour > 1) "s" else ""} ${context.getString(R.string.andhalf)}" else "${context.getString(R.string.inj)} $intervalHour ${context.getString(R.string.hour)}s"
             else -> "$completeDay, ${if (hour < 10) "0" else ""}$hour:${if (minute < 10) "0" else ""}$minute"
         }
     }

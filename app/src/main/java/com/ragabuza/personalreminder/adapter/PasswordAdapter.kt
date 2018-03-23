@@ -62,10 +62,10 @@ class PasswordAdapter(val context: Context, private val listener: PasswordResult
                 listener.onSetPassword(passwordField.text.toString(), biometricSw.isChecked)
                 dialog.dismiss()
             } else if (confirmPasswordField.text.toString() != passwordField.text.toString()) {
-                confirmPasswordField.error = "As senhas não conferem!"
+                confirmPasswordField.error = context.getString(R.string.password_not_match)
                 confirmPasswordField.requestFocus()
             } else {
-                passwordField.error = "Digite um PIN de no mínimo 4 dígitos!"
+                passwordField.error = context.getString(R.string.password_too_short)
                 passwordField.requestFocus()
             }
         }

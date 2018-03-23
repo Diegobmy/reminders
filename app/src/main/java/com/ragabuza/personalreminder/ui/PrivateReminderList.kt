@@ -293,7 +293,7 @@ class PrivateReminderList : ActivityBase(), OpDialogInterface, ReminderAdapter.R
         })
 
         navigation_view.menu.findItem(R.id.RFolder).isVisible = false
-        navigation_view.menu.findItem(R.id.RLock).title = "Voltar"
+        navigation_view.menu.findItem(R.id.RLock).title = getString(R.string.back)
         navigation_view.menu.findItem(R.id.RLock).icon = resources.getDrawable(R.drawable.ic_arrow_back)
         navigation_view.menu.findItem(R.id.config).isVisible = false
 

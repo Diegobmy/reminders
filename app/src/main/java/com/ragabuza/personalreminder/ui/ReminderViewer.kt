@@ -29,7 +29,7 @@ class ReminderViewer : ActivityBase() {
     private fun setDone() {
         val dao = ReminderDAO(this)
         reminder.active = false
-        reminder.done = TimeString(Calendar.getInstance()).getDone()
+        reminder.done = TimeString(this, Calendar.getInstance()).getDone()
         dao.alt(reminder)
         dao.close()
     }
@@ -120,7 +120,7 @@ class ReminderViewer : ActivityBase() {
                     sendIntent.putExtra(Intent.EXTRA_SUBJECT, reminder.reminder)
                     sendIntent.type = "text/plain"
                     finishAndRemoveTaskCompat()
-                    startActivity(Intent.createChooser(sendIntent, "Share"))
+                    startActivity(Intent.createChooser(sendIntent, getString(R.string.share)))
                 }
             }
             trans.extraIsContact(reminder.extra) -> {
@@ -177,24 +177,24 @@ class ReminderViewer : ActivityBase() {
 
     private fun startPresentation() {
 
-        val info6 = InformationAdapter(this, "Clique no botão de fechar para continuar.")
+        val info6 = InformationAdapter(this, getString(R.string.viewTut_6))
                 .setfocusView(ibClose)
                 .setRequireMark()
                 .setDismissListener {
                     setResult(666)
                     finish()
                 }
-        val info5 = InformationAdapter(this, "Neste menu temos mais opções relacionadas ao lembrete, como copiar seu conteúdo ou reagenda-lo.")
+        val info5 = InformationAdapter(this, getString(R.string.viewTut_5))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
                 .setNext(info6)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
-                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    InformationAdapter(this, getString(R.string.tut_skip)).show()
                     shared.setFirstTime(false)
                     setResult(0)
                     finish()
                 }
-        val info4 = InformationAdapter(this, "Caso nosso extra fosse um contato, teriamos a opção de realizar uma ligação para seu número.")
+        val info4 = InformationAdapter(this, getString(R.string.viewTut_4))
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
                 .setDismissListener {
                     llLink.visibility = View.VISIBLE
@@ -202,29 +202,29 @@ class ReminderViewer : ActivityBase() {
                     spViewOptions.waitForUpdate{info5.setfocusView(spViewOptions).show()}
                 }.setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
-                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    InformationAdapter(this, getString(R.string.tut_skip)).show()
                     shared.setFirstTime(false)
                     setResult(0)
                     finish()
                 }
-        val info3 = InformationAdapter(this, "Também temos a opção de compartilhar o link.")
+        val info3 = InformationAdapter(this, getString(R.string.viewTut_3))
                 .setfocusView(btShare)
                 .setDismissListener {
                     llLink.visibility = View.GONE
                     llPhone.visibility = View.VISIBLE
                     btCall.waitForUpdate{info4.setfocusView(btCall).show()}
                 }
-        val info2 = InformationAdapter(this, "Como o extra do nosso lembrete é um link, temos a opção de abrir o mesmo no navegador.")
+        val info2 = InformationAdapter(this, getString(R.string.viewTut_2))
                 .setNext(info3)
                 .setfocusView(btOpen)
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.AFTER)
-        val info1 = InformationAdapter(this, "Esta dela lhe permite visualizar seu lembrete, além de oferecer algumas formas de interagir com o mesmo.")
+        val info1 = InformationAdapter(this, getString(R.string.viewTut_1))
                 .setNext(info2)
                 .setfocusView(safe)
                 .setTextPosition(InformationAdapter.CENTER, InformationAdapter.BEFORE)
                 .setSkip(InformationAdapter.RIGHT, InformationAdapter.TOP)
                 .setSkipListener {
-                    InformationAdapter(this, "Você pode revisitar este tutorial quando quiser no menu de configurações.").show()
+                    InformationAdapter(this, getString(R.string.tut_skip)).show()
                     shared.setFirstTime(false)
                     setResult(0)
                     finish()

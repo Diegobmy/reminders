@@ -130,7 +130,7 @@ class Folders : ActivityBase() {
                             refreshList()
                             it.setTitleText(this@Folders.getString(R.string.deleted))
                                     .setContentText(this@Folders.getString(R.string.folder_deleted))
-                                    .setConfirmText("OK")
+                                    .setConfirmText(getString(R.string.ok))
                                     .showCancelButton(false)
                                     .changeAlertType(SweetAlertDialog.SUCCESS_TYPE)
                         }.show()

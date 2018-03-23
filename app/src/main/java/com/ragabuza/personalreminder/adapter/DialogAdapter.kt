@@ -88,10 +88,10 @@ class DialogAdapter(val context: Context, val activity: Activity, val type: Stri
             }
             TUTORIAL -> {
                 title.text = context.getString(R.string.selectWifi)
-                webList.add("Rede Exemplo 1")
-                webList.add("Rede Exemplo 2")
-                webList.add("Rede Exemplo 3")
-                webList.add("Rede Exemplo 4")
+                webList.add(context.getString(R.string.tut_condition))
+                webList.add(context.getString(R.string.tut_condition2))
+                webList.add(context.getString(R.string.tut_condition3))
+                webList.add(context.getString(R.string.tut_condition4))
             }
             CHOICE_WEB -> {
                 title.text = context.getString(R.string.when_dialog)
