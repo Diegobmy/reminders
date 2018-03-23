@@ -116,7 +116,7 @@
     <string name="type_Blue">Dispositivo Bluetooth</string>
     <string name="type_Loc">Local</string>
     <string name="type_Time">Horário</string>
-    <string name="contition">Condição</string>
+    <string name="condition">Condição</string>
     <string name="editTut_11">Caso contrário você pode salvar seu lembrete, clique em salvar para continuar.</string>
     <string name="editTut_10">Depois de terminar seu lembrete, caso não esteja satisfeito, você pode cancelar sua criação.</string>
     <string name="editTut_9">Aqui podemos selecionar se o lembrete fará parte de alguma pasta, pastas ajudam a separar os lembretes de diferentes assuntos e manter sua organização!</string>
@@ -160,4 +160,11 @@
     <string name="andhalf">e meia</string>
     <string name="password_not_match">As senhas não conferem!</string>
     <string name="password_too_short">Digite um PIN de no mínimo 4 dígitos!</string>
+    <string name="when">Quando</string>
+    <string name="note">Nota</string>
+    <string name="extra">Extra</string>
+    <string name="make_private">Marcar como privado.</string>
+    <string name="folder_dots">Pasta:</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Salvar</string>
 </resources>

@@ -190,7 +190,7 @@ class NewReminder : ActivityBase(), OpDialogInterface {
             Reminder.BLUETOOTH -> getString(R.string.type_Blue)
             Reminder.LOCATION -> getString(R.string.type_Loc)
             Reminder.TIME -> getString(R.string.type_Time)
-            else -> getString(R.string.contition)
+            else -> getString(R.string.condition)
         }
 
         when (type) {

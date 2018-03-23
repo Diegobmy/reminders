@@ -27,7 +27,7 @@
                     android:id="@+id/etConditionExtra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Quando" />
+                    android:hint="@string/when" />
             </android.support.design.widget.TextInputLayout>
 
             <ImageView
@@ -47,7 +47,7 @@
                     android:id="@+id/etCondition"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Condição"
+                    android:hint="@string/condition"
                     android:textColorHint="@android:color/transparent" />
             </android.support.design.widget.TextInputLayout>
 
@@ -60,7 +60,7 @@
                     android:id="@+id/etReminder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Nota"
+                    android:hint="@string/note"
                     android:inputType="textCapSentences|textMultiLine"
                     android:maxLength="1024"
                     android:maxLines="8" />
@@ -80,7 +80,7 @@
                         android:id="@+id/etExtra"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Extra"
+                        android:hint="@string/extra"
                         android:inputType="textCapSentences|textMultiLine"
                         android:maxLength="256"
                         android:maxLines="2" />
@@ -112,7 +112,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Marcar como privado." />
+                    android:text="@string/make_private" />
             </LinearLayout>
 
             <LinearLayout
@@ -127,7 +127,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="Pasta:" />
+                    android:text="@string/folder_dots" />
 
                 <Spinner
                     android:id="@+id/spFolder"
@@ -158,7 +158,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@null"
-            android:text="Cancelar"
+            android:text="@string/cancel"
             android:textColor="?colorPrimaryLight" />
 
         <Space
@@ -172,7 +172,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:background="@null"
-            android:text="Salvar"
+            android:text="@string/save"
             android:textColor="?colorPrimaryLight" />
     </LinearLayout>
 
